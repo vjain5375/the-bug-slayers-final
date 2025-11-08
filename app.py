@@ -457,20 +457,55 @@ def get_theme_css(dark_mode):
                 display: flex;
             }
             
-            /* Buttons */
+            /* Buttons - Dark and Contrasting for Light Mode */
             .stButton>button {
                 border-radius: 12px;
-                font-weight: 600;
+                font-weight: 700;
                 transition: all 0.3s;
-                border: none;
-                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border: 2px solid #1e293b;
+                box-shadow: 0 6px 20px rgba(30, 41, 59, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
+                background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+                color: #ffffff !important;
+                text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
             }
             
             .stButton>button:hover {
                 transform: translateY(-3px);
-                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
-                background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+                box-shadow: 0 10px 30px rgba(30, 41, 59, 0.6), 0 4px 12px rgba(0, 0, 0, 0.3);
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+                border-color: #334155;
+                color: #ffffff !important;
+            }
+            
+            .stButton>button:active {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 15px rgba(30, 41, 59, 0.5);
+            }
+            
+            /* Primary buttons - Dark with accent border */
+            .stButton>button[kind="primary"] {
+                background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+                border: 2px solid #667eea;
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4), 0 2px 8px rgba(30, 41, 59, 0.3);
+                color: #ffffff !important;
+            }
+            
+            .stButton>button[kind="primary"]:hover {
+                background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+                border-color: #818cf8;
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5), 0 4px 12px rgba(30, 41, 59, 0.4);
+            }
+            
+            /* Secondary buttons - Dark gray */
+            .stButton>button[kind="secondary"] {
+                background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
+                border: 2px solid #475569;
+                color: #ffffff !important;
+            }
+            
+            .stButton>button[kind="secondary"]:hover {
+                background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+                border-color: #64748b;
             }
             
             /* Inputs */
