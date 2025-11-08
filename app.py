@@ -100,6 +100,40 @@ if 'alerts_manager' not in st.session_state:
     st.session_state.alerts_manager = AlertsManager()
 if 'alerts_enabled' not in st.session_state:
     st.session_state.alerts_enabled = True
+if 'session_initialized' not in st.session_state:
+    st.session_state.session_initialized = False
+
+
+def clear_all_data():
+    """Clear all data: vector store, chat history, and reset flags"""
+    # Clear vector store collection (even if not in session state, clear from disk)
+    try:
+        # Try to clear existing vector store if it exists
+        if st.session_state.vector_store is not None:
+            st.session_state.vector_store.clear_collection()
+        else:
+            # If vector store not initialized, create a temporary one to clear the collection
+            temp_vector_store = VectorStore()
+            temp_vector_store.clear_collection()
+    except Exception:
+        # If clearing fails, that's okay - will be cleared on next initialization
+        pass
+    
+    # Reset vector store and RAG pipeline
+    st.session_state.vector_store = None
+    st.session_state.rag_pipeline = None
+    
+    # Clear chat history
+    st.session_state.chat_history = []
+    
+    # Reset processing status
+    st.session_state.documents_processed = False
+    
+    # Clear alerts deadlines
+    try:
+        st.session_state.alerts_manager.clear_deadlines()
+    except Exception:
+        pass
 
 
 def initialize_components():
@@ -155,6 +189,11 @@ def process_documents():
 
 def main():
     """Main application"""
+    # Clear all data on page refresh (new session)
+    if not st.session_state.session_initialized:
+        clear_all_data()
+        st.session_state.session_initialized = True
+    
     # Header
     st.title("🧭 Campus Compass")
     st.markdown("### The AI Oracle for Your College")
