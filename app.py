@@ -238,25 +238,49 @@ def main():
                 
                 with st.spinner("Saving document..."):
                     try:
-                        # Delete all existing documents first
-                        existing_docs = get_document_files()
-                        deleted_count = 0
-                        for doc_path in existing_docs:
-                            try:
-                                Path(doc_path).unlink()
-                                deleted_count += 1
-                            except Exception as e:
-                                st.warning(f"Could not delete {Path(doc_path).name}: {e}")
-                        
-                        # Determine file extension
+                        # Determine file extension and target path
                         file_ext = Path(uploaded_file.name).suffix.lower()
                         if file_ext not in ['.pdf', '.docx', '.doc', '.txt']:
                             st.error(f"Unsupported format: {file_ext}. Please upload PDF, DOCX, or TXT files.")
                         else:
-                            # Save new file
+                            # Get target file path
                             file_path = docs_dir / uploaded_file.name
+                            
+                            # Delete ALL existing documents first (including the one with same name if it exists)
+                            existing_docs = get_document_files()
+                            deleted_count = 0
+                            for doc_path_str in existing_docs:
+                                doc_path_obj = Path(doc_path_str)
+                                try:
+                                    # Delete the file
+                                    if doc_path_obj.exists():
+                                        doc_path_obj.unlink()
+                                        deleted_count += 1
+                                except Exception as e:
+                                    st.warning(f"Could not delete {doc_path_obj.name}: {e}")
+                            
+                            # Also delete the target file if it exists (case-insensitive check)
+                            if file_path.exists():
+                                try:
+                                    file_path.unlink()
+                                except Exception:
+                                    pass
+                            
+                            # Save new file
                             with open(file_path, "wb") as f:
                                 f.write(uploaded_file.getbuffer())
+                            
+                            # Verify only one file exists now
+                            remaining_docs = get_document_files()
+                            if len(remaining_docs) != 1:
+                                # Force delete all except the one we just saved
+                                for doc_path_str in remaining_docs:
+                                    doc_path_obj = Path(doc_path_str)
+                                    if doc_path_obj != file_path and doc_path_obj.exists():
+                                        try:
+                                            doc_path_obj.unlink()
+                                        except Exception:
+                                            pass
                             
                             # Clear vector store and reset processing status
                             if st.session_state.vector_store:
