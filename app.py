@@ -175,13 +175,22 @@ def process_documents():
         st.error("No documents found in the 'documents' folder. Please add PDF, DOCX, or TXT files.")
         return False
     
-    with st.spinner(f"Processing {len(doc_files)} document(s)..."):
+    # Show which documents will be processed
+    doc_names = [Path(doc).name for doc in doc_files]
+    
+    with st.spinner(f"Processing {len(doc_files)} document(s): {', '.join(doc_names)}..."):
         processor = DocumentProcessor()
         all_chunks = processor.process_directory(str(docs_dir))
         
         if not all_chunks:
             st.error("No text could be extracted from the documents.")
             return False
+        
+        # Count chunks per document for verification
+        chunks_by_source = {}
+        for chunk in all_chunks:
+            source = chunk.get('metadata', {}).get('source', 'Unknown')
+            chunks_by_source[source] = chunks_by_source.get(source, 0) + 1
         
         # Clear existing data and add new chunks
         st.session_state.vector_store.clear_collection()
@@ -194,7 +203,14 @@ def process_documents():
             st.warning(f"Could not extract deadlines: {e}")
         
         st.session_state.documents_processed = True
-        st.success(f"✅ Successfully processed {len(all_chunks)} chunks from {len(doc_files)} document(s)!")
+        
+        # Show detailed success message
+        success_msg = f"✅ Successfully processed {len(all_chunks)} chunks from {len(doc_files)} document(s)!\n\n"
+        success_msg += "**Documents processed:**\n"
+        for source, count in chunks_by_source.items():
+            success_msg += f"  • {source}: {count} chunks\n"
+        
+        st.success(success_msg)
         return True
 
 
@@ -487,12 +503,13 @@ def main():
         
         with st.spinner("Searching documents and generating answer..."):
             # Select appropriate method based on mode (allow_general=True by default)
+            # Increase n_chunks to ensure we get information from all documents
             if question_mode == "Multi-Document":
-                result = st.session_state.rag_pipeline.answer_multi_document_question(question, n_chunks=8, allow_general=True)
+                result = st.session_state.rag_pipeline.answer_multi_document_question(question, n_chunks=12, allow_general=True)
             elif question_mode == "Summarize":
-                result = st.session_state.rag_pipeline.answer_question(question, n_chunks=5, summarize=True, allow_general=True)
+                result = st.session_state.rag_pipeline.answer_question(question, n_chunks=10, summarize=True, allow_general=True)
             else:
-                result = st.session_state.rag_pipeline.answer_question(question, n_chunks=5, allow_general=True)
+                result = st.session_state.rag_pipeline.answer_question(question, n_chunks=10, allow_general=True)
             
             # Display answer
             st.markdown("### 💡 Answer")

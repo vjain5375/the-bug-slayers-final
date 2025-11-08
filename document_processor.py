@@ -148,7 +148,7 @@ class DocumentProcessor:
         return chunks
     
     def process_directory(self, directory_path: str) -> List[Dict]:
-        """Process all supported documents in a directory"""
+        """Process all supported documents in a directory (root level only)"""
         all_chunks = []
         directory = Path(directory_path)
         
@@ -159,14 +159,20 @@ class DocumentProcessor:
         # Supported file extensions
         supported_extensions = ['.pdf', '.docx', '.doc', '.txt']
         
-        # Process all files
-        for file_path in directory.rglob('*'):
+        # Process all files in root directory only (not subdirectories)
+        # This matches the behavior of get_document_files()
+        for file_path in directory.iterdir():
             if file_path.is_file() and file_path.suffix.lower() in supported_extensions:
                 print(f"Processing: {file_path.name}")
-                chunks = self.process_document(str(file_path))
-                all_chunks.extend(chunks)
-                print(f"  → Created {len(chunks)} chunks")
+                try:
+                    chunks = self.process_document(str(file_path))
+                    all_chunks.extend(chunks)
+                    print(f"  → Created {len(chunks)} chunks from {file_path.name}")
+                except Exception as e:
+                    print(f"  → Error processing {file_path.name}: {e}")
+                    continue
         
+        print(f"Total chunks created from {len([f for f in directory.iterdir() if f.is_file() and f.suffix.lower() in supported_extensions])} document(s): {len(all_chunks)}")
         return all_chunks
 
 
