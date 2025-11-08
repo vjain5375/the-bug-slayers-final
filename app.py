@@ -105,7 +105,18 @@ if 'session_initialized' not in st.session_state:
 
 
 def clear_all_data():
-    """Clear all data: vector store, chat history, and reset flags"""
+    """Clear all data: vector store, chat history, documents, and reset flags"""
+    # Delete all document files from documents folder
+    try:
+        existing_docs = get_document_files()
+        for doc_path in existing_docs:
+            try:
+                Path(doc_path).unlink()
+            except Exception:
+                pass  # Ignore errors when deleting files
+    except Exception:
+        pass
+    
     # Clear vector store collection (even if not in session state, clear from disk)
     try:
         # Try to clear existing vector store if it exists
@@ -189,8 +200,10 @@ def process_documents():
 
 def main():
     """Main application"""
-    # Clear all data on page refresh (new session)
-    if not st.session_state.session_initialized:
+    # Clear all data on page refresh (new session) - ALWAYS clear on new session
+    # This ensures a fresh start every time the page is refreshed
+    if 'session_initialized' not in st.session_state or not st.session_state.get('session_initialized', False):
+        # Clear everything: documents, vector store, chat history
         clear_all_data()
         st.session_state.session_initialized = True
     
