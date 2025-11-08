@@ -225,82 +225,64 @@ def main():
         
         # File uploader for new documents
         st.markdown("### 📤 Upload Documents")
-        uploaded_file = st.file_uploader(
-            "Upload college document (PDF, DOCX, or TXT)",
+        uploaded_files = st.file_uploader(
+            "Upload college documents (PDF, DOCX, or TXT)",
             type=['pdf', 'docx', 'doc', 'txt'],
-            accept_multiple_files=False,
-            help="Upload a single document. Previous documents will be automatically deleted."
+            accept_multiple_files=True,
+            help="Upload one or more documents. They will be added to your existing documents."
         )
         
-        if uploaded_file:
-            if st.button("💾 Save Uploaded Document", type="primary", use_container_width=True):
+        if uploaded_files:
+            if st.button("💾 Save Uploaded Documents", type="primary", use_container_width=True):
                 docs_dir = ensure_documents_directory()
                 
-                with st.spinner("Saving document..."):
+                with st.spinner("Saving documents..."):
+                    saved_count = 0
+                    skipped_count = 0
+                    errors = []
+                    
                     try:
-                        # Determine file extension and target path
-                        file_ext = Path(uploaded_file.name).suffix.lower()
-                        if file_ext not in ['.pdf', '.docx', '.doc', '.txt']:
-                            st.error(f"Unsupported format: {file_ext}. Please upload PDF, DOCX, or TXT files.")
-                        else:
-                            # Get target file path
-                            file_path = docs_dir / uploaded_file.name
-                            
-                            # Delete ALL existing documents first (including the one with same name if it exists)
-                            existing_docs = get_document_files()
-                            deleted_count = 0
-                            for doc_path_str in existing_docs:
-                                doc_path_obj = Path(doc_path_str)
-                                try:
-                                    # Delete the file
-                                    if doc_path_obj.exists():
-                                        doc_path_obj.unlink()
-                                        deleted_count += 1
-                                except Exception as e:
-                                    st.warning(f"Could not delete {doc_path_obj.name}: {e}")
-                            
-                            # Also delete the target file if it exists (case-insensitive check)
-                            if file_path.exists():
-                                try:
-                                    file_path.unlink()
-                                except Exception:
-                                    pass
-                            
-                            # Save new file
-                            with open(file_path, "wb") as f:
-                                f.write(uploaded_file.getbuffer())
-                            
-                            # Verify only one file exists now - use absolute path comparison
-                            remaining_docs = get_document_files()
-                            file_path_resolved = str(file_path.resolve())
-                            
-                            if len(remaining_docs) != 1:
-                                # Force delete all except the one we just saved
-                                for doc_path_str in remaining_docs:
-                                    doc_path_obj = Path(doc_path_str)
-                                    doc_path_resolved = str(doc_path_obj.resolve())
-                                    # Compare resolved absolute paths
-                                    if doc_path_resolved != file_path_resolved and doc_path_obj.exists():
-                                        try:
-                                            doc_path_obj.unlink()
-                                        except Exception:
-                                            pass
-                            
-                            # Clear vector store and reset processing status
-                            if st.session_state.vector_store:
-                                st.session_state.vector_store.clear_collection()
+                        for uploaded_file in uploaded_files:
+                            try:
+                                # Determine file extension
+                                file_ext = Path(uploaded_file.name).suffix.lower()
+                                if file_ext not in ['.pdf', '.docx', '.doc', '.txt']:
+                                    errors.append(f"{uploaded_file.name}: Unsupported format")
+                                    skipped_count += 1
+                                    continue
+                                
+                                # Get target file path
+                                file_path = docs_dir / uploaded_file.name
+                                
+                                # If file with same name exists, skip it (don't overwrite)
+                                if file_path.exists():
+                                    skipped_count += 1
+                                    errors.append(f"{uploaded_file.name}: File already exists (skipped)")
+                                    continue
+                                
+                                # Save new file
+                                with open(file_path, "wb") as f:
+                                    f.write(uploaded_file.getbuffer())
+                                saved_count += 1
+                                
+                            except Exception as e:
+                                errors.append(f"{uploaded_file.name}: {str(e)}")
+                                skipped_count += 1
+                        
+                        # Show results
+                        if saved_count > 0:
+                            st.success(f"✅ Saved {saved_count} document(s)!")
+                        if skipped_count > 0:
+                            for error in errors:
+                                st.warning(f"⚠️ {error}")
+                        
+                        if saved_count > 0:
+                            st.info("Click 'Process Documents' below to index the new documents.")
+                            # Don't clear vector store - just mark that reprocessing is needed
                             st.session_state.documents_processed = False
-                            st.session_state.chat_history = []
-                            st.session_state.alerts_manager.clear_deadlines()
-                            
-                            if deleted_count > 0:
-                                st.success(f"✅ Replaced {deleted_count} old document(s) with '{uploaded_file.name}'")
-                            else:
-                                st.success(f"✅ Saved '{uploaded_file.name}' to documents folder!")
-                            st.info("Click 'Process Documents' below to index it.")
                             st.rerun()
                     except Exception as e:
-                        st.error(f"Error saving {uploaded_file.name}: {str(e)}")
+                        st.error(f"Error saving documents: {str(e)}")
         
         st.divider()
         
@@ -393,13 +375,27 @@ def main():
         
         # Clear data button
         if st.button("🗑️ Clear All Data", use_container_width=True):
+            # Delete all document files
+            try:
+                existing_docs = get_document_files()
+                for doc_path_str in existing_docs:
+                    doc_path_obj = Path(doc_path_str)
+                    try:
+                        if doc_path_obj.exists():
+                            doc_path_obj.unlink()
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+            
+            # Clear vector store and other data
             if st.session_state.vector_store:
                 st.session_state.vector_store.clear_collection()
-                st.session_state.documents_processed = False
-                st.session_state.chat_history = []
-                st.session_state.alerts_manager.clear_deadlines()
-                st.success("Data cleared!")
-                st.rerun()
+            st.session_state.documents_processed = False
+            st.session_state.chat_history = []
+            st.session_state.alerts_manager.clear_deadlines()
+            st.success("All data and documents cleared!")
+            st.rerun()
         
         st.divider()
         
@@ -407,13 +403,17 @@ def main():
         with st.expander("📖 How to Use"):
             st.markdown("""
             **For New Users:**
-            1. **Upload Document**: Use the file uploader above to add your college document
-            2. **Save Document**: Click "Save Uploaded Document" (this will replace any previous documents)
-            3. **Process**: Click "Process Documents" to index it
+            1. **Upload Documents**: Use the file uploader above to add one or more college documents
+            2. **Save Documents**: Click "Save Uploaded Documents" to add them (existing documents are preserved)
+            3. **Process**: Click "Process Documents" to index all documents
             4. **Ask Questions**: Type your question in the chat below
             5. **Get Answers**: Receive accurate answers with source citations
             
-            **Note**: Uploading a new document automatically deletes previous documents to keep your knowledge base clean.
+            **Note**: 
+            - You can upload multiple documents at once
+            - New documents are added to existing ones (not replaced)
+            - Documents are only cleared on page refresh or when clicking "Clear All Data"
+            - If a file with the same name already exists, it will be skipped
             
             **Alternative**: You can also manually place PDF, DOCX, or TXT files in the `documents/` folder
             
