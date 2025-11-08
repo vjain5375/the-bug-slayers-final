@@ -370,7 +370,7 @@ def get_theme_css(dark_mode):
         <style>
             /* Light Theme - Enhanced & Attractive */
             .stApp {
-                background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 30%, #a5b4fc 60%, #818cf8 100%);
+                background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 25%, #c7d2fe 50%, #a5b4fc 75%, #818cf8 100%);
                 color: #1e293b;
             }
             
@@ -412,14 +412,14 @@ def get_theme_css(dark_mode):
                 margin-top: 1rem;
             }
             
-            /* Feature Cards - Light (Enhanced) */
+            /* Feature Cards - Light (Enhanced & Vibrant) */
             .feature-card {
-                background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+                background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 50%, #e0e7ff 100%);
                 padding: 2rem;
                 border-radius: 15px;
-                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.25), 0 4px 15px rgba(0,0,0,0.1);
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3), 0 4px 15px rgba(0,0,0,0.1);
                 margin: 1rem 0;
-                border: 2px solid rgba(102, 126, 234, 0.3);
+                border: 3px solid rgba(102, 126, 234, 0.4);
                 transition: all 0.3s ease;
                 height: 100%;
                 min-height: 180px;
@@ -436,14 +436,15 @@ def get_theme_css(dark_mode):
                 top: 0;
                 left: 0;
                 right: 0;
-                height: 4px;
-                background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+                height: 5px;
+                background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f59e0b 100%);
             }
             
             .feature-card:hover {
                 transform: translateY(-8px);
-                box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4), 0 8px 20px rgba(0,0,0,0.15);
-                border-color: rgba(102, 126, 234, 0.5);
+                box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5), 0 8px 25px rgba(0,0,0,0.2);
+                border-color: rgba(102, 126, 234, 0.7);
+                background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f0f4ff 100%);
             }
             
             /* Ensure columns have equal height */
@@ -526,13 +527,13 @@ def get_theme_css(dark_mode):
             
             /* Answer Container */
             .answer-container {
-                background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+                background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 50%, #e0e7ff 100%);
                 padding: 2.5rem;
                 border-radius: 20px;
                 margin: 1.5rem 0;
                 border-left: 5px solid #667eea;
-                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.25), 0 4px 15px rgba(0,0,0,0.1);
-                border: 2px solid rgba(102, 126, 234, 0.2);
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3), 0 4px 15px rgba(0,0,0,0.1);
+                border: 3px solid rgba(102, 126, 234, 0.3);
             }
             
             /* Badges */
@@ -558,9 +559,69 @@ def get_theme_css(dark_mode):
             
             /* Sidebar */
             [data-testid="stSidebar"] {
-                background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 50%, #e2e8f0 100%);
-                border-right: 2px solid rgba(102, 126, 234, 0.3);
-                box-shadow: 4px 0 20px rgba(102, 126, 234, 0.15);
+                background: linear-gradient(180deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%);
+                border-right: 3px solid rgba(102, 126, 234, 0.4);
+                box-shadow: 4px 0 25px rgba(102, 126, 234, 0.25);
+            }
+            
+            /* Theme Toggle Button - Enhanced Visibility */
+            [data-testid="stToggle"] {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                border-radius: 12px !important;
+                padding: 0.5rem !important;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+                border: 2px solid rgba(255, 255, 255, 0.3) !important;
+            }
+            
+            [data-testid="stToggle"] > label {
+                color: white !important;
+                font-weight: 700 !important;
+                font-size: 1.1rem !important;
+            }
+            
+            [data-testid="stToggle"]:hover {
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
+                transform: translateY(-2px) !important;
+            }
+            
+            /* Sidebar Toggle Button - Enhanced Visibility */
+            button[title="View sidebar"],
+            button[title="Close sidebar"],
+            [data-testid="collapsedControl"],
+            [data-testid="stSidebarCollapseButton"],
+            .stApp > header button {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                color: white !important;
+                border: 2px solid rgba(255, 255, 255, 0.3) !important;
+                border-radius: 10px !important;
+                padding: 0.6rem !important;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5) !important;
+                visibility: visible !important;
+                display: block !important;
+                opacity: 1 !important;
+                z-index: 9999 !important;
+                font-size: 1.2rem !important;
+                font-weight: 700 !important;
+                min-width: 45px !important;
+                min-height: 45px !important;
+                transition: all 0.3s ease !important;
+            }
+            
+            button[title="View sidebar"]:hover,
+            button[title="Close sidebar"]:hover,
+            [data-testid="collapsedControl"]:hover,
+            [data-testid="stSidebarCollapseButton"]:hover,
+            .stApp > header button:hover {
+                background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+                box-shadow: 0 6px 25px rgba(102, 126, 234, 0.7) !important;
+                transform: translateY(-2px) scale(1.05) !important;
+            }
+            
+            /* Ensure header is visible */
+            .stApp > header {
+                background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%) !important;
+                backdrop-filter: blur(10px) !important;
+                border-bottom: 2px solid rgba(102, 126, 234, 0.2) !important;
             }
             
             /* Chat Messages */
@@ -570,19 +631,20 @@ def get_theme_css(dark_mode):
                 padding: 1.2rem;
                 border-radius: 20px 20px 5px 20px;
                 margin: 1rem 0;
-                font-weight: 500;
-                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+                font-weight: 600;
+                box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
+                border: 2px solid rgba(255, 255, 255, 0.2);
             }
             
             .chat-answer {
-                background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+                background: linear-gradient(135deg, #ffffff 0%, #f0f4ff 50%, #e0e7ff 100%);
                 color: #1e293b;
                 padding: 1.2rem;
                 border-radius: 5px 20px 20px 20px;
                 margin: 1rem 0;
-                border-left: 4px solid #667eea;
-                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2), 0 4px 15px rgba(0,0,0,0.1);
-                border: 1px solid rgba(102, 126, 234, 0.2);
+                border-left: 5px solid #667eea;
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3), 0 4px 15px rgba(0,0,0,0.1);
+                border: 2px solid rgba(102, 126, 234, 0.3);
             }
             
             /* Text colors for light mode */
@@ -949,20 +1011,28 @@ def main():
     
     # Sidebar
     with st.sidebar:
-        # Theme Toggle at the top
-        col1, col2 = st.columns([3, 1])
-        with col1:
-            st.markdown("### 🎨 Theme")
-        with col2:
-            dark_mode = st.toggle("🌙", value=st.session_state.dark_mode, key="theme_toggle", help="Toggle dark/light mode")
-            if dark_mode != st.session_state.dark_mode:
-                st.session_state.dark_mode = dark_mode
-                st.rerun()
+        # Theme Toggle at the top - Enhanced
+        st.markdown("### 🎨 Theme")
+        dark_mode = st.toggle(
+            "🌙 Dark Mode / ☀️ Light Mode", 
+            value=st.session_state.dark_mode, 
+            key="theme_toggle", 
+            help="Toggle between dark and light mode"
+        )
+        if dark_mode != st.session_state.dark_mode:
+            st.session_state.dark_mode = dark_mode
+            st.rerun()
+        
+        # Theme indicator with attractive styling
+        theme_bg = "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" if dark_mode else "linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)"
+        theme_text = "white"
+        theme_icon = "🌙" if dark_mode else "☀️"
+        theme_label = "Dark Mode" if dark_mode else "Light Mode"
         
         st.markdown(f"""
-        <div style="text-align: center; padding: 0.5rem; margin-bottom: 1rem; border-radius: 10px; background: {'rgba(102, 126, 234, 0.2)' if dark_mode else 'rgba(102, 126, 234, 0.1)'};">
-            <p style="margin: 0; color: {'#e0e0e0' if dark_mode else '#2d3436'}; font-weight: 500;">
-                {'🌙 Dark Mode' if dark_mode else '☀️ Light Mode'}
+        <div style="text-align: center; padding: 1rem; margin-bottom: 1rem; border-radius: 12px; background: {theme_bg}; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3); border: 2px solid rgba(255, 255, 255, 0.2);">
+            <p style="margin: 0; color: {theme_text}; font-weight: 700; font-size: 1.1rem;">
+                {theme_icon} {theme_label}
             </p>
         </div>
         """, unsafe_allow_html=True)
