@@ -34,20 +34,24 @@ class RAGPipeline:
         # Try multiple methods to load API key
         api_key = None
         
-        # Method 1: Try from current directory
-        env_path_current = Path('.env')
-        if env_path_current.exists():
-            load_dotenv(dotenv_path=env_path_current, override=True)
-            api_key = os.getenv("GOOGLE_API_KEY")
+        # Method 1: Try environment variable (already set, works for Streamlit Cloud)
+        api_key = os.getenv("GOOGLE_API_KEY")
         
-        # Method 2: Try from script's parent directory
+        # Method 2: Try from current directory .env file
+        if not api_key:
+            env_path_current = Path('.env')
+            if env_path_current.exists():
+                load_dotenv(dotenv_path=env_path_current, override=True)
+                api_key = os.getenv("GOOGLE_API_KEY")
+        
+        # Method 3: Try from script's parent directory .env file
         if not api_key:
             env_path_script = Path(__file__).parent / '.env'
             if env_path_script.exists():
                 load_dotenv(dotenv_path=env_path_script, override=True)
                 api_key = os.getenv("GOOGLE_API_KEY")
         
-        # Method 3: Read directly from file (most reliable fallback)
+        # Method 4: Read directly from file (most reliable fallback)
         if not api_key:
             for env_path in [env_path_current, Path(__file__).parent / '.env']:
                 try:
@@ -64,8 +68,8 @@ class RAGPipeline:
                                                 # Remove quotes if present
                                                 api_key = api_key.strip('"').strip("'")
                                                 break
-                                if api_key:
-                                    break
+                                    if api_key:
+                                        break
                             except Exception:
                                 continue
                         if api_key:
@@ -96,14 +100,24 @@ class RAGPipeline:
             context_parts.append(f"[Source {i}: {source}, Chunk {chunk_idx}]\n{text}\n")
         return "\n---\n".join(context_parts)
     
-    def _create_prompt(self, question: str, context: str, summarize: bool = False) -> str:
+    def _create_prompt(self, question: str, context: str, summarize: bool = False, allow_general: bool = True) -> str:
         """Create prompt for LLM"""
         if summarize:
             system_prompt = """You are a helpful assistant that provides concise summaries of college policies and documents. 
 Your task is to summarize the provided context in a clear, bulleted format. Focus on key points and actionable information.
 Always cite your sources when providing information."""
         else:
-            system_prompt = """You are Campus Compass, an AI assistant that helps students find information about their college.
+            if allow_general:
+                system_prompt = """You are Campus Compass, an AI assistant that helps students find information about their college.
+Your primary goal is to answer questions based on the provided context from official college documents.
+If the answer is clearly available in the context, prioritize that information and cite your sources (e.g., "According to [Document Name]..." or "As stated in [Document Name]...").
+If the answer is not fully available in the context but you can provide helpful general information, you may do so while clearly stating:
+1. What information comes from the documents (if any)
+2. What information is general knowledge
+Use this format: "Based on the available documents: [document-based answer]. Additionally, in general: [general knowledge answer]."
+Be concise, accurate, and helpful."""
+            else:
+                system_prompt = """You are Campus Compass, an AI assistant that helps students find information about their college.
 Your answers must be based ONLY on the provided context from official college documents. 
 If the answer is not in the context, say "I don't have that information in the available documents."
 Always cite your sources clearly (e.g., "According to [Document Name], page X..." or "As stated in [Document Name]...").
@@ -118,7 +132,7 @@ Please provide a helpful answer based on the context above."""
         
         return system_prompt, user_prompt
     
-    def answer_question(self, question: str, n_chunks: int = 5, summarize: bool = False) -> Dict:
+    def answer_question(self, question: str, n_chunks: int = 5, summarize: bool = False, allow_general: bool = True) -> Dict:
         """
         Answer a question using RAG
         
@@ -126,6 +140,7 @@ Please provide a helpful answer based on the context above."""
             question: User's question
             n_chunks: Number of chunks to retrieve
             summarize: Whether to provide a summary format
+            allow_general: Whether to allow general answers when documents don't have info
             
         Returns:
             Dict with 'answer', 'sources', and 'chunks' keys
@@ -133,18 +148,22 @@ Please provide a helpful answer based on the context above."""
         # Retrieve relevant chunks
         retrieved_chunks = self.vector_store.search(question, n_results=n_chunks)
         
-        if not retrieved_chunks:
+        # Format context (even if empty, we'll handle it)
+        if retrieved_chunks:
+            context = self._format_context(retrieved_chunks)
+        else:
+            context = "No relevant information found in the available documents."
+        
+        # Create prompt
+        system_prompt, user_prompt = self._create_prompt(question, context, summarize, allow_general)
+        
+        # If no chunks and general answers not allowed, return early
+        if not retrieved_chunks and not allow_general:
             return {
                 'answer': "I couldn't find any relevant information in the available documents. Please try rephrasing your question or ensure documents have been processed.",
                 'sources': [],
                 'chunks': []
             }
-        
-        # Format context
-        context = self._format_context(retrieved_chunks)
-        
-        # Create prompt
-        system_prompt, user_prompt = self._create_prompt(question, context, summarize)
         
         # Generate answer
         try:
@@ -158,7 +177,7 @@ Please provide a helpful answer based on the context above."""
             answer = f"Error generating answer: {str(e)}. Please check your API key and ensure it's valid."
         
         # Extract unique sources
-        sources = list(set([chunk['metadata'].get('source', 'Unknown') for chunk in retrieved_chunks]))
+        sources = list(set([chunk['metadata'].get('source', 'Unknown') for chunk in retrieved_chunks])) if retrieved_chunks else []
         
         return {
             'answer': answer,
@@ -166,26 +185,20 @@ Please provide a helpful answer based on the context above."""
             'chunks': retrieved_chunks
         }
     
-    def answer_multi_document_question(self, question: str, n_chunks: int = 8) -> Dict:
+    def answer_multi_document_question(self, question: str, n_chunks: int = 8, allow_general: bool = True) -> Dict:
         """
         Answer questions that may require information from multiple documents
         
         Args:
             question: User's question
             n_chunks: Number of chunks to retrieve (increased for multi-doc)
+            allow_general: Whether to allow general answers when documents don't have info
             
         Returns:
             Dict with 'answer', 'sources', and 'chunks' keys
         """
         # Retrieve more chunks for multi-document synthesis
         retrieved_chunks = self.vector_store.search(question, n_results=n_chunks)
-        
-        if not retrieved_chunks:
-            return {
-                'answer': "I couldn't find any relevant information in the available documents.",
-                'sources': [],
-                'chunks': []
-            }
         
         # Group chunks by source
         chunks_by_source = {}
@@ -196,18 +209,29 @@ Please provide a helpful answer based on the context above."""
             chunks_by_source[source].append(chunk)
         
         # Format context with source grouping
-        context_parts = []
-        for source, chunks in chunks_by_source.items():
-            source_text = "\n\n".join([chunk['text'] for chunk in chunks])
-            context_parts.append(f"[Source: {source}]\n{source_text}")
-        
-        context = "\n\n---\n\n".join(context_parts)
+        if chunks_by_source:
+            context_parts = []
+            for source, chunks in chunks_by_source.items():
+                source_text = "\n\n".join([chunk['text'] for chunk in chunks])
+                context_parts.append(f"[Source: {source}]\n{source_text}")
+            context = "\n\n---\n\n".join(context_parts)
+        else:
+            context = "No relevant information found in the available documents."
         
         # Create prompt for multi-document synthesis
-        system_prompt = """You are Campus Compass, an AI assistant that synthesizes information from multiple college documents.
+        if allow_general:
+            system_prompt = """You are Campus Compass, an AI assistant that synthesizes information from multiple college documents.
 Your task is to combine information from different sources to provide a comprehensive answer.
 Always cite which document each piece of information comes from.
 If information from multiple sources conflicts, mention this in your answer.
+If the answer is not fully available in the documents but you can provide helpful general information, you may do so while clearly stating what comes from documents vs. general knowledge.
+Be thorough but concise."""
+        else:
+            system_prompt = """You are Campus Compass, an AI assistant that synthesizes information from multiple college documents.
+Your task is to combine information from different sources to provide a comprehensive answer.
+Always cite which document each piece of information comes from.
+If information from multiple sources conflicts, mention this in your answer.
+If the answer is not in the documents, say so clearly.
 Be thorough but concise."""
         
         user_prompt = f"""Context from multiple college documents:
@@ -216,6 +240,14 @@ Be thorough but concise."""
 Question: {question}
 
 Please provide a comprehensive answer by synthesizing information from the relevant documents above."""
+        
+        # If no chunks and general answers not allowed, return early
+        if not retrieved_chunks and not allow_general:
+            return {
+                'answer': "I couldn't find any relevant information in the available documents.",
+                'sources': [],
+                'chunks': []
+            }
         
         # Generate answer
         try:
@@ -229,7 +261,7 @@ Please provide a comprehensive answer by synthesizing information from the relev
             answer = f"Error generating answer: {str(e)}. Please check your API key and ensure it's valid."
         
         # Extract unique sources
-        sources = list(set([chunk['metadata'].get('source', 'Unknown') for chunk in retrieved_chunks]))
+        sources = list(set([chunk['metadata'].get('source', 'Unknown') for chunk in retrieved_chunks])) if retrieved_chunks else []
         
         return {
             'answer': answer,

@@ -10,21 +10,37 @@ from dotenv import load_dotenv
 from document_processor import DocumentProcessor
 from vector_store import VectorStore
 from rag_pipeline import RAGPipeline
+from alerts_manager import AlertsManager
 from utils import ensure_documents_directory, get_document_files, format_sources
 
 # Load .env file at the start - try multiple methods
 def load_api_key():
-    """Load API key from .env file using multiple methods (supports Google API key)"""
+    """Load API key from .env file or Streamlit secrets (supports Google API key)"""
     api_key = None
     
-    # Try multiple paths
+    # Method 1: Try Streamlit secrets first (for Streamlit Cloud)
+    try:
+        if hasattr(st, 'secrets') and st.secrets:
+            api_key = st.secrets.get("GOOGLE_API_KEY") or st.secrets.get("OPENAI_API_KEY")
+            if api_key:
+                os.environ['GOOGLE_API_KEY'] = api_key
+                return api_key
+    except Exception:
+        pass
+    
+    # Method 2: Try environment variables (already set)
+    api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")
+    if api_key:
+        return api_key
+    
+    # Method 3: Try .env file (for local development)
     possible_paths = [
         Path(__file__).parent / '.env',  # Same directory as app.py
         Path('.env'),  # Current working directory
         Path.cwd() / '.env',  # Explicit current directory
     ]
     
-    # Method 1: Try load_dotenv
+    # Try load_dotenv
     for env_path in possible_paths:
         if env_path.exists():
             load_dotenv(dotenv_path=env_path, override=True)
@@ -33,7 +49,7 @@ def load_api_key():
             if api_key:
                 break
     
-    # Method 2: Read directly from file (most reliable)
+    # Method 4: Read directly from file (most reliable fallback)
     if not api_key:
         for env_path in possible_paths:
             if env_path.exists():
@@ -53,23 +69,23 @@ def load_api_key():
                                     api_key = api_key.strip('"').strip("'")
                                     os.environ['OPENAI_API_KEY'] = api_key
                                     break
-                    if api_key:
-                        break
+                        if api_key:
+                            break
                 except Exception:
                     continue
     
     return api_key
 
-# Load API key before Streamlit initializes
-load_api_key()
-
-# Page configuration
+# Page configuration (must be first Streamlit command)
 st.set_page_config(
     page_title="Campus Compass",
     page_icon="🧭",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Load API key after Streamlit is initialized (so secrets are available)
+load_api_key()
 
 # Initialize session state
 if 'vector_store' not in st.session_state:
@@ -80,6 +96,10 @@ if 'documents_processed' not in st.session_state:
     st.session_state.documents_processed = False
 if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
+if 'alerts_manager' not in st.session_state:
+    st.session_state.alerts_manager = AlertsManager()
+if 'alerts_enabled' not in st.session_state:
+    st.session_state.alerts_enabled = True
 
 
 def initialize_components():
@@ -121,6 +141,12 @@ def process_documents():
         # Clear existing data and add new chunks
         st.session_state.vector_store.clear_collection()
         st.session_state.vector_store.add_documents(all_chunks)
+        
+        # Extract deadlines from documents for alerts
+        try:
+            st.session_state.alerts_manager.add_deadlines_from_documents(all_chunks)
+        except Exception as e:
+            st.warning(f"Could not extract deadlines: {e}")
         
         st.session_state.documents_processed = True
         st.success(f"✅ Successfully processed {len(all_chunks)} chunks from {len(doc_files)} document(s)!")
@@ -220,12 +246,62 @@ def main():
         
         st.divider()
         
+        # Personalized Alerts Section
+        st.subheader("🔔 Personalized Alerts")
+        
+        # Opt-in toggle
+        alerts_enabled = st.checkbox(
+            "Enable Alerts & Reminders",
+            value=st.session_state.alerts_enabled,
+            help="Get reminders for deadlines, fee payments, and important dates"
+        )
+        st.session_state.alerts_enabled = alerts_enabled
+        st.session_state.alerts_manager.opt_in_user("default", alerts_enabled)
+        
+        # Show upcoming alerts
+        if alerts_enabled:
+            upcoming = st.session_state.alerts_manager.get_upcoming_deadlines(days_ahead=30)
+            if upcoming:
+                st.info(f"📅 {len(upcoming)} upcoming deadline(s) in the next 30 days")
+                with st.expander("View Upcoming Deadlines"):
+                    for alert in upcoming[:10]:  # Show top 10
+                        days = alert.get('days_until', 0)
+                        date_str = alert.get('date', '')
+                        event = alert.get('event', 'Deadline')
+                        source = alert.get('source', 'Unknown')
+                        
+                        # Format date
+                        try:
+                            from datetime import datetime as dt
+                            date_obj = dt.fromisoformat(date_str)
+                            date_formatted = date_obj.strftime("%B %d, %Y")
+                        except:
+                            date_formatted = date_str
+                        
+                        # Color code by urgency
+                        if days <= 7:
+                            st.warning(f"⚠️ **{date_formatted}** ({days} days) - {event}")
+                        elif days <= 14:
+                            st.info(f"📌 **{date_formatted}** ({days} days) - {event}")
+                        else:
+                            st.text(f"📅 **{date_formatted}** ({days} days) - {event}")
+                        
+                        st.caption(f"Source: {source}")
+                        st.divider()
+            else:
+                st.info("No upcoming deadlines found. Process documents with calendar information to see alerts.")
+        else:
+            st.caption("Alerts are disabled. Enable above to see reminders.")
+        
+        st.divider()
+        
         # Clear data button
         if st.button("🗑️ Clear All Data", use_container_width=True):
             if st.session_state.vector_store:
                 st.session_state.vector_store.clear_collection()
                 st.session_state.documents_processed = False
                 st.session_state.chat_history = []
+                st.session_state.alerts_manager.clear_deadlines()
                 st.success("Data cleared!")
                 st.rerun()
         
@@ -246,6 +322,7 @@ def main():
             **Bonus Features**:
             - Use "Multi-Document" mode for complex questions
             - Use "Summarize" for policy summaries
+            - **Enable Alerts** to get reminders for deadlines and important dates
             - Delete individual documents using the 🗑️ button
             """)
     
@@ -262,6 +339,13 @@ def main():
                 st.info("👆 Please process documents using the sidebar before asking questions.")
                 return
     
+    # Show alerts banner if enabled and there are urgent deadlines
+    if st.session_state.alerts_enabled:
+        upcoming = st.session_state.alerts_manager.get_upcoming_deadlines(days_ahead=7)
+        urgent = [a for a in upcoming if a.get('days_until', 999) <= 7]
+        if urgent:
+            st.warning(f"🔔 **Urgent Alert:** {len(urgent)} deadline(s) in the next 7 days! Check the sidebar for details.")
+    
     # Main chat interface
     st.divider()
     st.subheader("💬 Ask Your Question")
@@ -273,7 +357,7 @@ def main():
             "Question Mode",
             ["Standard", "Multi-Document", "Summarize"],
             horizontal=True,
-            help="Standard: Single answer\nMulti-Document: Synthesize from multiple sources\nSummarize: Bulleted summary"
+            help="Standard: Single answer (with general info if needed)\nMulti-Document: Synthesize from multiple sources\nSummarize: Bulleted summary"
         )
     
     # Chat history display
@@ -304,13 +388,13 @@ def main():
             return
         
         with st.spinner("Searching documents and generating answer..."):
-            # Select appropriate method based on mode
+            # Select appropriate method based on mode (allow_general=True by default)
             if question_mode == "Multi-Document":
-                result = st.session_state.rag_pipeline.answer_multi_document_question(question, n_chunks=8)
+                result = st.session_state.rag_pipeline.answer_multi_document_question(question, n_chunks=8, allow_general=True)
             elif question_mode == "Summarize":
-                result = st.session_state.rag_pipeline.answer_question(question, n_chunks=5, summarize=True)
+                result = st.session_state.rag_pipeline.answer_question(question, n_chunks=5, summarize=True, allow_general=True)
             else:
-                result = st.session_state.rag_pipeline.answer_question(question, n_chunks=5)
+                result = st.session_state.rag_pipeline.answer_question(question, n_chunks=5, allow_general=True)
             
             # Display answer
             st.markdown("### 💡 Answer")
