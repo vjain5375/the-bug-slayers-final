@@ -300,16 +300,31 @@ def get_theme_css(dark_mode):
                 border-radius: 5px;
             }
             
-            /* Hide browse button below file uploader */
+            /* Hide browse button and secondary upload area - only show drag and drop */
             [data-testid="stFileUploader"] button {
                 display: none !important;
+                visibility: hidden !important;
             }
             [data-testid="stFileUploader"] > div > div > button {
                 display: none !important;
+                visibility: hidden !important;
             }
-            /* Hide the secondary upload area */
+            /* Hide the secondary upload area (browse button section) */
             [data-testid="stFileUploader"] > div > div:last-child {
                 display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            /* Hide any additional upload buttons */
+            [data-testid="stFileUploader"] button[type="button"] {
+                display: none !important;
+                visibility: hidden !important;
+            }
+            /* Make the drag and drop area more prominent and clickable */
+            [data-testid="stFileUploader"] > div > div:first-child {
+                cursor: pointer !important;
             }
         </style>
         """
