@@ -1311,33 +1311,25 @@ def main():
                         uploader = allUploaders[0];
                     }}
                     
-                    // Hide all default Streamlit uploader UI
-                    uploader.style.display = 'none';
-                    uploader.style.visibility = 'hidden';
-                    uploader.style.opacity = '0';
-                    uploader.style.height = '0';
-                    uploader.style.width = '0';
-                    uploader.style.position = 'absolute';
-                    uploader.style.pointerEvents = 'none';
-                    
-                    // Hide all children of uploader except input
-                    const uploaderChildren = uploader.querySelectorAll('*');
-                    uploaderChildren.forEach(child => {{
-                        if (child.tagName !== 'INPUT') {{
-                            child.style.display = 'none';
-                            child.style.visibility = 'hidden';
-                        }}
-                    }});
-                    
-                    // Find file input
+                    // Find file input - try multiple methods first
                     let fileInput = uploader.querySelector('input[type="file"]');
                     if (!fileInput) {{
                         fileInput = uploader.querySelector('input');
                     }}
                     
+                    if (!fileInput) {{
+                        // Try to find in nested structure
+                        const allInputs = uploader.querySelectorAll('input');
+                        for (let inp of allInputs) {{
+                            if (inp.type === 'file' || inp.getAttribute('type') === 'file') {{
+                                fileInput = inp;
+                                break;
+                            }}
+                        }}
+                    }}
+                    
                     if (fileInput) {{
-                        // Keep file input in uploader but make it cover the dotted area
-                        // Position uploader over the dotted area
+                        // Position uploader over the dotted area (keep it in DOM structure for Streamlit)
                         if (uploader.parentNode !== wrapper) {{
                             uploader.style.position = 'absolute';
                             uploader.style.top = '0';
@@ -1347,8 +1339,20 @@ def main():
                             uploader.style.opacity = '0';
                             uploader.style.zIndex = '10';
                             uploader.style.pointerEvents = 'none';
+                            uploader.style.overflow = 'hidden';
                             wrapper.appendChild(uploader);
                         }}
+                        
+                        // Hide all default Streamlit uploader UI except file input
+                        const uploaderChildren = uploader.querySelectorAll('*');
+                        uploaderChildren.forEach(child => {{
+                            if (child !== fileInput && child.tagName !== 'INPUT') {{
+                                child.style.display = 'none';
+                                child.style.visibility = 'hidden';
+                                child.style.opacity = '0';
+                                child.style.pointerEvents = 'none';
+                            }}
+                        }});
                         
                         // Style file input to cover the dotted area
                         fileInput.style.position = 'absolute';
@@ -1360,12 +1364,26 @@ def main():
                         fileInput.style.cursor = 'pointer';
                         fileInput.style.zIndex = '999';
                         fileInput.style.pointerEvents = 'auto';
+                        fileInput.style.fontSize = '0';
                         
-                        // Make container clickable
+                        // Make container clickable - multiple methods
                         container.onclick = function(e) {{
                             e.preventDefault();
                             e.stopPropagation();
-                            fileInput.click();
+                            if (fileInput) {{
+                                fileInput.click();
+                            }}
+                        }};
+                        
+                        // Also make wrapper clickable
+                        wrapper.onclick = function(e) {{
+                            if (e.target === container || e.target === wrapper) {{
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (fileInput) {{
+                                    fileInput.click();
+                                }}
+                            }}
                         }};
                         
                         // Handle drag and drop
@@ -1373,24 +1391,34 @@ def main():
                             e.preventDefault();
                             e.stopPropagation();
                             container.style.borderColor = '#818cf8';
+                            container.style.backgroundColor = 'rgba(102, 126, 234, 0.2)';
                         }};
                         
                         container.ondragleave = function(e) {{
                             e.preventDefault();
                             e.stopPropagation();
                             container.style.borderColor = '#667eea';
+                            container.style.backgroundColor = '';
                         }};
                         
                         container.ondrop = function(e) {{
                             e.preventDefault();
                             e.stopPropagation();
                             container.style.borderColor = '#667eea';
-                            if (e.dataTransfer.files.length > 0) {{
-                                fileInput.files = e.dataTransfer.files;
+                            container.style.backgroundColor = '';
+                            if (e.dataTransfer.files.length > 0 && fileInput) {{
+                                // Create a new FileList and assign it
+                                const dt = new DataTransfer();
+                                for (let file of e.dataTransfer.files) {{
+                                    dt.items.add(file);
+                                }}
+                                fileInput.files = dt.files;
                                 const event = new Event('change', {{ bubbles: true }});
                                 fileInput.dispatchEvent(event);
                             }}
                         }};
+                    }} else {{
+                        console.log('File input not found in sidebar uploader');
                     }}
                 }}
                 
@@ -1687,28 +1715,21 @@ def main():
                             }}
                             if (!uploader) return;
                             
-                            // Hide all default Streamlit uploader UI
-                            uploader.style.display = 'none';
-                            uploader.style.visibility = 'hidden';
-                            uploader.style.opacity = '0';
-                            uploader.style.height = '0';
-                            uploader.style.width = '0';
-                            uploader.style.position = 'absolute';
-                            uploader.style.pointerEvents = 'none';
-                            
-                            // Hide all children of uploader
-                            const uploaderChildren = uploader.querySelectorAll('*');
-                            uploaderChildren.forEach(child => {{
-                                if (child.tagName !== 'INPUT') {{
-                                    child.style.display = 'none';
-                                    child.style.visibility = 'hidden';
-                                }}
-                            }});
-                            
-                            // Find file input
+                            // Find file input first
                             let fileInput = uploader.querySelector('input[type="file"]');
                             if (!fileInput) {{
                                 fileInput = uploader.querySelector('input');
+                            }}
+                            
+                            if (!fileInput) {{
+                                // Try to find in nested structure
+                                const allInputs = uploader.querySelectorAll('input');
+                                for (let inp of allInputs) {{
+                                    if (inp.type === 'file' || inp.getAttribute('type') === 'file') {{
+                                        fileInput = inp;
+                                        break;
+                                    }}
+                                }}
                             }}
                             
                             if (fileInput) {{
@@ -1722,8 +1743,20 @@ def main():
                                     uploader.style.opacity = '0';
                                     uploader.style.zIndex = '10';
                                     uploader.style.pointerEvents = 'none';
+                                    uploader.style.overflow = 'hidden';
                                     wrapper.appendChild(uploader);
                                 }}
+                                
+                                // Hide all default Streamlit uploader UI except file input
+                                const uploaderChildren = uploader.querySelectorAll('*');
+                                uploaderChildren.forEach(child => {{
+                                    if (child !== fileInput && child.tagName !== 'INPUT') {{
+                                        child.style.display = 'none';
+                                        child.style.visibility = 'hidden';
+                                        child.style.opacity = '0';
+                                        child.style.pointerEvents = 'none';
+                                    }}
+                                }});
                                 
                                 // Style file input to cover the dotted area
                                 fileInput.style.position = 'absolute';
@@ -1735,37 +1768,61 @@ def main():
                                 fileInput.style.cursor = 'pointer';
                                 fileInput.style.zIndex = '999';
                                 fileInput.style.pointerEvents = 'auto';
+                                fileInput.style.fontSize = '0';
                                 
-                                // Make container clickable
+                                // Make container clickable - multiple methods
                                 container.onclick = function(e) {{
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    fileInput.click();
+                                    if (fileInput) {{
+                                        fileInput.click();
+                                    }}
                                 }};
                                 
-                                // Also handle drag and drop
+                                // Also make wrapper clickable
+                                wrapper.onclick = function(e) {{
+                                    if (e.target === container || e.target === wrapper) {{
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        if (fileInput) {{
+                                            fileInput.click();
+                                        }}
+                                    }}
+                                }};
+                                
+                                // Handle drag and drop
                                 container.ondragover = function(e) {{
                                     e.preventDefault();
                                     e.stopPropagation();
                                     container.style.borderColor = '#818cf8';
+                                    container.style.backgroundColor = 'rgba(102, 126, 234, 0.2)';
                                 }};
                                 
                                 container.ondragleave = function(e) {{
                                     e.preventDefault();
                                     e.stopPropagation();
                                     container.style.borderColor = '#667eea';
+                                    container.style.backgroundColor = '';
                                 }};
                                 
                                 container.ondrop = function(e) {{
                                     e.preventDefault();
                                     e.stopPropagation();
                                     container.style.borderColor = '#667eea';
-                                    if (e.dataTransfer.files.length > 0) {{
-                                        fileInput.files = e.dataTransfer.files;
+                                    container.style.backgroundColor = '';
+                                    if (e.dataTransfer.files.length > 0 && fileInput) {{
+                                        // Create a new FileList and assign it
+                                        const dt = new DataTransfer();
+                                        for (let file of e.dataTransfer.files) {{
+                                            dt.items.add(file);
+                                        }}
+                                        fileInput.files = dt.files;
                                         const event = new Event('change', {{ bubbles: true }});
                                         fileInput.dispatchEvent(event);
                                     }}
                                 }};
+                            }} else {{
+                                console.log('File input not found in uploader');
                             }}
                         }}
                         
