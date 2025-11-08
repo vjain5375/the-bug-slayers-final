@@ -89,160 +89,351 @@ st.set_page_config(
     }
 )
 
-# Custom CSS for attractive UI
-st.markdown("""
-<style>
-    /* Main styling */
-    .main {
-        padding-top: 2rem;
-    }
-    
-    /* Header styling */
-    .header-container {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        text-align: center;
-    }
-    
-    .header-title {
-        font-size: 3.5rem;
-        font-weight: 800;
-        color: white;
-        margin: 0;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    }
-    
-    .header-subtitle {
-        font-size: 1.5rem;
-        color: rgba(255,255,255,0.95);
-        margin-top: 0.5rem;
-        font-weight: 300;
-    }
-    
-    .header-description {
-        font-size: 1.1rem;
-        color: rgba(255,255,255,0.9);
-        margin-top: 1rem;
-    }
-    
-    /* Feature cards */
-    .feature-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        margin: 1rem 0;
-        border-left: 4px solid #667eea;
-        transition: transform 0.2s;
-    }
-    
-    .feature-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
-    
-    /* Button styling */
-    .stButton>button {
-        border-radius: 10px;
-        font-weight: 600;
-        transition: all 0.3s;
-    }
-    
-    .stButton>button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-    
-    /* Input styling */
-    .stTextInput>div>div>input {
-        border-radius: 10px;
-        border: 2px solid #e0e0e0;
-        padding: 0.75rem;
-    }
-    
-    .stTextInput>div>div>input:focus {
-        border-color: #667eea;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-    
-    /* Metric cards */
-    .metric-card {
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        padding: 1rem;
-        border-radius: 10px;
-        text-align: center;
-    }
-    
-    /* Answer container */
-    .answer-container {
-        background: linear-gradient(135deg, #f6f8fb 0%, #e9ecef 100%);
-        padding: 2rem;
-        border-radius: 15px;
-        margin: 1.5rem 0;
-        border-left: 5px solid #667eea;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    }
-    
-    /* Badge styling */
-    .badge {
-        display: inline-block;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        margin: 0.25rem;
-    }
-    
-    .badge-primary {
-        background: #667eea;
-        color: white;
-    }
-    
-    .badge-success {
-        background: #10b981;
-        color: white;
-    }
-    
-    .badge-warning {
-        background: #f59e0b;
-        color: white;
-    }
-    
-    /* Sidebar styling */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
-    }
-    
-    /* Chat message styling */
-    .chat-question {
-        background: #667eea;
-        color: white;
-        padding: 1rem;
-        border-radius: 15px 15px 5px 15px;
-        margin: 1rem 0;
-        font-weight: 500;
-    }
-    
-    .chat-answer {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 5px 15px 15px 15px;
-        margin: 1rem 0;
-        border-left: 4px solid #667eea;
-    }
-    
-    /* Hide Streamlit branding */
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-</style>
-""", unsafe_allow_html=True)
+# Initialize theme mode
+if 'dark_mode' not in st.session_state:
+    st.session_state.dark_mode = True
 
 # Load API key after Streamlit is initialized (so secrets are available)
 load_api_key()
+
+# Dynamic CSS based on theme
+def get_theme_css(dark_mode):
+    if dark_mode:
+        return """
+        <style>
+            /* Dark Theme */
+            .stApp {
+                background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+                color: #e0e0e0;
+            }
+            
+            .main .block-container {
+                background: transparent;
+                padding-top: 2rem;
+            }
+            
+            /* Header */
+            .header-container {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 3rem 2rem;
+                border-radius: 20px;
+                margin-bottom: 2rem;
+                box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);
+                text-align: center;
+                border: 1px solid rgba(255,255,255,0.1);
+            }
+            
+            .header-title {
+                font-size: 4rem;
+                font-weight: 900;
+                color: white;
+                margin: 0;
+                text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+                letter-spacing: -1px;
+            }
+            
+            .header-subtitle {
+                font-size: 1.8rem;
+                color: rgba(255,255,255,0.95);
+                margin-top: 0.5rem;
+                font-weight: 400;
+            }
+            
+            .header-description {
+                font-size: 1.2rem;
+                color: rgba(255,255,255,0.9);
+                margin-top: 1rem;
+            }
+            
+            /* Feature Cards - Dark */
+            .feature-card {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                padding: 2rem;
+                border-radius: 15px;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                margin: 1rem 0;
+                border: 1px solid rgba(102, 126, 234, 0.3);
+                transition: all 0.3s ease;
+            }
+            
+            .feature-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 40px rgba(102, 126, 234, 0.5);
+                border-color: rgba(102, 126, 234, 0.6);
+            }
+            
+            /* Buttons */
+            .stButton>button {
+                border-radius: 12px;
+                font-weight: 600;
+                transition: all 0.3s;
+                border: none;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            }
+            
+            .stButton>button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            }
+            
+            /* Inputs */
+            .stTextInput>div>div>input {
+                background: #1a1a2e;
+                color: #e0e0e0;
+                border-radius: 12px;
+                border: 2px solid rgba(102, 126, 234, 0.3);
+                padding: 0.9rem;
+            }
+            
+            .stTextInput>div>div>input:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+                background: #1f1f3a;
+            }
+            
+            /* Answer Container */
+            .answer-container {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                padding: 2.5rem;
+                border-radius: 20px;
+                margin: 1.5rem 0;
+                border-left: 5px solid #667eea;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                border: 1px solid rgba(102, 126, 234, 0.2);
+            }
+            
+            /* Badges */
+            .badge {
+                display: inline-block;
+                padding: 0.4rem 1rem;
+                border-radius: 25px;
+                font-size: 0.9rem;
+                font-weight: 600;
+                margin: 0.25rem;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            }
+            
+            .badge-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+            
+            .badge-success {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: white;
+            }
+            
+            /* Sidebar */
+            [data-testid="stSidebar"] {
+                background: linear-gradient(180deg, #0f0c29 0%, #1a1a2e 100%);
+                border-right: 1px solid rgba(102, 126, 234, 0.2);
+            }
+            
+            /* Chat Messages */
+            .chat-question {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 1.2rem;
+                border-radius: 20px 20px 5px 20px;
+                margin: 1rem 0;
+                font-weight: 500;
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            }
+            
+            .chat-answer {
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+                color: #e0e0e0;
+                padding: 1.2rem;
+                border-radius: 5px 20px 20px 20px;
+                margin: 1rem 0;
+                border-left: 4px solid #667eea;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            }
+            
+            /* Text colors */
+            h1, h2, h3, h4, h5, h6 {
+                color: #e0e0e0 !important;
+            }
+            
+            p, span, div {
+                color: #d0d0d0;
+            }
+            
+            /* Hide branding */
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+            
+            /* Scrollbar */
+            ::-webkit-scrollbar {
+                width: 10px;
+            }
+            ::-webkit-scrollbar-track {
+                background: #1a1a2e;
+            }
+            ::-webkit-scrollbar-thumb {
+                background: #667eea;
+                border-radius: 5px;
+            }
+        </style>
+        """
+    else:
+        return """
+        <style>
+            /* Light Theme */
+            .stApp {
+                background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                color: #2d3436;
+            }
+            
+            .main .block-container {
+                background: transparent;
+                padding-top: 2rem;
+            }
+            
+            /* Header */
+            .header-container {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 3rem 2rem;
+                border-radius: 20px;
+                margin-bottom: 2rem;
+                box-shadow: 0 20px 60px rgba(102, 126, 234, 0.3);
+                text-align: center;
+            }
+            
+            .header-title {
+                font-size: 4rem;
+                font-weight: 900;
+                color: white;
+                margin: 0;
+                text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                letter-spacing: -1px;
+            }
+            
+            .header-subtitle {
+                font-size: 1.8rem;
+                color: rgba(255,255,255,0.95);
+                margin-top: 0.5rem;
+                font-weight: 400;
+            }
+            
+            .header-description {
+                font-size: 1.2rem;
+                color: rgba(255,255,255,0.9);
+                margin-top: 1rem;
+            }
+            
+            /* Feature Cards - Light */
+            .feature-card {
+                background: white;
+                padding: 2rem;
+                border-radius: 15px;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+                margin: 1rem 0;
+                border: 1px solid rgba(102, 126, 234, 0.2);
+                transition: all 0.3s ease;
+            }
+            
+            .feature-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 35px rgba(102, 126, 234, 0.3);
+            }
+            
+            /* Buttons */
+            .stButton>button {
+                border-radius: 12px;
+                font-weight: 600;
+                transition: all 0.3s;
+                border: none;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+            
+            .stButton>button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+            }
+            
+            /* Inputs */
+            .stTextInput>div>div>input {
+                background: white;
+                color: #2d3436;
+                border-radius: 12px;
+                border: 2px solid rgba(102, 126, 234, 0.3);
+                padding: 0.9rem;
+            }
+            
+            .stTextInput>div>div>input:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            }
+            
+            /* Answer Container */
+            .answer-container {
+                background: white;
+                padding: 2.5rem;
+                border-radius: 20px;
+                margin: 1.5rem 0;
+                border-left: 5px solid #667eea;
+                box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            }
+            
+            /* Badges */
+            .badge {
+                display: inline-block;
+                padding: 0.4rem 1rem;
+                border-radius: 25px;
+                font-size: 0.9rem;
+                font-weight: 600;
+                margin: 0.25rem;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+            
+            .badge-primary {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+            
+            .badge-success {
+                background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                color: white;
+            }
+            
+            /* Sidebar */
+            [data-testid="stSidebar"] {
+                background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+                border-right: 1px solid rgba(102, 126, 234, 0.1);
+            }
+            
+            /* Chat Messages */
+            .chat-question {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 1.2rem;
+                border-radius: 20px 20px 5px 20px;
+                margin: 1rem 0;
+                font-weight: 500;
+                box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            }
+            
+            .chat-answer {
+                background: white;
+                color: #2d3436;
+                padding: 1.2rem;
+                border-radius: 5px 20px 20px 20px;
+                margin: 1rem 0;
+                border-left: 4px solid #667eea;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            }
+            
+            /* Hide branding */
+            #MainMenu {visibility: hidden;}
+            footer {visibility: hidden;}
+            header {visibility: hidden;}
+        </style>
+        """
+
+# Apply theme CSS
+st.markdown(get_theme_css(st.session_state.dark_mode), unsafe_allow_html=True)
 
 # Initialize session state
 if 'vector_store' not in st.session_state:
@@ -259,6 +450,8 @@ if 'alerts_enabled' not in st.session_state:
     st.session_state.alerts_enabled = True
 if 'session_initialized' not in st.session_state:
     st.session_state.session_initialized = False
+if 'dark_mode' not in st.session_state:
+    st.session_state.dark_mode = True  # Default to dark mode
 
 
 def clear_all_data():
@@ -381,6 +574,11 @@ def main():
         st.session_state.session_initialized = True
     
     # Attractive Header with Gradient
+    text_color = "#e0e0e0" if st.session_state.dark_mode else "#2d3436"
+    card_bg = "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)" if st.session_state.dark_mode else "white"
+    card_text = "#e0e0e0" if st.session_state.dark_mode else "#2d3436"
+    card_subtext = "#b0b0b0" if st.session_state.dark_mode else "#666"
+    
     st.markdown("""
     <div class="header-container">
         <h1 class="header-title">🧭 Campus Compass</h1>
@@ -389,34 +587,34 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Feature highlights
+    # Feature highlights with theme-aware colors
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.markdown("""
+        st.markdown(f"""
         <div class="feature-card">
-            <h3 style="color: #667eea; margin: 0;">⚡ Instant Answers</h3>
-            <p style="margin: 0.5rem 0 0 0; color: #666;">Get answers in seconds</p>
+            <h3 style="color: #667eea; margin: 0; font-size: 1.5rem;">⚡ Instant Answers</h3>
+            <p style="margin: 0.5rem 0 0 0; color: {card_subtext}; font-size: 1rem;">Get answers in seconds</p>
         </div>
         """, unsafe_allow_html=True)
     with col2:
-        st.markdown("""
+        st.markdown(f"""
         <div class="feature-card">
-            <h3 style="color: #667eea; margin: 0;">📚 Multi-Document</h3>
-            <p style="margin: 0.5rem 0 0 0; color: #666;">Synthesize from all sources</p>
+            <h3 style="color: #667eea; margin: 0; font-size: 1.5rem;">📚 Multi-Document</h3>
+            <p style="margin: 0.5rem 0 0 0; color: {card_subtext}; font-size: 1rem;">Synthesize from all sources</p>
         </div>
         """, unsafe_allow_html=True)
     with col3:
-        st.markdown("""
+        st.markdown(f"""
         <div class="feature-card">
-            <h3 style="color: #667eea; margin: 0;">🔔 Smart Alerts</h3>
-            <p style="margin: 0.5rem 0 0 0; color: #666;">Never miss deadlines</p>
+            <h3 style="color: #667eea; margin: 0; font-size: 1.5rem;">🔔 Smart Alerts</h3>
+            <p style="margin: 0.5rem 0 0 0; color: {card_subtext}; font-size: 1rem;">Never miss deadlines</p>
         </div>
         """, unsafe_allow_html=True)
     with col4:
-        st.markdown("""
+        st.markdown(f"""
         <div class="feature-card">
-            <h3 style="color: #667eea; margin: 0;">🎯 Accurate</h3>
-            <p style="margin: 0.5rem 0 0 0; color: #666;">Cited sources included</p>
+            <h3 style="color: #667eea; margin: 0; font-size: 1.5rem;">🎯 Accurate</h3>
+            <p style="margin: 0.5rem 0 0 0; color: {card_subtext}; font-size: 1rem;">Cited sources included</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -424,6 +622,26 @@ def main():
     
     # Sidebar
     with st.sidebar:
+        # Theme Toggle at the top
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.markdown("### 🎨 Theme")
+        with col2:
+            dark_mode = st.toggle("🌙", value=st.session_state.dark_mode, key="theme_toggle", help="Toggle dark/light mode")
+            if dark_mode != st.session_state.dark_mode:
+                st.session_state.dark_mode = dark_mode
+                st.rerun()
+        
+        st.markdown(f"""
+        <div style="text-align: center; padding: 0.5rem; margin-bottom: 1rem; border-radius: 10px; background: {'rgba(102, 126, 234, 0.2)' if dark_mode else 'rgba(102, 126, 234, 0.1)'};">
+            <p style="margin: 0; color: {'#e0e0e0' if dark_mode else '#2d3436'}; font-weight: 500;">
+                {'🌙 Dark Mode' if dark_mode else '☀️ Light Mode'}
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.divider()
+        
         # Check for API key (silently, only show error if missing)
         api_key = load_api_key() or os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")
         if not api_key:
@@ -432,16 +650,18 @@ def main():
         
         # Document processing section with attractive header
         st.markdown("""
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
-            <h2 style="color: white; margin: 0; text-align: center;">📚 Document Management</h2>
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.2rem; border-radius: 15px; margin-bottom: 1.5rem; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);">
+            <h2 style="color: white; margin: 0; text-align: center; font-size: 1.5rem;">📚 Document Management</h2>
         </div>
         """, unsafe_allow_html=True)
         
         # File uploader for new documents with attractive styling
         st.markdown("### 📤 Upload Documents")
-        st.markdown("""
-        <div style="background: #f0f4ff; padding: 1rem; border-radius: 10px; border: 2px dashed #667eea; margin: 1rem 0;">
-            <p style="margin: 0; color: #667eea; text-align: center; font-weight: 500;">
+        upload_bg = "rgba(102, 126, 234, 0.1)" if st.session_state.dark_mode else "#f0f4ff"
+        upload_text = "#e0e0e0" if st.session_state.dark_mode else "#667eea"
+        st.markdown(f"""
+        <div style="background: {upload_bg}; padding: 1.5rem; border-radius: 15px; border: 2px dashed #667eea; margin: 1rem 0; text-align: center;">
+            <p style="margin: 0; color: {upload_text}; font-weight: 600; font-size: 1.1rem;">
                 📎 Drag and drop files here or click to browse
             </p>
         </div>
@@ -513,8 +733,8 @@ def main():
         doc_files = get_document_files()
         if doc_files:
             st.markdown(f"""
-            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 0.75rem; border-radius: 10px; margin: 1rem 0; text-align: center;">
-                <p style="color: white; margin: 0; font-weight: 600;">📚 Found {len(doc_files)} document(s)</p>
+            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 1rem; border-radius: 15px; margin: 1rem 0; text-align: center; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);">
+                <p style="color: white; margin: 0; font-weight: 700; font-size: 1.2rem;">📚 Found {len(doc_files)} document(s)</p>
             </div>
             """, unsafe_allow_html=True)
         else:
@@ -524,9 +744,11 @@ def main():
             with st.expander("📋 View Documents", expanded=False):
                 for idx, doc in enumerate(doc_files):
                     doc_path = Path(doc)
+                    doc_bg = "#1a1a2e" if st.session_state.dark_mode else "#f8f9fa"
+                    doc_text = "#e0e0e0" if st.session_state.dark_mode else "#333"
                     st.markdown(f"""
-                    <div style="background: #f8f9fa; padding: 1rem; border-radius: 10px; margin: 0.5rem 0; border-left: 4px solid #667eea;">
-                        <p style="margin: 0; font-weight: 500; color: #333;">📄 {doc_path.name}</p>
+                    <div style="background: {doc_bg}; padding: 1.2rem; border-radius: 12px; margin: 0.5rem 0; border-left: 4px solid #667eea; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                        <p style="margin: 0; font-weight: 600; color: {doc_text}; font-size: 1rem;">📄 {doc_path.name}</p>
                     </div>
                     """, unsafe_allow_html=True)
                     # Use full path hash or index to ensure unique key
@@ -553,9 +775,9 @@ def main():
         if st.session_state.vector_store:
             count = st.session_state.vector_store.get_collection_count()
             st.markdown(f"""
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 10px; text-align: center; margin: 1rem 0;">
-                <h3 style="color: white; margin: 0; font-size: 2rem;">{count}</h3>
-                <p style="color: rgba(255,255,255,0.9); margin: 0.5rem 0 0 0;">Indexed Chunks</p>
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 15px; text-align: center; margin: 1rem 0; box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);">
+                <h3 style="color: white; margin: 0; font-size: 2.5rem; font-weight: 800;">{count}</h3>
+                <p style="color: rgba(255,255,255,0.95); margin: 0.5rem 0 0 0; font-size: 1.1rem; font-weight: 500;">Indexed Chunks</p>
             </div>
             """, unsafe_allow_html=True)
         
@@ -563,8 +785,8 @@ def main():
         
         # Personalized Alerts Section with attractive header
         st.markdown("""
-        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1rem; border-radius: 10px; margin-bottom: 1rem;">
-            <h2 style="color: white; margin: 0; text-align: center;">🔔 Personalized Alerts</h2>
+        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); padding: 1.2rem; border-radius: 15px; margin-bottom: 1.5rem; box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);">
+            <h2 style="color: white; margin: 0; text-align: center; font-size: 1.5rem;">🔔 Personalized Alerts</h2>
         </div>
         """, unsafe_allow_html=True)
         
@@ -675,13 +897,16 @@ def main():
             if count > 0:
                 st.session_state.documents_processed = True
             else:
-                st.markdown("""
-                <div style="background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%); padding: 2rem; border-radius: 15px; text-align: center; margin: 2rem 0;">
-                    <h2 style="color: #2d3436; margin: 0;">🚀 Get Started!</h2>
-                    <p style="color: #636e72; margin: 1rem 0 0 0; font-size: 1.1rem;">
+                welcome_bg = "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)" if st.session_state.dark_mode else "linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%)"
+                welcome_text = "#e0e0e0" if st.session_state.dark_mode else "#2d3436"
+                welcome_subtext = "#b0b0b0" if st.session_state.dark_mode else "#636e72"
+                st.markdown(f"""
+                <div style="background: {welcome_bg}; padding: 3rem; border-radius: 20px; text-align: center; margin: 2rem 0; box-shadow: 0 15px 40px rgba(0,0,0,0.3); border: 1px solid rgba(102, 126, 234, 0.2);">
+                    <h2 style="color: {welcome_text}; margin: 0; font-size: 2.5rem; font-weight: 800;">🚀 Get Started!</h2>
+                    <p style="color: {welcome_subtext}; margin: 1.5rem 0 0 0; font-size: 1.3rem; font-weight: 500;">
                         👆 Upload and process documents using the sidebar to start asking questions!
                     </p>
-                    <p style="color: #636e72; margin: 0.5rem 0 0 0;">
+                    <p style="color: {welcome_subtext}; margin: 1rem 0 0 0; font-size: 1.1rem;">
                         📤 Upload → 💾 Save → 🔄 Process → 💬 Ask Questions
                     </p>
                 </div>
@@ -698,9 +923,9 @@ def main():
     # Main chat interface with attractive styling
     st.markdown("<br>", unsafe_allow_html=True)
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 15px; margin: 2rem 0;">
-        <h2 style="color: white; margin: 0; text-align: center;">💬 Ask Your Question</h2>
-        <p style="color: rgba(255,255,255,0.9); text-align: center; margin: 0.5rem 0 0 0;">Get instant answers from your college documents</p>
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 20px; margin: 2rem 0; box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);">
+        <h2 style="color: white; margin: 0; text-align: center; font-size: 2rem; font-weight: 700;">💬 Ask Your Question</h2>
+        <p style="color: rgba(255,255,255,0.95); text-align: center; margin: 0.8rem 0 0 0; font-size: 1.1rem;">Get instant answers from your college documents</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -811,16 +1036,20 @@ def main():
                     st.caption(f"Distance: {chunk.get('distance', 'N/A'):.4f}" if chunk.get('distance') else "")
     
     # Attractive Footer
+    footer_bg = "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)" if st.session_state.dark_mode else "linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)"
+    footer_text = "#e0e0e0" if st.session_state.dark_mode else "#667eea"
+    footer_subtext = "#b0b0b0" if st.session_state.dark_mode else "#666"
+    
     st.markdown("<br><br>", unsafe_allow_html=True)
-    st.markdown("""
-    <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 2rem; border-radius: 15px; text-align: center; margin-top: 3rem;">
-        <p style="color: #667eea; font-weight: 600; margin: 0; font-size: 1.1rem;">
+    st.markdown(f"""
+    <div style="background: {footer_bg}; padding: 2.5rem; border-radius: 20px; text-align: center; margin-top: 3rem; box-shadow: 0 8px 32px rgba(0,0,0,0.3); border: 1px solid rgba(102, 126, 234, 0.2);">
+        <p style="color: {footer_text}; font-weight: 700; margin: 0; font-size: 1.3rem;">
             🧭 Campus Compass
         </p>
-        <p style="color: #666; margin: 0.5rem 0 0 0; font-size: 0.9rem;">
+        <p style="color: {footer_subtext}; margin: 0.8rem 0 0 0; font-size: 1rem;">
             Built with RAG (Retrieval-Augmented Generation) | Powered by Google Gemini & ChromaDB
         </p>
-        <p style="color: #999; margin: 0.5rem 0 0 0; font-size: 0.8rem;">
+        <p style="color: {footer_subtext}; margin: 0.5rem 0 0 0; font-size: 0.9rem;">
             ✨ Your AI-powered college information assistant
         </p>
     </div>
