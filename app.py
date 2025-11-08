@@ -667,10 +667,10 @@ def main():
         st.session_state.session_initialized = True
     
     # Attractive Header with Gradient
-    text_color = "#e0e0e0" if st.session_state.dark_mode else "#2d3436"
-    card_bg = "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)" if st.session_state.dark_mode else "white"
-    card_text = "#e0e0e0" if st.session_state.dark_mode else "#2d3436"
-    card_subtext = "#b0b0b0" if st.session_state.dark_mode else "#666"
+    text_color = "#e0e0e0" if st.session_state.dark_mode else "#1e293b"
+    card_bg = "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)" if st.session_state.dark_mode else "linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)"
+    card_text = "#e0e0e0" if st.session_state.dark_mode else "#1e293b"
+    card_subtext = "#b0b0b0" if st.session_state.dark_mode else "#334155"
     
     st.markdown("""
     <div class="header-container">
