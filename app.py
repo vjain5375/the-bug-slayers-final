@@ -710,7 +710,7 @@ def main():
         if uploaded_files:
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("💾 Save Uploaded Documents", type="primary", use_container_width=True, key="save_uploaded_files"):
-                    docs_dir = ensure_documents_directory()
+                docs_dir = ensure_documents_directory()
                     
                     with st.spinner("Saving documents..."):
                         saved_count = 0
