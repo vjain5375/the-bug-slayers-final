@@ -173,38 +173,54 @@ def main():
         
         # File uploader for new documents
         st.markdown("### 📤 Upload Documents")
-        uploaded_files = st.file_uploader(
-            "Upload college documents (PDF, DOCX, or TXT)",
+        uploaded_file = st.file_uploader(
+            "Upload college document (PDF, DOCX, or TXT)",
             type=['pdf', 'docx', 'doc', 'txt'],
-            accept_multiple_files=True,
-            help="Select one or more documents to add to the knowledge base"
+            accept_multiple_files=False,
+            help="Upload a single document. Previous documents will be automatically deleted."
         )
         
-        if uploaded_files:
-            if st.button("💾 Save Uploaded Documents", type="primary", use_container_width=True):
+        if uploaded_file:
+            if st.button("💾 Save Uploaded Document", type="primary", use_container_width=True):
                 docs_dir = ensure_documents_directory()
-                saved_count = 0
-                with st.spinner("Saving documents..."):
-                    for uploaded_file in uploaded_files:
-                        try:
-                            # Determine file extension
-                            file_ext = Path(uploaded_file.name).suffix.lower()
-                            if file_ext not in ['.pdf', '.docx', '.doc', '.txt']:
-                                st.warning(f"Skipping {uploaded_file.name}: Unsupported format")
-                                continue
-                            
-                            # Save file
+                
+                with st.spinner("Saving document..."):
+                    try:
+                        # Delete all existing documents first
+                        existing_docs = get_document_files()
+                        deleted_count = 0
+                        for doc_path in existing_docs:
+                            try:
+                                Path(doc_path).unlink()
+                                deleted_count += 1
+                            except Exception as e:
+                                st.warning(f"Could not delete {Path(doc_path).name}: {e}")
+                        
+                        # Determine file extension
+                        file_ext = Path(uploaded_file.name).suffix.lower()
+                        if file_ext not in ['.pdf', '.docx', '.doc', '.txt']:
+                            st.error(f"Unsupported format: {file_ext}. Please upload PDF, DOCX, or TXT files.")
+                        else:
+                            # Save new file
                             file_path = docs_dir / uploaded_file.name
                             with open(file_path, "wb") as f:
                                 f.write(uploaded_file.getbuffer())
-                            saved_count += 1
-                        except Exception as e:
-                            st.error(f"Error saving {uploaded_file.name}: {str(e)}")
-                
-                if saved_count > 0:
-                    st.success(f"✅ Saved {saved_count} document(s) to documents folder!")
-                    st.info("Click 'Process Documents' below to index them.")
-                    st.rerun()
+                            
+                            # Clear vector store and reset processing status
+                            if st.session_state.vector_store:
+                                st.session_state.vector_store.clear_collection()
+                            st.session_state.documents_processed = False
+                            st.session_state.chat_history = []
+                            st.session_state.alerts_manager.clear_deadlines()
+                            
+                            if deleted_count > 0:
+                                st.success(f"✅ Replaced {deleted_count} old document(s) with '{uploaded_file.name}'")
+                            else:
+                                st.success(f"✅ Saved '{uploaded_file.name}' to documents folder!")
+                            st.info("Click 'Process Documents' below to index it.")
+                            st.rerun()
+                    except Exception as e:
+                        st.error(f"Error saving {uploaded_file.name}: {str(e)}")
         
         st.divider()
         
@@ -311,11 +327,13 @@ def main():
         with st.expander("📖 How to Use"):
             st.markdown("""
             **For New Users:**
-            1. **Upload Documents**: Use the file uploader above to add your college documents
-            2. **Save Documents**: Click "Save Uploaded Documents" to add them to the system
-            3. **Process**: Click "Process Documents" to index them
+            1. **Upload Document**: Use the file uploader above to add your college document
+            2. **Save Document**: Click "Save Uploaded Document" (this will replace any previous documents)
+            3. **Process**: Click "Process Documents" to index it
             4. **Ask Questions**: Type your question in the chat below
             5. **Get Answers**: Receive accurate answers with source citations
+            
+            **Note**: Uploading a new document automatically deletes previous documents to keep your knowledge base clean.
             
             **Alternative**: You can also manually place PDF, DOCX, or TXT files in the `documents/` folder
             
