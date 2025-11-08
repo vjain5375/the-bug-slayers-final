@@ -109,15 +109,20 @@ Always cite your sources when providing information."""
         else:
             if allow_general:
                 system_prompt = """You are Campus Compass, an AI assistant that helps students find information about their college.
-Your primary goal is to answer questions based on the provided context from official college documents.
-IMPORTANT: The context may contain information from multiple documents. Make sure to use information from ALL relevant documents when answering.
-If information is available in multiple documents, synthesize it and cite all relevant sources (e.g., "According to [Document Name 1] and [Document Name 2]...").
-If the answer is clearly available in the context, prioritize that information and cite your sources (e.g., "According to [Document Name]..." or "As stated in [Document Name]...").
-If the answer is not fully available in the context but you can provide helpful general information, you may do so while clearly stating:
-1. What information comes from the documents (if any)
-2. What information is general knowledge
-Use this format: "Based on the available documents: [document-based answer]. Additionally, in general: [general knowledge answer]."
-Be concise, accurate, and helpful. When multiple documents are available, use information from all of them."""
+CRITICAL RULES:
+1. Your answers MUST be based ONLY on the provided context from official college documents.
+2. If the context does NOT contain information relevant to the question, you MUST say: "I don't have that information in the available documents."
+3. DO NOT make up information, guess, or use general knowledge if it's not in the context.
+4. DO NOT answer questions about topics that are not mentioned in the provided context.
+5. If the context contains irrelevant information (e.g., expense reports, personal trips, unrelated topics), ignore it completely and say the information is not available.
+
+When answering:
+- If the answer is clearly available in the context, use that information and cite your sources (e.g., "According to [Document Name]..." or "As stated in [Document Name]...").
+- If the context may contain information from multiple documents, use information from ALL relevant documents when answering.
+- If information is available in multiple documents, synthesize it and cite all relevant sources.
+- If the answer is not in the context, say "I don't have that information in the available documents."
+
+Be concise, accurate, and ONLY use information from the provided context."""
             else:
                 system_prompt = """You are Campus Compass, an AI assistant that helps students find information about their college.
 Your answers must be based ONLY on the provided context from official college documents. 
@@ -130,7 +135,13 @@ Be concise, accurate, and helpful."""
 
 Question: {question}
 
-Please provide a helpful answer based on the context above."""
+IMPORTANT: 
+- Only answer if the context contains information directly relevant to the question.
+- If the context is about unrelated topics (like expense reports, personal trips, etc.) and doesn't answer the question, say "I don't have that information in the available documents."
+- Do not make up information or use general knowledge.
+- Only use information that is explicitly stated in the context above.
+
+Please provide a helpful answer based ONLY on the context above, or state that the information is not available."""
         
         return system_prompt, user_prompt
     
@@ -151,9 +162,23 @@ Please provide a helpful answer based on the context above."""
         # Retrieve relevant chunks (prioritize latest document if specified)
         retrieved_chunks = self.vector_store.search(question, n_results=n_chunks, prioritize_source=prioritize_source)
         
+        # Filter chunks by relevance (distance threshold - lower is better)
+        # Only keep chunks with distance < 0.8 (more similar = lower distance)
+        relevant_chunks = []
+        for chunk in retrieved_chunks:
+            distance = chunk.get('distance', 1.0)
+            # Cosine distance: 0 = identical, 1 = completely different
+            # Keep chunks with distance < 0.8 (reasonably relevant)
+            if distance is not None and distance < 0.8:
+                relevant_chunks.append(chunk)
+        
+        # If no relevant chunks found, use all chunks but warn
+        if not relevant_chunks and retrieved_chunks:
+            relevant_chunks = retrieved_chunks[:3]  # Use top 3 even if not very relevant
+        
         # Format context (even if empty, we'll handle it)
-        if retrieved_chunks:
-            context = self._format_context(retrieved_chunks)
+        if relevant_chunks:
+            context = self._format_context(relevant_chunks)
         else:
             context = "No relevant information found in the available documents."
         
@@ -161,7 +186,7 @@ Please provide a helpful answer based on the context above."""
         system_prompt, user_prompt = self._create_prompt(question, context, summarize, allow_general)
         
         # If no chunks and general answers not allowed, return early
-        if not retrieved_chunks and not allow_general:
+        if not relevant_chunks and not allow_general:
             return {
                 'answer': "I couldn't find any relevant information in the available documents. Please try rephrasing your question or ensure documents have been processed.",
                 'sources': [],
@@ -179,13 +204,13 @@ Please provide a helpful answer based on the context above."""
         except Exception as e:
             answer = f"Error generating answer: {str(e)}. Please check your API key and ensure it's valid."
         
-        # Extract unique sources
-        sources = list(set([chunk['metadata'].get('source', 'Unknown') for chunk in retrieved_chunks])) if retrieved_chunks else []
+        # Extract unique sources from relevant chunks
+        sources = list(set([chunk['metadata'].get('source', 'Unknown') for chunk in relevant_chunks])) if relevant_chunks else []
         
         return {
             'answer': answer,
             'sources': sources,
-            'chunks': retrieved_chunks
+            'chunks': relevant_chunks
         }
     
     def answer_multi_document_question(self, question: str, n_chunks: int = 8, allow_general: bool = True) -> Dict:
@@ -203,9 +228,20 @@ Please provide a helpful answer based on the context above."""
         # Retrieve more chunks for multi-document synthesis
         retrieved_chunks = self.vector_store.search(question, n_results=n_chunks)
         
+        # Filter chunks by relevance (distance threshold)
+        relevant_chunks = []
+        for chunk in retrieved_chunks:
+            distance = chunk.get('distance', 1.0)
+            if distance is not None and distance < 0.8:
+                relevant_chunks.append(chunk)
+        
+        # If no relevant chunks, use top chunks anyway
+        if not relevant_chunks and retrieved_chunks:
+            relevant_chunks = retrieved_chunks[:5]
+        
         # Group chunks by source
         chunks_by_source = {}
-        for chunk in retrieved_chunks:
+        for chunk in relevant_chunks:
             source = chunk['metadata'].get('source', 'Unknown')
             if source not in chunks_by_source:
                 chunks_by_source[source] = []
@@ -224,11 +260,19 @@ Please provide a helpful answer based on the context above."""
         # Create prompt for multi-document synthesis
         if allow_general:
             system_prompt = """You are Campus Compass, an AI assistant that synthesizes information from multiple college documents.
-Your task is to combine information from different sources to provide a comprehensive answer.
-Always cite which document each piece of information comes from.
-If information from multiple sources conflicts, mention this in your answer.
-If the answer is not fully available in the documents but you can provide helpful general information, you may do so while clearly stating what comes from documents vs. general knowledge.
-Be thorough but concise."""
+CRITICAL RULES:
+1. Your answers MUST be based ONLY on the provided context from official college documents.
+2. If the context does NOT contain information relevant to the question, you MUST say: "I don't have that information in the available documents."
+3. DO NOT make up information, guess, or use general knowledge if it's not in the context.
+4. DO NOT answer questions about topics that are not mentioned in the provided context.
+5. If the context contains irrelevant information (e.g., expense reports, personal trips, unrelated topics), ignore it completely and say the information is not available.
+
+When answering:
+- Combine information from different sources to provide a comprehensive answer.
+- Always cite which document each piece of information comes from.
+- If information from multiple sources conflicts, mention this in your answer.
+- If the answer is not in the context, say "I don't have that information in the available documents."
+- Be thorough but concise. ONLY use information from the provided context."""
         else:
             system_prompt = """You are Campus Compass, an AI assistant that synthesizes information from multiple college documents.
 Your task is to combine information from different sources to provide a comprehensive answer.
@@ -242,10 +286,16 @@ Be thorough but concise."""
 
 Question: {question}
 
-Please provide a comprehensive answer by synthesizing information from the relevant documents above."""
+IMPORTANT: 
+- Only answer if the context contains information directly relevant to the question.
+- If the context is about unrelated topics (like expense reports, personal trips, etc.) and doesn't answer the question, say "I don't have that information in the available documents."
+- Do not make up information or use general knowledge.
+- Only use information that is explicitly stated in the context above.
+
+Please provide a comprehensive answer by synthesizing information from the relevant documents above, or state that the information is not available."""
         
         # If no chunks and general answers not allowed, return early
-        if not retrieved_chunks and not allow_general:
+        if not relevant_chunks and not allow_general:
             return {
                 'answer': "I couldn't find any relevant information in the available documents.",
                 'sources': [],
@@ -263,13 +313,13 @@ Please provide a comprehensive answer by synthesizing information from the relev
         except Exception as e:
             answer = f"Error generating answer: {str(e)}. Please check your API key and ensure it's valid."
         
-        # Extract unique sources
-        sources = list(set([chunk['metadata'].get('source', 'Unknown') for chunk in retrieved_chunks])) if retrieved_chunks else []
+        # Extract unique sources from relevant chunks
+        sources = list(set([chunk['metadata'].get('source', 'Unknown') for chunk in relevant_chunks])) if relevant_chunks else []
         
         return {
             'answer': answer,
             'sources': sources,
-            'chunks': retrieved_chunks
+            'chunks': relevant_chunks
         }
 
 
