@@ -1541,38 +1541,7 @@ def main():
             if count > 0:
                 st.session_state.documents_processed = True
             else:
-                welcome_bg = "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)" if st.session_state.dark_mode else "linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%)"
-                welcome_text = "#e0e0e0" if st.session_state.dark_mode else "#2d3436"
-                welcome_subtext = "#b0b0b0" if st.session_state.dark_mode else "#636e72"
-                st.markdown(f"""
-                <div style="background: {welcome_bg}; padding: 3rem; border-radius: 20px; text-align: center; margin: 2rem 0; box-shadow: 0 15px 40px rgba(0,0,0,0.3); border: 1px solid rgba(102, 126, 234, 0.2);">
-                    <h2 style="color: {welcome_text}; margin: 0; font-size: 2.5rem; font-weight: 800;">🚀 Get Started!</h2>
-                    <p style="color: {welcome_subtext}; margin: 1.5rem 0 0 0; font-size: 1.3rem; font-weight: 500;">
-                        👆 Upload and process documents using the sidebar to start asking questions!
-                    </p>
-                    <p style="color: {welcome_subtext}; margin: 1rem 0 0 0; font-size: 1.1rem;">
-                        📤 Upload → 💾 Save → 🔄 Process → 💬 Ask Questions
-                    </p>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # Second Upload Section in Main Content Area
-                st.markdown("<br>", unsafe_allow_html=True)
-                upload_section_bg = "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)" if st.session_state.dark_mode else "white"
-                upload_section_border = "rgba(102, 126, 234, 0.3)" if st.session_state.dark_mode else "rgba(102, 126, 234, 0.2)"
-                upload_section_text = "#e0e0e0" if st.session_state.dark_mode else "#2d3436"
-                upload_section_subtext = "#b0b0b0" if st.session_state.dark_mode else "#666"
-                
-                st.markdown(f"""
-                <div style="background: {upload_section_bg}; padding: 2.5rem; border-radius: 20px; margin: 2rem 0; box-shadow: 0 15px 40px rgba(0,0,0,0.3); border: 2px solid {upload_section_border};">
-                    <h2 style="color: {upload_section_text}; margin: 0 0 1.5rem 0; font-size: 2rem; font-weight: 700; text-align: center;">📤 Upload Documents</h2>
-                    <p style="color: {upload_section_subtext}; text-align: center; margin: 0 0 1.5rem 0; font-size: 1.1rem;">
-                        Upload your college documents (PDF, DOCX, or TXT) to get started
-                    </p>
-                </div>
-                """, unsafe_allow_html=True)
-                
-                # File uploader in main content - Dotted Section as Upload Interface
+                # Centered Upload Section in Main Content Area
                 main_upload_bg = "rgba(102, 126, 234, 0.1)" if st.session_state.dark_mode else "#f0f4ff"
                 main_upload_text = "#e0e0e0" if st.session_state.dark_mode else "#667eea"
                 main_upload_info_text = "#b0b0b0" if st.session_state.dark_mode else "#666"
@@ -1587,17 +1556,26 @@ def main():
                     key="main_uploader"
                 )
                 
-                # Create clickable dotted area that triggers file upload
+                # Center the upload section vertically
                 st.markdown(f"""
-                <div id="upload-wrapper-main" style="position: relative; margin: 1rem 0;">
-                    <div id="upload-container-main" class="upload-button" style="position: relative; background: {main_upload_bg}; padding: 2.5rem; border-radius: 15px; border: 3px dashed #667eea; text-align: center; min-height: 180px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; z-index: 1; transition: all 0.3s ease;">
-                        <div style="font-size: 3.5rem; margin-bottom: 0.5rem;">☁️</div>
-                        <p style="margin: 0; color: {main_upload_text}; font-weight: 700; font-size: 1.2rem;">
-                            Drag and drop files here or click to browse
-                        </p>
-                        <p style="margin: 0.8rem 0 0 0; color: {main_upload_info_text}; font-size: 0.9rem;">
-                            Limit 200MB per file • PDF, DOCX, DOC, TXT
-                        </p>
+                <div style="display: flex; justify-content: center; align-items: center; min-height: 60vh; padding: 2rem 0;">
+                    <div style="width: 100%; max-width: 800px;">
+                        <div style="text-align: center; margin-bottom: 2rem;">
+                            <h2 style="color: {main_upload_text}; margin: 0 0 0.5rem 0; font-size: 2.5rem; font-weight: 800;">🚀 Get Started!</h2>
+                            <p style="color: {main_upload_info_text}; margin: 0; font-size: 1.1rem;">
+                                Upload your college documents to start asking questions
+                            </p>
+                        </div>
+                        <div id="upload-wrapper-main" style="position: relative; margin: 0 auto;">
+                            <div id="upload-container-main" class="upload-button" style="position: relative; background: {main_upload_bg}; padding: 3rem; border-radius: 15px; border: 3px dashed #667eea; text-align: center; min-height: 200px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; z-index: 1; transition: all 0.3s ease;">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">☁️</div>
+                            <p style="margin: 0; color: {main_upload_text}; font-weight: 700; font-size: 1.3rem;">
+                                Drag and drop files here or click to browse
+                            </p>
+                            <p style="margin: 1rem 0 0 0; color: {main_upload_info_text}; font-size: 1rem;">
+                                Limit 200MB per file • PDF, DOCX, DOC, TXT
+                            </p>
+                        </div>
                     </div>
                 </div>
                 <script>
