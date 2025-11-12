@@ -196,27 +196,50 @@ def main():
         
         st.divider()
         
-        # Document Management
+        # Document Management - Sidebar (kept as is)
         st.markdown("### 📚 Document Management")
+        st.markdown("""
+        <div style="background: rgba(102, 126, 234, 0.1); padding: 1rem; border-radius: 10px; margin-bottom: 1rem; border: 2px dashed rgba(102, 126, 234, 0.3);">
+            <p style="color: #667eea; margin: 0; text-align: center; font-weight: 600;">📤 Quick Upload</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
         uploaded_files = st.file_uploader(
-            "Upload Study Materials",
+            "📎 Upload Study Materials",
             type=['pdf', 'docx', 'doc', 'txt'],
-            accept_multiple_files=True
+            accept_multiple_files=True,
+            key="sidebar_uploader",
+            help="Upload PDF, DOCX, or TXT files"
         )
         
         if uploaded_files:
+            st.info(f"📁 {len(uploaded_files)} file(s) selected")
             docs_dir = ensure_documents_directory()
-            if st.button("💾 Save Documents", use_container_width=True):
-                saved = 0
-                for uploaded_file in uploaded_files:
-                    file_path = docs_dir / uploaded_file.name
-                    if not file_path.exists():
-                        with open(file_path, "wb") as f:
-                            f.write(uploaded_file.getbuffer())
-                        saved += 1
-                if saved > 0:
-                    st.success(f"✅ Saved {saved} document(s)!")
-                    st.session_state.documents_processed = False
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("💾 Save", use_container_width=True, key="sidebar_save"):
+                    saved = 0
+                    for uploaded_file in uploaded_files:
+                        file_path = docs_dir / uploaded_file.name
+                        if not file_path.exists():
+                            with open(file_path, "wb") as f:
+                                f.write(uploaded_file.getbuffer())
+                            saved += 1
+                    if saved > 0:
+                        st.success(f"✅ Saved {saved} file(s)!")
+                        st.session_state.documents_processed = False
+                    else:
+                        st.info("Files already exist.")
+            with col2:
+                if st.button("🔄 Process", use_container_width=True, type="primary", key="sidebar_process"):
+                    # Save first if needed
+                    for uploaded_file in uploaded_files:
+                        file_path = docs_dir / uploaded_file.name
+                        if not file_path.exists():
+                            with open(file_path, "wb") as f:
+                                f.write(uploaded_file.getbuffer())
+                    if process_documents():
+                        st.balloons()
         
         doc_files = get_document_files()
         if doc_files:
@@ -248,8 +271,87 @@ def show_home_page():
     """Home page with overview"""
     st.markdown("### 🏠 Welcome to Your Study Assistant")
     
+    # Upload Section in Main Dashboard - More UI Friendly
+    st.markdown("---")
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 20px; margin: 2rem 0; text-align: center; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);">
+        <h2 style="color: white; margin: 0 0 1rem 0; font-size: 2rem;">📤 Upload Your Study Materials</h2>
+        <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 1.1rem;">Upload PDF, DOCX, or TXT files to get started</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Upload area in main section
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        uploaded_files_main = st.file_uploader(
+            "📎 Choose files to upload",
+            type=['pdf', 'docx', 'doc', 'txt'],
+            accept_multiple_files=True,
+            key="main_uploader",
+            help="Select one or more study material files (PDF, DOCX, TXT)"
+        )
+    with col2:
+        st.markdown("<br>", unsafe_allow_html=True)
+        if uploaded_files_main:
+            st.success(f"✅ {len(uploaded_files_main)} file(s) selected")
+    
+    # Save and Process buttons
+    if uploaded_files_main:
+        col1, col2, col3 = st.columns([1, 1, 2])
+        with col1:
+            if st.button("💾 Save Files", use_container_width=True, type="primary", key="save_main_files"):
+                docs_dir = ensure_documents_directory()
+                saved = 0
+                for uploaded_file in uploaded_files_main:
+                    file_path = docs_dir / uploaded_file.name
+                    if not file_path.exists():
+                        with open(file_path, "wb") as f:
+                            f.write(uploaded_file.getbuffer())
+                        saved += 1
+                if saved > 0:
+                    st.success(f"✅ Saved {saved} document(s)!")
+                    st.session_state.documents_processed = False
+                    st.rerun()
+                else:
+                    st.info("Files already exist or no new files to save.")
+        
+        with col2:
+            if st.button("🔄 Process & Index", use_container_width=True, type="primary", key="process_main_files"):
+                # First save files if not saved
+                docs_dir = ensure_documents_directory()
+                for uploaded_file in uploaded_files_main:
+                    file_path = docs_dir / uploaded_file.name
+                    if not file_path.exists():
+                        with open(file_path, "wb") as f:
+                            f.write(uploaded_file.getbuffer())
+                
+                # Then process
+                if process_documents():
+                    st.balloons()
+                    st.rerun()
+    
+    # Show existing documents
+    doc_files = get_document_files()
+    if doc_files:
+        st.markdown("### 📁 Your Documents")
+        with st.expander(f"View {len(doc_files)} uploaded document(s)", expanded=False):
+            for doc in doc_files:
+                doc_name = Path(doc).name
+                col1, col2 = st.columns([3, 1])
+                with col1:
+                    st.markdown(f"📄 **{doc_name}**")
+                with col2:
+                    if st.button("🗑️", key=f"delete_{doc_name}", help=f"Delete {doc_name}"):
+                        try:
+                            Path(doc).unlink()
+                            st.success(f"Deleted {doc_name}")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Error: {e}")
+    
     if not st.session_state.documents_processed:
-        st.info("👆 Upload and process documents in the sidebar to get started!")
+        if not uploaded_files_main:
+            st.info("👆 Upload your study materials above to get started!")
         return
     
     # Quick Access Buttons - Make Flashcards and Quizzes more prominent
