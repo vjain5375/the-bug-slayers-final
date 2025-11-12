@@ -459,8 +459,10 @@ def show_home_page():
     for idx, (page_name, icon) in enumerate(nav_options.items()):
         with nav_cols[idx]:
             button_type = "primary" if st.session_state.current_page == page_name else "secondary"
-            if st.button(f"{icon}\n{page_name}", use_container_width=True, key=f"main_nav_{page_name}", type=button_type):
+            nav_button = st.button(f"{icon}\n{page_name}", use_container_width=True, key=f"main_nav_{page_name}", type=button_type)
+            if nav_button:
                 st.session_state.current_page = page_name
+                # Force rerun to update both main and sidebar
                 st.rerun()
     
     st.markdown("<br>", unsafe_allow_html=True)
@@ -593,22 +595,26 @@ def show_home_page():
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        if st.button("📇 **Flashcards**\n\nGenerate Q/A Cards", use_container_width=True, type="primary", key="quick_flashcards"):
+        quick_flashcards = st.button("📇 **Flashcards**\n\nGenerate Q/A Cards", use_container_width=True, type="primary", key="quick_flashcards")
+        if quick_flashcards:
             st.session_state.current_page = "Flashcards"
             st.rerun()
     
     with col2:
-        if st.button("📝 **Quizzes**\n\nTake Practice Tests", use_container_width=True, type="primary", key="quick_quizzes"):
+        quick_quizzes = st.button("📝 **Quizzes**\n\nTake Practice Tests", use_container_width=True, type="primary", key="quick_quizzes")
+        if quick_quizzes:
             st.session_state.current_page = "Quizzes"
             st.rerun()
     
     with col3:
-        if st.button("📅 **Planner**\n\nRevision Schedule", use_container_width=True, type="primary", key="quick_planner"):
+        quick_planner = st.button("📅 **Planner**\n\nRevision Schedule", use_container_width=True, type="primary", key="quick_planner")
+        if quick_planner:
             st.session_state.current_page = "Revision Planner"
             st.rerun()
     
     with col4:
-        if st.button("💬 **Chat**\n\nAsk Questions", use_container_width=True, type="primary", key="quick_chat"):
+        quick_chat = st.button("💬 **Chat**\n\nAsk Questions", use_container_width=True, type="primary", key="quick_chat")
+        if quick_chat:
             st.session_state.current_page = "Chat Assistant"
             st.rerun()
     
