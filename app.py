@@ -182,14 +182,23 @@ def main():
             "Analytics": "📊"
         }
         
+        # Get current index for radio button
+        current_index = 0
+        if st.session_state.current_page in nav_options:
+            current_index = list(nav_options.keys()).index(st.session_state.current_page)
+        
         page = st.radio(
             "Select Page",
             list(nav_options.keys()),
             format_func=lambda x: f"{nav_options[x]} {x}",
             key="page_selector",
-            index=0 if st.session_state.current_page not in nav_options else list(nav_options.keys()).index(st.session_state.current_page)
+            index=current_index
         )
-        st.session_state.current_page = page
+        
+        # Sync with main page navigation
+        if page != st.session_state.current_page:
+            st.session_state.current_page = page
+            st.rerun()
         
         st.markdown("---")
         st.markdown("**💡 Tip:** Use the buttons above to quickly access Flashcards and Quizzes!")
@@ -212,14 +221,23 @@ def main():
             help="Upload PDF, DOCX, or TXT files"
         )
         
+        # Sync with main page upload
         if uploaded_files:
+            st.session_state.uploaded_files_shared = uploaded_files
             st.info(f"📁 {len(uploaded_files)} file(s) selected")
+        elif st.session_state.get('uploaded_files_shared'):
+            st.info(f"📁 {len(st.session_state.uploaded_files_shared)} file(s) from main page")
+        
+        # Use shared files
+        files_to_process_sidebar = uploaded_files if uploaded_files else st.session_state.get('uploaded_files_shared')
+        
+        if files_to_process_sidebar:
             docs_dir = ensure_documents_directory()
             col1, col2 = st.columns(2)
             with col1:
                 if st.button("💾 Save", use_container_width=True, key="sidebar_save"):
                     saved = 0
-                    for uploaded_file in uploaded_files:
+                    for uploaded_file in files_to_process_sidebar:
                         file_path = docs_dir / uploaded_file.name
                         if not file_path.exists():
                             with open(file_path, "wb") as f:
@@ -228,18 +246,22 @@ def main():
                     if saved > 0:
                         st.success(f"✅ Saved {saved} file(s)!")
                         st.session_state.documents_processed = False
+                        st.session_state.uploaded_files_shared = None  # Clear after saving
+                        st.rerun()
                     else:
                         st.info("Files already exist.")
             with col2:
                 if st.button("🔄 Process", use_container_width=True, type="primary", key="sidebar_process"):
                     # Save first if needed
-                    for uploaded_file in uploaded_files:
+                    for uploaded_file in files_to_process_sidebar:
                         file_path = docs_dir / uploaded_file.name
                         if not file_path.exists():
                             with open(file_path, "wb") as f:
                                 f.write(uploaded_file.getbuffer())
                     if process_documents():
+                        st.session_state.uploaded_files_shared = None  # Clear after processing
                         st.balloons()
+                        st.rerun()
         
         doc_files = get_document_files()
         if doc_files:
@@ -271,6 +293,28 @@ def show_home_page():
     """Home page with overview"""
     st.markdown("### 🏠 Welcome to Your Study Assistant")
     
+    # Navigation Buttons on Main Page - Synced with Sidebar
+    st.markdown("### 🎯 Navigation")
+    nav_options = {
+        "Home": "🏠",
+        "Flashcards": "📇",
+        "Quizzes": "📝",
+        "Revision Planner": "📅",
+        "Chat Assistant": "💬",
+        "Analytics": "📊"
+    }
+    
+    # Create navigation buttons in a grid
+    nav_cols = st.columns(6)
+    for idx, (page_name, icon) in enumerate(nav_options.items()):
+        with nav_cols[idx]:
+            button_type = "primary" if st.session_state.current_page == page_name else "secondary"
+            if st.button(f"{icon}\n{page_name}", use_container_width=True, key=f"main_nav_{page_name}", type=button_type):
+                st.session_state.current_page = page_name
+                st.rerun()
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
     # Upload Section in Main Dashboard - More UI Friendly
     st.markdown("---")
     st.markdown("""
@@ -280,7 +324,11 @@ def show_home_page():
     </div>
     """, unsafe_allow_html=True)
     
-    # Upload area in main section
+    # Upload area in main section - Synced with sidebar
+    # Use session state to sync uploads between main and sidebar
+    if 'uploaded_files_shared' not in st.session_state:
+        st.session_state.uploaded_files_shared = None
+    
     col1, col2 = st.columns([2, 1])
     with col1:
         uploaded_files_main = st.file_uploader(
@@ -290,19 +338,27 @@ def show_home_page():
             key="main_uploader",
             help="Select one or more study material files (PDF, DOCX, TXT)"
         )
+        # Sync with sidebar
+        if uploaded_files_main:
+            st.session_state.uploaded_files_shared = uploaded_files_main
     with col2:
         st.markdown("<br>", unsafe_allow_html=True)
         if uploaded_files_main:
             st.success(f"✅ {len(uploaded_files_main)} file(s) selected")
+        elif st.session_state.uploaded_files_shared:
+            st.info(f"📁 {len(st.session_state.uploaded_files_shared)} file(s) from sidebar")
+    
+    # Use shared uploaded files if main uploader is empty but sidebar has files
+    files_to_process = uploaded_files_main if uploaded_files_main else st.session_state.uploaded_files_shared
     
     # Save and Process buttons
-    if uploaded_files_main:
+    if files_to_process:
         col1, col2, col3 = st.columns([1, 1, 2])
         with col1:
             if st.button("💾 Save Files", use_container_width=True, type="primary", key="save_main_files"):
                 docs_dir = ensure_documents_directory()
                 saved = 0
-                for uploaded_file in uploaded_files_main:
+                for uploaded_file in files_to_process:
                     file_path = docs_dir / uploaded_file.name
                     if not file_path.exists():
                         with open(file_path, "wb") as f:
@@ -311,6 +367,7 @@ def show_home_page():
                 if saved > 0:
                     st.success(f"✅ Saved {saved} document(s)!")
                     st.session_state.documents_processed = False
+                    st.session_state.uploaded_files_shared = None  # Clear after saving
                     st.rerun()
                 else:
                     st.info("Files already exist or no new files to save.")
@@ -319,7 +376,7 @@ def show_home_page():
             if st.button("🔄 Process & Index", use_container_width=True, type="primary", key="process_main_files"):
                 # First save files if not saved
                 docs_dir = ensure_documents_directory()
-                for uploaded_file in uploaded_files_main:
+                for uploaded_file in files_to_process:
                     file_path = docs_dir / uploaded_file.name
                     if not file_path.exists():
                         with open(file_path, "wb") as f:
@@ -327,6 +384,7 @@ def show_home_page():
                 
                 # Then process
                 if process_documents():
+                    st.session_state.uploaded_files_shared = None  # Clear after processing
                     st.balloons()
                     st.rerun()
     
