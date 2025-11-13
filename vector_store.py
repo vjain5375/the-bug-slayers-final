@@ -141,6 +141,22 @@ class VectorStore:
     
     def get_collection_count(self) -> int:
         """Get the number of documents in the collection"""
-        return self.collection.count()
+        try:
+            # Check if collection exists
+            if self.collection is None:
+                return 0
+            return self.collection.count()
+        except Exception as e:
+            # If collection doesn't exist or any error occurs, return 0
+            print(f"Error getting collection count: {e}")
+            # Try to recreate collection if it was deleted
+            try:
+                self.collection = self.client.get_or_create_collection(
+                    name="campus_compass",
+                    metadata={"hnsw:space": "cosine"}
+                )
+                return self.collection.count()
+            except:
+                return 0
 
 

@@ -71,6 +71,73 @@ def load_api_key():
     
     return api_key
 
+def show_extended_balloons(duration_seconds=3):
+    """Show balloons animation for extended duration (2-3 seconds)"""
+    import random
+    
+    # Generate multiple balloons with random positions and delays
+    colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F', '#BB8FCE', '#85C1E2']
+    balloons_html = f"""
+    <div id="balloons-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; overflow: hidden;">
+    """
+    
+    # Create 25 balloons with random properties
+    for i in range(25):
+        color = random.choice(colors)
+        left_pos = random.randint(0, 95)
+        delay = random.uniform(0, 0.5)
+        random_x = random.randint(-100, 100)
+        random_rotate = random.randint(0, 360)
+        
+        balloons_html += f"""
+        <div class="balloon" style="left: {left_pos}%; animation-delay: {delay}s; --random-x: {random_x}px; --random-rotate: {random_rotate}deg; background-color: {color};"></div>
+        """
+    
+    balloons_html += """
+    </div>
+    <style>
+        @keyframes float-up {
+            0% {
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) translateX(var(--random-x)) rotate(var(--random-rotate));
+                opacity: 0;
+            }
+        }
+        .balloon {
+            position: absolute;
+            width: 50px;
+            height: 60px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            animation: float-up """ + str(duration_seconds) + """s ease-out forwards;
+            bottom: -100px;
+        }
+        .balloon::before {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 80px;
+            background: rgba(0,0,0,0.2);
+        }
+    </style>
+    <script>
+        // Remove container after animation completes
+        setTimeout(function() {
+            var container = document.getElementById('balloons-container');
+            if (container) {
+                container.remove();
+            }
+        }, """ + str(duration_seconds * 1000 + 500) + """);
+    </script>
+    """
+    
+    st.markdown(balloons_html, unsafe_allow_html=True)
+
 # Page configuration
 st.set_page_config(
     page_title="AI Study Assistant",
@@ -188,8 +255,8 @@ def process_documents():
             # Store processing results for display
             st.session_state.processing_results = result
             
-            # Celebration effect - Balloons animation
-            st.balloons()
+            # Celebration effect - Extended Balloons animation (2-3 seconds)
+            show_extended_balloons(duration_seconds=3)
             
             return True
         else:
