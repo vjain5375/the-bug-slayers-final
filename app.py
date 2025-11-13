@@ -103,6 +103,8 @@ if 'session_initialized' not in st.session_state:
     st.session_state.uploaded_files_shared = None
     st.session_state.latest_document = None
     st.session_state.document_upload_order = []  # Track upload order
+    st.session_state.num_flashcards = 10  # Reset to default
+    st.session_state.num_questions = 10  # Reset to default
 
 if 'agent_controller' not in st.session_state:
     st.session_state.agent_controller = None
@@ -126,6 +128,10 @@ if 'latest_document' not in st.session_state:
     st.session_state.latest_document = None
 if 'document_upload_order' not in st.session_state:
     st.session_state.document_upload_order = []
+if 'num_flashcards' not in st.session_state:
+    st.session_state.num_flashcards = 10
+if 'num_questions' not in st.session_state:
+    st.session_state.num_questions = 10
 
 # Load CSS (simplified version - can be expanded)
 st.markdown("""
@@ -929,7 +935,7 @@ def show_home_page():
         st.markdown("---")
     
     if not st.session_state.documents_processed:
-        if not uploaded_files_main:
+        if not st.session_state.get('uploaded_files_shared'):
             st.info("👆 Upload your study materials above to get started!")
         return
     
@@ -1011,13 +1017,15 @@ def show_flashcards_page():
     
     col1, col2 = st.columns([3, 1])
     with col1:
-        num_flashcards = st.slider("Number of flashcards", 5, 30, 10)
+        num_flashcards = st.slider("Number of flashcards", 5, 30, value=st.session_state.num_flashcards, key="flashcard_slider")
     with col2:
         if st.button("🔄 Generate Flashcards", use_container_width=True, type="primary"):
             with st.spinner("Generating flashcards..."):
                 flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards)
                 st.session_state.flashcards = flashcards
+                st.session_state.num_flashcards = 10  # Reset to default
                 st.success(f"✅ Generated {len(flashcards)} flashcards!")
+                st.rerun()
     
     # Load existing flashcards
     if not st.session_state.flashcards:
@@ -1049,7 +1057,7 @@ def show_quizzes_page():
     with col1:
         difficulty = st.selectbox("Difficulty", ["easy", "medium", "hard"], index=1)
     with col2:
-        num_questions = st.slider("Questions", 3, 10, 5)
+        num_questions = st.slider("Questions", 3, 10, value=st.session_state.num_questions, key="quiz_slider")
     with col3:
         adaptive = st.checkbox("Adaptive", value=True)
         if st.button("🎯 Generate Quiz", use_container_width=True, type="primary"):
@@ -1059,7 +1067,9 @@ def show_quizzes_page():
                 )
                 st.session_state.quizzes = questions
                 st.session_state.quiz_answers = {}
+                st.session_state.num_questions = 10  # Reset to default
                 st.success(f"✅ Generated {len(questions)} questions!")
+                st.rerun()
     
     # Display quiz
     if st.session_state.quizzes:
