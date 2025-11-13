@@ -209,8 +209,116 @@ def main():
     </div>
     """, unsafe_allow_html=True)
     
-    # Sidebar Navigation - Made more prominent
+    # Sidebar - Upload Section First, then Navigation
     with st.sidebar:
+        # Document Management - Upload Section (Moved to top)
+        st.markdown("### 📚 Document Management")
+        st.markdown("""
+        <div style="background: rgba(102, 126, 234, 0.1); padding: 1rem; border-radius: 10px; margin-bottom: 1rem; border: 2px dashed rgba(102, 126, 234, 0.3);">
+            <p style="color: #667eea; margin: 0; text-align: center; font-weight: 600;">📤 Quick Upload</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        uploaded_files = st.file_uploader(
+            "📎 Upload Study Materials",
+            type=['pdf', 'docx', 'doc', 'txt'],
+            accept_multiple_files=True,
+            key="sidebar_uploader",
+            help="Upload PDF, DOCX, or TXT files"
+        )
+        
+        # Sync with main page upload
+        if uploaded_files:
+            st.session_state.uploaded_files_shared = uploaded_files
+            st.info(f"📁 {len(uploaded_files)} file(s) selected")
+        elif st.session_state.get('uploaded_files_shared'):
+            st.info(f"📁 {len(st.session_state.uploaded_files_shared)} file(s) from main page")
+        
+        # Use shared files
+        files_to_process_sidebar = uploaded_files if uploaded_files else st.session_state.get('uploaded_files_shared')
+        
+        if files_to_process_sidebar:
+            docs_dir = ensure_documents_directory()
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("💾 Save", use_container_width=True, key="sidebar_save"):
+                    saved = 0
+                    saved_files = []
+                    for uploaded_file in files_to_process_sidebar:
+                        file_path = docs_dir / uploaded_file.name
+                        if not file_path.exists():
+                            with open(file_path, "wb") as f:
+                                f.write(uploaded_file.getbuffer())
+                            saved += 1
+                            saved_files.append(uploaded_file.name)
+                            # Track upload order
+                            if uploaded_file.name not in st.session_state.document_upload_order:
+                                st.session_state.document_upload_order.append(uploaded_file.name)
+                            else:
+                                # Move to end if already exists (re-upload)
+                                st.session_state.document_upload_order.remove(uploaded_file.name)
+                                st.session_state.document_upload_order.append(uploaded_file.name)
+                    
+                    if saved > 0:
+                        # Update latest document
+                        if saved_files:
+                            st.session_state.latest_document = saved_files[-1]
+                        st.success(f"✅ Saved {saved} file(s)!")
+                        st.session_state.documents_processed = False
+                        st.session_state.uploaded_files_shared = None  # Clear after saving
+                        st.rerun()
+                    else:
+                        st.info("Files already exist.")
+            with col2:
+                if st.button("🔄 Process", use_container_width=True, type="primary", key="sidebar_process"):
+                    # Save first if needed
+                    saved_files = []
+                    for uploaded_file in files_to_process_sidebar:
+                        file_path = docs_dir / uploaded_file.name
+                        if not file_path.exists():
+                            with open(file_path, "wb") as f:
+                                f.write(uploaded_file.getbuffer())
+                            saved_files.append(uploaded_file.name)
+                            # Track upload order
+                            if uploaded_file.name not in st.session_state.document_upload_order:
+                                st.session_state.document_upload_order.append(uploaded_file.name)
+                            else:
+                                # Move to end if already exists (re-upload)
+                                st.session_state.document_upload_order.remove(uploaded_file.name)
+                                st.session_state.document_upload_order.append(uploaded_file.name)
+                    
+                    # Update latest document before processing
+                    if saved_files:
+                        st.session_state.latest_document = saved_files[-1]
+                    
+                    if process_documents():
+                        st.session_state.uploaded_files_shared = None  # Clear after processing
+                        # Balloons already shown in process_documents()
+                        # Show summary in sidebar
+                        if 'processing_results' in st.session_state:
+                            result = st.session_state.processing_results
+                            st.success(f"✅ {result['total_chunks']} chunks, {result['total_topics']} topics!")
+                        st.rerun()
+        
+        doc_files = get_document_files()
+        if doc_files:
+            st.info(f"📁 {len(doc_files)} document(s) ready")
+        
+        if st.button("🔄 Process Documents", use_container_width=True, type="primary"):
+            if process_documents():
+                # Balloons already shown in process_documents()
+                # Show summary in sidebar
+                if 'processing_results' in st.session_state:
+                    result = st.session_state.processing_results
+                    st.success(f"✅ {result['total_chunks']} chunks, {result['total_topics']} topics extracted!")
+        
+        if st.session_state.vector_store:
+            count = st.session_state.vector_store.get_collection_count()
+            st.metric("Indexed Chunks", count)
+        
+        st.divider()
+        
+        # Navigation Section (Moved below Upload)
         st.markdown("""
         <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 15px; margin-bottom: 1rem; text-align: center;">
             <h2 style="color: white; margin: 0; font-size: 1.5rem;">🎯 Navigation</h2>
@@ -397,99 +505,16 @@ def main():
             count = st.session_state.vector_store.get_collection_count()
             st.metric("Indexed Chunks", count)
     
-    # Navigation Buttons - Always visible in main section
-    st.markdown("### 🎯 Navigation")
-    nav_options = {
-        "Home": "🏠",
-        "Flashcards": "📇",
-        "Quizzes": "📝",
-        "Revision Planner": "📅",
-        "Chat Assistant": "💬",
-        "Analytics": "📊"
-    }
-    
-    # Create navigation buttons in a grid - Always visible
-    nav_cols = st.columns(6)
-    for idx, (page_name, icon) in enumerate(nav_options.items()):
-        with nav_cols[idx]:
-            button_type = "primary" if st.session_state.current_page == page_name else "secondary"
-            nav_button = st.button(f"{icon}\n{page_name}", use_container_width=True, key=f"main_nav_{page_name}", type=button_type)
-            if nav_button:
-                st.session_state.current_page = page_name
-                st.rerun()
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Main Content Area
-    if st.session_state.current_page == "Home":
-        show_home_page()
-    elif st.session_state.current_page == "Flashcards":
-        show_flashcards_page()
-    elif st.session_state.current_page == "Quizzes":
-        show_quizzes_page()
-    elif st.session_state.current_page == "Revision Planner":
-        show_planner_page()
-    elif st.session_state.current_page == "Chat Assistant":
-        show_chat_page()
-    elif st.session_state.current_page == "Analytics":
-        show_analytics_page()
-
-def show_home_page():
-    """Home page with overview"""
-    st.markdown("### 🏠 Welcome to Your Study Assistant")
-    
-    # Workflow Guide Section on Main Page
-    with st.expander("📖 How It Works - Complete Workflow", expanded=True):
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 2rem; border-radius: 15px; border: 1px solid rgba(102, 126, 234, 0.3);">
-            <h3 style="color: #667eea; margin-top: 0;">🔄 AI Study Assistant Workflow</h3>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Visual workflow steps
-        workflow_steps = [
-            ("📤 Upload", "PDF/Image/Text Upload", "Upload your study materials (PDF, DOCX, TXT)"),
-            ("📄 Extract", "Text Extraction", "System extracts text from PDFs or uses OCR for images"),
-            ("✂️ Chunk", "Text Chunking", "Text is divided into manageable pieces while preserving context"),
-            ("🏷️ Classify", "Topic Classification", "AI identifies topics and subtopics using LLM"),
-            ("🔍 Embed", "Create Embeddings", "Generates semantic search vectors for intelligent retrieval"),
-            ("✨ Generate", "Flashcards, Quiz, Planner", "Auto-generate study materials based on your content"),
-            ("💬 Chat", "Ask Questions", "Get answers with source citations for better understanding")
-        ]
-        
-        for i, (icon, title, desc) in enumerate(workflow_steps, 1):
-            col1, col2 = st.columns([1, 10])
-            with col1:
-                st.markdown(f"### {icon}")
-            with col2:
-                st.markdown(f"**{i}. {title}** - {desc}")
-                if i < len(workflow_steps):
-                    st.markdown("⬇️")
-        
-        st.markdown("---")
-        st.markdown("""
-        ### 🚀 Quick Start Guide
-        
-        1. **Upload** your study materials (PDF, DOCX, or TXT files)
-        2. **Save** the files to your document library
-        3. **Process** to extract, chunk, and index the content
-        4. **Generate** flashcards, quizzes, or create a revision plan
-        5. **Chat** to ask questions and get instant answers
-        
-        **💡 Pro Tip:** The most recently uploaded document gets priority in searches!
-        """)
-    
-    # Upload Section in Main Dashboard - More UI Friendly
-    st.markdown("---")
+    # Upload Section in Main Dashboard - Moved Above Navigation
+    st.markdown("### 📤 Upload Your Study Materials")
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 20px; margin: 2rem 0; text-align: center; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);">
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 20px; margin: 1rem 0; text-align: center; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);">
         <h2 style="color: white; margin: 0 0 1rem 0; font-size: 2rem;">📤 Upload Your Study Materials</h2>
         <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 1.1rem;">Upload PDF, DOCX, or TXT files to get started</p>
     </div>
     """, unsafe_allow_html=True)
     
     # Upload area in main section - Synced with sidebar
-    # Use session state to sync uploads between main and sidebar
     if 'uploaded_files_shared' not in st.session_state:
         st.session_state.uploaded_files_shared = None
     
@@ -596,6 +621,90 @@ def show_home_page():
                             st.rerun()
                         except Exception as e:
                             st.error(f"Error: {e}")
+    
+    st.markdown("---")
+    
+    # Navigation Buttons - Below Upload Section
+    st.markdown("### 🎯 Navigation")
+    nav_options = {
+        "Home": "🏠",
+        "Flashcards": "📇",
+        "Quizzes": "📝",
+        "Revision Planner": "📅",
+        "Chat Assistant": "💬",
+        "Analytics": "📊"
+    }
+    
+    # Create navigation buttons in a grid - Always visible
+    nav_cols = st.columns(6)
+    for idx, (page_name, icon) in enumerate(nav_options.items()):
+        with nav_cols[idx]:
+            button_type = "primary" if st.session_state.current_page == page_name else "secondary"
+            nav_button = st.button(f"{icon}\n{page_name}", use_container_width=True, key=f"main_nav_{page_name}", type=button_type)
+            if nav_button:
+                st.session_state.current_page = page_name
+                st.rerun()
+    
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Main Content Area
+    if st.session_state.current_page == "Home":
+        show_home_page()
+    elif st.session_state.current_page == "Flashcards":
+        show_flashcards_page()
+    elif st.session_state.current_page == "Quizzes":
+        show_quizzes_page()
+    elif st.session_state.current_page == "Revision Planner":
+        show_planner_page()
+    elif st.session_state.current_page == "Chat Assistant":
+        show_chat_page()
+    elif st.session_state.current_page == "Analytics":
+        show_analytics_page()
+
+def show_home_page():
+    """Home page with overview"""
+    st.markdown("### 🏠 Welcome to Your Study Assistant")
+    
+    # Workflow Guide Section on Main Page
+    with st.expander("📖 How It Works - Complete Workflow", expanded=True):
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 2rem; border-radius: 15px; border: 1px solid rgba(102, 126, 234, 0.3);">
+            <h3 style="color: #667eea; margin-top: 0;">🔄 AI Study Assistant Workflow</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Visual workflow steps
+        workflow_steps = [
+            ("📤 Upload", "PDF/Image/Text Upload", "Upload your study materials (PDF, DOCX, TXT)"),
+            ("📄 Extract", "Text Extraction", "System extracts text from PDFs or uses OCR for images"),
+            ("✂️ Chunk", "Text Chunking", "Text is divided into manageable pieces while preserving context"),
+            ("🏷️ Classify", "Topic Classification", "AI identifies topics and subtopics using LLM"),
+            ("🔍 Embed", "Create Embeddings", "Generates semantic search vectors for intelligent retrieval"),
+            ("✨ Generate", "Flashcards, Quiz, Planner", "Auto-generate study materials based on your content"),
+            ("💬 Chat", "Ask Questions", "Get answers with source citations for better understanding")
+        ]
+        
+        for i, (icon, title, desc) in enumerate(workflow_steps, 1):
+            col1, col2 = st.columns([1, 10])
+            with col1:
+                st.markdown(f"### {icon}")
+            with col2:
+                st.markdown(f"**{i}. {title}** - {desc}")
+                if i < len(workflow_steps):
+                    st.markdown("⬇️")
+        
+        st.markdown("---")
+        st.markdown("""
+        ### 🚀 Quick Start Guide
+        
+        1. **Upload** your study materials (PDF, DOCX, or TXT files)
+        2. **Save** the files to your document library
+        3. **Process** to extract, chunk, and index the content
+        4. **Generate** flashcards, quizzes, or create a revision plan
+        5. **Chat** to ask questions and get instant answers
+        
+        **💡 Pro Tip:** The most recently uploaded document gets priority in searches!
+        """)
     
     # Show processing results if available
     if st.session_state.documents_processed and 'processing_results' in st.session_state:
