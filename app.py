@@ -374,7 +374,7 @@ def main():
                     
                     if process_documents():
                         st.session_state.uploaded_files_shared = None  # Clear after processing
-                        st.balloons()
+                        # Balloons already shown in process_documents()
                         # Show summary in sidebar
                         if 'processing_results' in st.session_state:
                             result = st.session_state.processing_results
@@ -387,7 +387,7 @@ def main():
         
         if st.button("🔄 Process Documents", use_container_width=True, type="primary"):
             if process_documents():
-                st.balloons()
+                # Balloons already shown in process_documents()
                 # Show summary in sidebar
                 if 'processing_results' in st.session_state:
                     result = st.session_state.processing_results
