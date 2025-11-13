@@ -197,6 +197,274 @@ def main():
     """Main application"""
     initialize_components()
     
+    # Enhanced UI Styling - Smooth and Beautiful
+    st.markdown("""
+    <style>
+        /* Smooth Transitions for All Elements */
+        * {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* Enhanced Buttons with Smooth Hover Effects */
+        .stButton > button {
+            border-radius: 12px !important;
+            font-weight: 600 !important;
+            padding: 0.75rem 1.5rem !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+            border: none !important;
+            transform: translateY(0) !important;
+        }
+        
+        .stButton > button:hover {
+            transform: translateY(-3px) scale(1.02) !important;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3) !important;
+        }
+        
+        .stButton > button:active {
+            transform: translateY(-1px) scale(0.98) !important;
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.2) !important;
+        }
+        
+        /* Primary Buttons - Enhanced */
+        .stButton > button[kind="primary"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+        }
+        
+        .stButton > button[kind="primary"]:hover {
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5) !important;
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
+        }
+        
+        /* Secondary Buttons - Enhanced */
+        .stButton > button[kind="secondary"] {
+            background: rgba(102, 126, 234, 0.1) !important;
+            color: #667eea !important;
+            border: 2px solid rgba(102, 126, 234, 0.3) !important;
+        }
+        
+        .stButton > button[kind="secondary"]:hover {
+            background: rgba(102, 126, 234, 0.2) !important;
+            border-color: rgba(102, 126, 234, 0.5) !important;
+        }
+        
+        /* Enhanced Input Fields */
+        .stTextInput > div > div > input,
+        .stTextArea > div > div > textarea {
+            border-radius: 12px !important;
+            border: 2px solid rgba(102, 126, 234, 0.2) !important;
+            padding: 0.75rem 1rem !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+        }
+        
+        .stTextInput > div > div > input:focus,
+        .stTextArea > div > div > textarea:focus {
+            border-color: #667eea !important;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), 0 4px 15px rgba(102, 126, 234, 0.2) !important;
+            transform: translateY(-2px) !important;
+        }
+        
+        /* Enhanced File Uploader */
+        .stFileUploader {
+            border-radius: 12px !important;
+            padding: 1rem !important;
+            border: 2px dashed rgba(102, 126, 234, 0.3) !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        .stFileUploader:hover {
+            border-color: rgba(102, 126, 234, 0.5) !important;
+            background: rgba(102, 126, 234, 0.05) !important;
+        }
+        
+        /* Enhanced Cards and Containers */
+        .stMarkdown > div {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        /* Enhanced Expanders */
+        .streamlit-expanderHeader {
+            border-radius: 10px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            padding: 0.75rem 1rem !important;
+        }
+        
+        .streamlit-expanderHeader:hover {
+            background: rgba(102, 126, 234, 0.05) !important;
+            transform: translateX(5px) !important;
+        }
+        
+        /* Enhanced Metrics */
+        [data-testid="stMetricValue"] {
+            font-weight: 700 !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        [data-testid="stMetricContainer"]:hover [data-testid="stMetricValue"] {
+            transform: scale(1.05) !important;
+        }
+        
+        /* Enhanced Radio Buttons */
+        .stRadio > div {
+            gap: 0.5rem !important;
+        }
+        
+        .stRadio > div > label {
+            padding: 0.75rem 1rem !important;
+            border-radius: 10px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            border: 2px solid transparent !important;
+        }
+        
+        .stRadio > div > label:hover {
+            background: rgba(102, 126, 234, 0.1) !important;
+            transform: translateX(5px) !important;
+        }
+        
+        /* Enhanced Success/Info/Error Messages */
+        .stSuccess, .stInfo, .stError, .stWarning {
+            border-radius: 12px !important;
+            padding: 1rem !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Enhanced Sidebar */
+        [data-testid="stSidebar"] {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        /* Enhanced Spacing */
+        .main .block-container {
+            padding-top: 2rem !important;
+            padding-bottom: 3rem !important;
+        }
+        
+        /* Smooth Header Animation */
+        h1, h2, h3 {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        /* Enhanced Dividers */
+        hr {
+            margin: 2rem 0 !important;
+            border: none !important;
+            height: 2px !important;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent) !important;
+        }
+        
+        /* Enhanced Columns */
+        [data-testid="column"] {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        /* Smooth Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+        
+        /* Enhanced Selectbox */
+        .stSelectbox > div > div {
+            border-radius: 12px !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        .stSelectbox > div > div:hover {
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2) !important;
+        }
+        
+        /* Enhanced Spinner */
+        .stSpinner > div {
+            border-color: #667eea !important;
+        }
+        
+        /* Smooth Page Transitions */
+        .main {
+            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Enhanced Cards with Hover Effect */
+        div[data-testid="stMarkdownContainer"] > div {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        /* Better Focus States */
+        button:focus,
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2) !important;
+        }
+        
+        /* Enhanced Container Shadows */
+        .stMarkdown > div[style*="box-shadow"] {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        /* Smooth Text Selection */
+        ::selection {
+            background: rgba(102, 126, 234, 0.3);
+            color: inherit;
+        }
+        
+        /* Enhanced Loading States */
+        [data-testid="stSpinner"] {
+            animation: spin 1s linear infinite !important;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    """, unsafe_allow_html=True)
+    
     # Header
     st.markdown("""
     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem 2rem; border-radius: 20px; margin-bottom: 2rem; text-align: center; box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);">
