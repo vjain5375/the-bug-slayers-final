@@ -184,6 +184,10 @@ def process_documents():
             st.session_state.documents_processed = True
             latest_info = f" (Latest: {st.session_state.latest_document})" if st.session_state.latest_document else ""
             st.success(f"✅ Processed {result['total_chunks']} chunks from {result['total_topics']} topics!{latest_info}")
+            
+            # Store processing results for display
+            st.session_state.processing_results = result
+            
             return True
         else:
             st.error("No content could be extracted from documents.")
@@ -581,6 +585,71 @@ def show_home_page():
                             st.rerun()
                         except Exception as e:
                             st.error(f"Error: {e}")
+    
+    # Show processing results if available
+    if st.session_state.documents_processed and 'processing_results' in st.session_state:
+        result = st.session_state.processing_results
+        
+        # Display Topics with Key Points
+        if result.get('topics'):
+            st.markdown("### 📚 Extracted Topics & Key Points")
+            topics = result['topics']
+            
+            for idx, topic_data in enumerate(topics[:10], 1):  # Show first 10 topics
+                topic_name = topic_data.get('topic', f'Topic {idx}')
+                subtopics = topic_data.get('subtopics', [])
+                key_points = topic_data.get('key_points', [])
+                
+                with st.expander(f"📖 {idx}. {topic_name}", expanded=(idx == 1)):
+                    if subtopics:
+                        st.markdown("**Subtopics:**")
+                        for subtopic in subtopics[:5]:  # Show first 5 subtopics
+                            st.markdown(f"  • {subtopic}")
+                    
+                    if key_points:
+                        st.markdown("**Key Points:**")
+                        for point in key_points[:5]:  # Show first 5 key points
+                            st.markdown(f"  ✓ {point}")
+                    else:
+                        # If no key points from LLM, show sample chunks from this topic
+                        topic_chunks = [
+                            chunk for chunk in result.get('chunks', [])
+                            if chunk.get('metadata', {}).get('topic', '') == topic_name
+                        ]
+                        if topic_chunks:
+                            st.markdown("**Sample Content:**")
+                            for chunk in topic_chunks[:2]:  # Show first 2 chunks
+                                chunk_text = chunk.get('text', '')[:200]  # First 200 chars
+                                if chunk_text:
+                                    st.markdown(f"  • {chunk_text}...")
+            
+            if len(topics) > 10:
+                st.info(f"📊 Showing first 10 of {len(topics)} topics. More topics available in the processed content.")
+        
+        # Display Sample Extracted Text/Chunks
+        if result.get('chunks'):
+            st.markdown("### 📄 Sample Extracted Text Chunks")
+            st.markdown(f"**Total Chunks:** {len(result['chunks'])}")
+            
+            with st.expander("View Sample Chunks", expanded=False):
+                # Group chunks by topic
+                chunks_by_topic = {}
+                for chunk in result['chunks'][:20]:  # Show first 20 chunks
+                    topic = chunk.get('metadata', {}).get('topic', 'General')
+                    if topic not in chunks_by_topic:
+                        chunks_by_topic[topic] = []
+                    chunks_by_topic[topic].append(chunk)
+                
+                for topic_name, topic_chunks in list(chunks_by_topic.items())[:5]:  # Show first 5 topics
+                    st.markdown(f"**📌 Topic: {topic_name}** ({len(topic_chunks)} chunks)")
+                    for i, chunk in enumerate(topic_chunks[:3], 1):  # Show first 3 chunks per topic
+                        chunk_text = chunk.get('text', '')
+                        source = chunk.get('metadata', {}).get('source', 'Unknown')
+                        st.markdown(f"  **Chunk {i}** (from {source}):")
+                        st.text(chunk_text[:300] + "..." if len(chunk_text) > 300 else chunk_text)
+                        st.markdown("---")
+        
+        st.markdown("---")
     
     if not st.session_state.documents_processed:
         if not uploaded_files_main:
