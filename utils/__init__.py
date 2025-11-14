@@ -87,3 +87,12 @@ def detect_multi_document_intent(question: str) -> bool:
             return True
     
     return False
+
+
+__all__ = [
+    'ensure_documents_directory',
+    'get_document_files',
+    'format_sources',
+    'get_latest_document',
+    'detect_multi_document_intent'
+]
