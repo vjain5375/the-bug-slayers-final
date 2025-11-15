@@ -363,29 +363,61 @@ def main():
             border-radius: 12px !important;
         }
         
-        /* Enhanced Spinner - No Animations */
-        [data-testid="stSpinner"] {
+        /* Enhanced Spinner - Completely Disable All Animations and Rotation */
+        [data-testid="stSpinner"],
+        [data-testid="stSpinner"] *,
+        [data-testid="stSpinner"] *::before,
+        [data-testid="stSpinner"] *::after {
             animation: none !important;
+            transition: none !important;
+            transform: none !important;
+            -webkit-animation: none !important;
+            -moz-animation: none !important;
+            -o-animation: none !important;
         }
         
+        /* Hide the rotating spinner circle completely */
         [data-testid="stSpinner"] > div {
-            animation: none !important;
-            border-color: #667eea !important;
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
         }
         
+        /* Hide any pseudo-elements */
+        [data-testid="stSpinner"] > div::before,
         [data-testid="stSpinner"] > div::after {
             display: none !important;
+            content: none !important;
         }
         
+        /* Stop any text rotation */
         [data-testid="stSpinner"] + div,
-        [data-testid="stSpinner"] ~ div {
+        [data-testid="stSpinner"] ~ div,
+        [data-testid="stSpinner"] + div *,
+        [data-testid="stSpinner"] ~ div * {
             animation: none !important;
+            transform: none !important;
+            rotate: none !important;
         }
         
         [data-testid="stSpinner"] + div::after,
         [data-testid="stSpinner"] ~ div::after {
             display: none !important;
             content: '' !important;
+        }
+        
+        /* Target Streamlit's spinner container */
+        .stSpinner,
+        .stSpinner *,
+        .stSpinner *::before,
+        .stSpinner *::after {
+            animation: none !important;
+            transition: none !important;
+            transform: none !important;
+        }
+        
+        .stSpinner > div {
+            display: none !important;
         }
         
         /* Better Focus States */
@@ -414,12 +446,29 @@ def main():
         function disableAllAnimations() {
             // Remove all transitions and animations from all elements
             const style = document.createElement('style');
+            style.id = 'no-animations-style';
             style.textContent = `
                 *, *::before, *::after {
                     transition: none !important;
                     animation: none !important;
+                    transform: none !important;
+                    -webkit-animation: none !important;
+                    -moz-animation: none !important;
+                    -o-animation: none !important;
+                }
+                [data-testid="stSpinner"],
+                [data-testid="stSpinner"] *,
+                .stSpinner,
+                .stSpinner * {
+                    animation: none !important;
+                    transition: none !important;
+                    transform: none !important;
+                    display: none !important;
                 }
             `;
+            // Remove old style if exists
+            const oldStyle = document.getElementById('no-animations-style');
+            if (oldStyle) oldStyle.remove();
             document.head.appendChild(style);
             
             // Stop all animations on existing elements
@@ -428,6 +477,22 @@ def main():
                 el.style.transition = 'none';
                 el.style.animation = 'none';
                 el.style.transform = 'none';
+                el.style.webkitAnimation = 'none';
+                el.style.mozAnimation = 'none';
+                el.style.oAnimation = 'none';
+            });
+            
+            // Specifically target and hide spinners
+            const spinners = document.querySelectorAll('[data-testid="stSpinner"], .stSpinner');
+            spinners.forEach(spinner => {
+                spinner.style.display = 'none';
+                spinner.style.visibility = 'hidden';
+                const spinnerDiv = spinner.querySelector('div');
+                if (spinnerDiv) {
+                    spinnerDiv.style.display = 'none';
+                    spinnerDiv.style.animation = 'none';
+                    spinnerDiv.style.transform = 'none';
+                }
             });
         }
         
@@ -441,6 +506,54 @@ def main():
         // Also run after a delay to catch any late-rendered elements
         setTimeout(disableAllAnimations, 100);
         setTimeout(disableAllAnimations, 500);
+        setTimeout(disableAllAnimations, 1000);
+        setTimeout(disableAllAnimations, 2000);
+        
+        // Watch for any new spinners being added to the DOM and immediately disable them
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) { // Element node
+                        // Check if it's a spinner or contains a spinner
+                        if (node.matches && (node.matches('[data-testid="stSpinner"]') || node.matches('.stSpinner'))) {
+                            disableAllAnimations();
+                        }
+                        // Check children
+                        const spinners = node.querySelectorAll ? node.querySelectorAll('[data-testid="stSpinner"], .stSpinner') : [];
+                        if (spinners.length > 0) {
+                            disableAllAnimations();
+                        }
+                    }
+                });
+            });
+        });
+        
+        // Start observing
+        if (document.body) {
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+        }
+        
+        // Also run continuously to catch any missed spinners
+        setInterval(function() {
+            const spinners = document.querySelectorAll('[data-testid="stSpinner"], .stSpinner');
+            if (spinners.length > 0) {
+                spinners.forEach(spinner => {
+                    spinner.style.display = 'none';
+                    spinner.style.visibility = 'hidden';
+                    spinner.style.animation = 'none';
+                    spinner.style.transform = 'none';
+                    const spinnerDiv = spinner.querySelector('div');
+                    if (spinnerDiv) {
+                        spinnerDiv.style.display = 'none';
+                        spinnerDiv.style.animation = 'none';
+                        spinnerDiv.style.transform = 'none';
+                    }
+                });
+            }
+        }, 100);
     </script>
     """, unsafe_allow_html=True)
     
