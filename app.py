@@ -161,48 +161,55 @@ def initialize_components():
     api_key = load_api_key()
     
     if st.session_state.vector_store is None:
-        with st.spinner("Initializing vector store..."):
-            try:
-                st.session_state.vector_store = VectorStore()
-                # Log successful initialization
-                backend = st.session_state.vector_store.embedding_backend
-                st.success(f"✅ Vector store initialized using {backend} backend")
-            except Exception as e:
-                tb = traceback.format_exc()
-                logger.exception("VectorStore init failed: %s", tb)
-                
-                # Show user-friendly error message
-                st.error("""
-                ⚠️ **Failed to initialize vector store / embeddings**
-                
-                **Possible solutions:**
-                1. Set `EMBEDDING_BACKEND=api` in your environment variables and provide API keys:
-                   - `OPENAI_API_KEY` for OpenAI embeddings, or
-                   - `GOOGLE_API_KEY` for Gemini (if supported)
-                
-                2. For local embeddings, ensure `torch>=2.0.0` is installed:
-                   ```bash
-                   pip install torch --index-url https://download.pytorch.org/whl/cpu
-                   ```
-                
-                3. Check the logs for detailed error information.
-                """)
-                
-                # Set a dummy object to prevent crashes in UI
-                st.session_state.vector_store = None
-                st.stop()
+        # Show static loading message
+        loading_msg = st.info("Initializing vector store...")
+        try:
+            st.session_state.vector_store = VectorStore()
+            loading_msg.empty()
+            # Log successful initialization
+            backend = st.session_state.vector_store.embedding_backend
+            st.success(f"✅ Vector store initialized using {backend} backend")
+        except Exception as e:
+            loading_msg.empty()
+            tb = traceback.format_exc()
+            logger.exception("VectorStore init failed: %s", tb)
+            
+            # Show user-friendly error message
+            st.error("""
+            ⚠️ **Failed to initialize vector store / embeddings**
+            
+            **Possible solutions:**
+            1. Set `EMBEDDING_BACKEND=api` in your environment variables and provide API keys:
+               - `OPENAI_API_KEY` for OpenAI embeddings, or
+               - `GOOGLE_API_KEY` for Gemini (if supported)
+            
+            2. For local embeddings, ensure `torch>=2.0.0` is installed:
+               ```bash
+               pip install torch --index-url https://download.pytorch.org/whl/cpu
+               ```
+            
+            3. Check the logs for detailed error information.
+            """)
+            
+            # Set a dummy object to prevent crashes in UI
+            st.session_state.vector_store = None
+            st.stop()
     
     if st.session_state.agent_controller is None:
-        with st.spinner("Initializing AI agents..."):
-            if not api_key:
-                st.error("⚠️ API key not found! Please check your .env file.")
-                st.stop()
-            try:
-                st.session_state.agent_controller = AgentController(st.session_state.vector_store)
-            except Exception as e:
-                logger.exception("AgentController init failed: %s", e)
-                st.error(f"⚠️ Failed to initialize AI agents: {e}")
-                st.stop()
+        # Show static loading message
+        loading_msg = st.info("Initializing AI agents...")
+        if not api_key:
+            loading_msg.empty()
+            st.error("⚠️ API key not found! Please check your .env file.")
+            st.stop()
+        try:
+            st.session_state.agent_controller = AgentController(st.session_state.vector_store)
+            loading_msg.empty()
+        except Exception as e:
+            loading_msg.empty()
+            logger.exception("AgentController init failed: %s", e)
+            st.error(f"⚠️ Failed to initialize AI agents: {e}")
+            st.stop()
 
 def process_documents():
     """Process all documents using Reader Agent"""
@@ -223,90 +230,59 @@ def process_documents():
             doc_files_with_time.sort(reverse=True)
             st.session_state.latest_document = Path(doc_files_with_time[0][1]).name
     
-    with st.spinner("Processing documents with Reader Agent..."):
-        result = st.session_state.agent_controller.process_study_materials(str(docs_dir))
+    # Show static processing message
+    processing_msg = st.info("Processing documents with Reader Agent...")
+    result = st.session_state.agent_controller.process_study_materials(str(docs_dir))
+    processing_msg.empty()
+    
+    if result['total_chunks'] > 0:
+        st.session_state.documents_processed = True
+        latest_info = f" (Latest: {st.session_state.latest_document})" if st.session_state.latest_document else ""
+        st.success(f"✅ Processed {result['total_chunks']} chunks from {result['total_topics']} topics!{latest_info}")
         
-        if result['total_chunks'] > 0:
-            st.session_state.documents_processed = True
-            latest_info = f" (Latest: {st.session_state.latest_document})" if st.session_state.latest_document else ""
-            st.success(f"✅ Processed {result['total_chunks']} chunks from {result['total_topics']} topics!{latest_info}")
-            
-            # Store processing results for display
-            st.session_state.processing_results = result
-            
-            return True
-        else:
-            st.error("No content could be extracted from documents.")
-            return False
+        # Store processing results for display
+        st.session_state.processing_results = result
+        
+        return True
+    else:
+        st.error("No content could be extracted from documents.")
+        return False
 
 def main():
     """Main application"""
     initialize_components()
     
-    # Enhanced UI Styling - Smooth and Beautiful
+    # Enhanced UI Styling - No Transitions or Animations
     st.markdown("""
     <style>
-        /* Smooth Transitions for All Elements */
-        * {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-        
-        /* Smooth Scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        /* Enhanced Buttons with Smooth Hover Effects */
+        /* Enhanced Buttons - No Transitions */
         .stButton > button {
             border-radius: 12px !important;
             font-weight: 600 !important;
             padding: 0.75rem 1.5rem !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
             border: none !important;
-            transform: translateY(0) !important;
         }
         
-        .stButton > button:hover {
-            transform: translateY(-3px) scale(1.02) !important;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3) !important;
-        }
-        
-        .stButton > button:active {
-            transform: translateY(-1px) scale(0.98) !important;
-            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.2) !important;
-        }
-        
-        /* Primary Buttons - Enhanced */
+        /* Primary Buttons */
         .stButton > button[kind="primary"] {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
         }
         
-        .stButton > button[kind="primary"]:hover {
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5) !important;
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%) !important;
-        }
-        
-        /* Secondary Buttons - Enhanced */
+        /* Secondary Buttons */
         .stButton > button[kind="secondary"] {
             background: rgba(102, 126, 234, 0.1) !important;
             color: #667eea !important;
             border: 2px solid rgba(102, 126, 234, 0.3) !important;
         }
         
-        .stButton > button[kind="secondary"]:hover {
-            background: rgba(102, 126, 234, 0.2) !important;
-            border-color: rgba(102, 126, 234, 0.5) !important;
-        }
-        
-        /* Enhanced Input Fields */
+        /* Enhanced Input Fields - No Transitions */
         .stTextInput > div > div > input,
         .stTextArea > div > div > textarea {
             border-radius: 12px !important;
             border: 2px solid rgba(102, 126, 234, 0.2) !important;
             padding: 0.75rem 1rem !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
         }
         
@@ -314,7 +290,6 @@ def main():
         .stTextArea > div > div > textarea:focus {
             border-color: #667eea !important;
             box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), 0 4px 15px rgba(102, 126, 234, 0.2) !important;
-            transform: translateY(-2px) !important;
         }
         
         /* Enhanced File Uploader */
@@ -322,39 +297,17 @@ def main():
             border-radius: 12px !important;
             padding: 1rem !important;
             border: 2px dashed rgba(102, 126, 234, 0.3) !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-        
-        .stFileUploader:hover {
-            border-color: rgba(102, 126, 234, 0.5) !important;
-            background: rgba(102, 126, 234, 0.05) !important;
-        }
-        
-        /* Enhanced Cards and Containers */
-        .stMarkdown > div {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
         
         /* Enhanced Expanders */
         .streamlit-expanderHeader {
             border-radius: 10px !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
             padding: 0.75rem 1rem !important;
-        }
-        
-        .streamlit-expanderHeader:hover {
-            background: rgba(102, 126, 234, 0.05) !important;
-            transform: translateX(5px) !important;
         }
         
         /* Enhanced Metrics */
         [data-testid="stMetricValue"] {
             font-weight: 700 !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-        
-        [data-testid="stMetricContainer"]:hover [data-testid="stMetricValue"] {
-            transform: scale(1.05) !important;
         }
         
         /* Enhanced Radio Buttons */
@@ -365,48 +318,20 @@ def main():
         .stRadio > div > label {
             padding: 0.75rem 1rem !important;
             border-radius: 10px !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
             border: 2px solid transparent !important;
         }
         
-        .stRadio > div > label:hover {
-            background: rgba(102, 126, 234, 0.1) !important;
-            transform: translateX(5px) !important;
-        }
-        
-        /* Enhanced Success/Info/Error Messages */
+        /* Enhanced Success/Info/Error Messages - No Animations */
         .stSuccess, .stInfo, .stError, .stWarning {
             border-radius: 12px !important;
             padding: 1rem !important;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
-            animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        /* Enhanced Sidebar */
-        [data-testid="stSidebar"] {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
         
         /* Enhanced Spacing */
         .main .block-container {
             padding-top: 2rem !important;
             padding-bottom: 3rem !important;
-        }
-        
-        /* Smooth Header Animation */
-        h1, h2, h3 {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
         
         /* Enhanced Dividers */
@@ -417,12 +342,7 @@ def main():
             background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent) !important;
         }
         
-        /* Enhanced Columns */
-        [data-testid="column"] {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-        
-        /* Smooth Scrollbar */
+        /* Smooth Scrollbar - No Transitions */
         ::-webkit-scrollbar {
             width: 10px;
             height: 10px;
@@ -436,47 +356,36 @@ def main():
         ::-webkit-scrollbar-thumb {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 10px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
         }
         
         /* Enhanced Selectbox */
         .stSelectbox > div > div {
             border-radius: 12px !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
         
-        .stSelectbox > div > div:hover {
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2) !important;
+        /* Enhanced Spinner - No Animations */
+        [data-testid="stSpinner"] {
+            animation: none !important;
         }
         
-        /* Enhanced Spinner */
-        .stSpinner > div {
+        [data-testid="stSpinner"] > div {
+            animation: none !important;
             border-color: #667eea !important;
         }
         
-        /* Smooth Page Transitions */
-        .main {
-            animation: fadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        [data-testid="stSpinner"] > div::after {
+            display: none !important;
         }
         
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        [data-testid="stSpinner"] + div,
+        [data-testid="stSpinner"] ~ div {
+            animation: none !important;
         }
         
-        /* Enhanced Cards with Hover Effect */
-        div[data-testid="stMarkdownContainer"] > div {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        [data-testid="stSpinner"] + div::after,
+        [data-testid="stSpinner"] ~ div::after {
+            display: none !important;
+            content: '' !important;
         }
         
         /* Better Focus States */
@@ -488,27 +397,51 @@ def main():
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2) !important;
         }
         
-        /* Enhanced Container Shadows */
-        .stMarkdown > div[style*="box-shadow"] {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-        
         /* Smooth Text Selection */
         ::selection {
             background: rgba(102, 126, 234, 0.3);
             color: inherit;
         }
         
-        /* Enhanced Loading States */
-        [data-testid="stSpinner"] {
-            animation: spin 1s linear infinite !important;
-        }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        /* Disable all transitions and animations globally */
+        *, *::before, *::after {
+            transition: none !important;
+            animation: none !important;
         }
     </style>
+    <script>
+        // Disable all animations and transitions
+        function disableAllAnimations() {
+            // Remove all transitions and animations from all elements
+            const style = document.createElement('style');
+            style.textContent = `
+                *, *::before, *::after {
+                    transition: none !important;
+                    animation: none !important;
+                }
+            `;
+            document.head.appendChild(style);
+            
+            // Stop all animations on existing elements
+            const allElements = document.querySelectorAll('*');
+            allElements.forEach(el => {
+                el.style.transition = 'none';
+                el.style.animation = 'none';
+                el.style.transform = 'none';
+            });
+        }
+        
+        // Run immediately
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', disableAllAnimations);
+        } else {
+            disableAllAnimations();
+        }
+        
+        // Also run after a delay to catch any late-rendered elements
+        setTimeout(disableAllAnimations, 100);
+        setTimeout(disableAllAnimations, 500);
+    </script>
     """, unsafe_allow_html=True)
     
     # Header
@@ -1060,12 +993,14 @@ def show_flashcards_page():
         num_flashcards = st.slider("Number of flashcards", 5, 30, value=st.session_state.num_flashcards, key="flashcard_slider")
     with col2:
         if st.button("🔄 Generate Flashcards", use_container_width=True, type="primary"):
-            with st.spinner("Generating flashcards..."):
-                flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards)
-                st.session_state.flashcards = flashcards
-                st.session_state.num_flashcards = 10  # Reset to default
-                st.success(f"✅ Generated {len(flashcards)} flashcards!")
-                st.rerun()
+            # Show static processing message
+            processing_msg = st.info("Processing... Generating flashcards...")
+            flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards)
+            processing_msg.empty()
+            st.session_state.flashcards = flashcards
+            st.session_state.num_flashcards = 10  # Reset to default
+            st.success(f"✅ Generated {len(flashcards)} flashcards!")
+            st.rerun()
     
     # Load existing flashcards
     if not st.session_state.flashcards:
@@ -1101,15 +1036,17 @@ def show_quizzes_page():
     with col3:
         adaptive = st.checkbox("Adaptive", value=True)
         if st.button("🎯 Generate Quiz", use_container_width=True, type="primary"):
-            with st.spinner("Generating quiz..."):
-                questions = st.session_state.agent_controller.generate_quiz(
-                    difficulty, num_questions, adaptive
-                )
-                st.session_state.quizzes = questions
-                st.session_state.quiz_answers = {}
-                st.session_state.num_questions = 10  # Reset to default
-                st.success(f"✅ Generated {len(questions)} questions!")
-                st.rerun()
+            # Show static processing message
+            processing_msg = st.info("Processing... Generating quiz...")
+            questions = st.session_state.agent_controller.generate_quiz(
+                difficulty, num_questions, adaptive
+            )
+            processing_msg.empty()
+            st.session_state.quizzes = questions
+            st.session_state.quiz_answers = {}
+            st.session_state.num_questions = 10  # Reset to default
+            st.success(f"✅ Generated {len(questions)} questions!")
+            st.rerun()
     
     # Display quiz
     if st.session_state.quizzes:
@@ -1161,12 +1098,14 @@ def show_planner_page():
         study_days = st.slider("Study Days/Week", 3, 7, 5)
     
     if st.button("📅 Create Revision Plan", type="primary", use_container_width=True):
-        with st.spinner("Creating revision plan..."):
-            plan = st.session_state.agent_controller.create_revision_plan(
-                exam_date.strftime('%Y-%m-%d') if exam_date else None,
-                study_days
-            )
-            st.success(f"✅ Created revision plan with {len(plan)} items!")
+        # Show static processing message
+        processing_msg = st.info("Processing... Creating revision plan...")
+        plan = st.session_state.agent_controller.create_revision_plan(
+            exam_date.strftime('%Y-%m-%d') if exam_date else None,
+            study_days
+        )
+        processing_msg.empty()
+        st.success(f"✅ Created revision plan with {len(plan)} items!")
     
     # Load and display plan
     try:
@@ -1291,28 +1230,50 @@ def show_chat_page():
     with col1:
         ask_button = st.button("🔍 Ask", type="primary", use_container_width=True)
     
-    if ask_button or (question and question.strip()):
+    # Check if question was already processed to prevent regeneration on scroll
+    if ask_button:
         if question and question.strip():
-            with st.spinner("🤔 Thinking... Searching through your study materials..."):
+            question_stripped = question.strip()
+            # Check if this question was already answered
+            already_answered = False
+            for chat_item in st.session_state.chat_history:
+                if isinstance(chat_item, dict):
+                    if chat_item.get('question', '').strip() == question_stripped:
+                        already_answered = True
+                        break
+                elif isinstance(chat_item, tuple):
+                    if chat_item[0].strip() == question_stripped:
+                        already_answered = True
+                        break
+            
+            if not already_answered:
+                # Show static loading message
+                loading_placeholder = st.empty()
+                loading_placeholder.info("Loading... Searching through your study materials...")
+                
                 try:
                     # Use latest document for prioritization
                     latest_doc = st.session_state.latest_document if st.session_state.latest_document else None
                     result = st.session_state.agent_controller.answer_question(
-                        question.strip(), 
+                        question_stripped, 
                         prioritize_source=latest_doc
                     )
                     
                     # Store with sources for better display
                     chat_item = {
-                        'question': question.strip(),
+                        'question': question_stripped,
                         'answer': result.get('answer', 'No answer generated.'),
                         'sources': result.get('sources', [])
                     }
                     st.session_state.chat_history.append(chat_item)
+                    loading_placeholder.empty()
                     st.success("✅ Answer generated!")
                     st.rerun()
                 except Exception as e:
+                    loading_placeholder.empty()
                     st.error(f"❌ Error: {str(e)}. Please check your API key and try again.")
+            else:
+                st.info("This question was already answered. Scroll up to see the response.")
         else:
             st.warning("Please enter a question!")
 
