@@ -1002,22 +1002,14 @@ def show_home_page():
             st.markdown(f"**Total Chunks:** {len(result['chunks'])}")
             
             with st.expander("View Sample Chunks", expanded=False):
-                # Group chunks by topic (show all chunks)
-                chunks_by_topic = {}
-                for chunk in result['chunks']:
+                # Show all chunks sequentially (no truncation, no topic limit)
+                for i, chunk in enumerate(result['chunks'], 1):
+                    chunk_text = chunk.get('text', '')
+                    source = chunk.get('metadata', {}).get('source', 'Unknown')
                     topic = chunk.get('metadata', {}).get('topic', 'General')
-                    if topic not in chunks_by_topic:
-                        chunks_by_topic[topic] = []
-                    chunks_by_topic[topic].append(chunk)
-                
-                for topic_name, topic_chunks in chunks_by_topic.items():
-                    st.markdown(f"**📌 Topic: {topic_name}** ({len(topic_chunks)} chunks)")
-                    for i, chunk in enumerate(topic_chunks, 1):
-                        chunk_text = chunk.get('text', '')
-                        source = chunk.get('metadata', {}).get('source', 'Unknown')
-                        st.markdown(f"  **Chunk {i}** (from {source}):")
-                        st.text(chunk_text)
-                        st.markdown("---")
+                    st.markdown(f"**Chunk {i}** (from {source}, topic: {topic})")
+                    st.text(chunk_text)
+                    st.markdown("---")
         
         st.markdown("---")
     
