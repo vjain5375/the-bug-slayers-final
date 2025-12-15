@@ -63,10 +63,12 @@ class ReaderAgent:
         try:
             # On Windows, pdf2image needs poppler. Allow configuring its path via POPPLER_PATH env var.
             poppler_path = os.getenv("POPPLER_PATH") or None
+            # Use a slightly lower DPI for faster conversion; allow override via OCR_DPI env var.
+            dpi = int(os.getenv("OCR_DPI", "150"))
             if poppler_path:
-                images = convert_from_path(file_path, poppler_path=poppler_path)
+                images = convert_from_path(file_path, poppler_path=poppler_path, dpi=dpi)
             else:
-                images = convert_from_path(file_path)
+                images = convert_from_path(file_path, dpi=dpi)
             for img in images:
                 ocr_text += pytesseract.image_to_string(img) + "\n"
         except Exception as e:
@@ -139,10 +141,12 @@ class ReaderAgent:
             return self._simple_topic_segmentation(text)
         
         try:
+            # Keep prompt context shorter for faster LLM response
+            trimmed_text = text[:2500]
             prompt = f"""Analyze the following study material and identify distinct topics and subtopics.
 
 Text:
-{text[:5000]}  # Limit to avoid token limits
+{trimmed_text}
 
 Return a JSON array of topics, each with:
 - "topic": main topic name

@@ -47,10 +47,12 @@ class DocumentProcessor:
         try:
             # On Windows, pdf2image needs poppler. Allow configuring its path via POPPLER_PATH env var.
             poppler_path = os.getenv("POPPLER_PATH") or None
+            # Use a slightly lower DPI for faster conversion; allow override via OCR_DPI env var.
+            dpi = int(os.getenv("OCR_DPI", "150"))
             if poppler_path:
-                images = convert_from_path(file_path, poppler_path=poppler_path)
+                images = convert_from_path(file_path, poppler_path=poppler_path, dpi=dpi)
             else:
-                images = convert_from_path(file_path)
+                images = convert_from_path(file_path, dpi=dpi)
             for img in images:
                 ocr_text += pytesseract.image_to_string(img) + "\n"
         except Exception as e:

@@ -44,9 +44,9 @@ class QuizAgent:
         if not self.llm:
             return self._simple_quiz_generation(text_chunks, difficulty, num_questions)
         
-        # Combine chunks into context
+        # Combine a limited number of chunks into context to keep prompts fast
         context_parts = []
-        for chunk in text_chunks[:5]:  # Use top 5 chunks
+        for chunk in text_chunks[:3]:  # Use top 3 chunks for faster LLM calls
             topic = chunk.get('metadata', {}).get('topic', 'General')
             text = chunk.get('text', '')
             context_parts.append(f"[Topic: {topic}]\n{text}")
@@ -63,7 +63,7 @@ class QuizAgent:
             prompt = f"""You are a quiz generator for study materials. Create multiple-choice questions.
 
 Study Material:
-{context[:4000]}
+{context[:2500]}
 
 Create exactly {num_questions} multiple-choice questions with {difficulty} difficulty.
 {difficulty_guidance.get(difficulty, '')}
