@@ -1142,7 +1142,8 @@ def show_quizzes_page():
     with col1:
         difficulty = st.selectbox("Difficulty", ["easy", "medium", "hard"], index=1)
     with col2:
-        num_questions = st.slider("Questions", 3, 10, value=st.session_state.num_questions, key="quiz_slider")
+        # Allow generating more questions in a single quiz (up to 30)
+        num_questions = st.slider("Questions", 3, 30, value=st.session_state.num_questions, key="quiz_slider")
     with col3:
         adaptive = st.checkbox("Adaptive", value=True)
         if st.button("🎯 Generate Quiz", use_container_width=True, type="primary"):
