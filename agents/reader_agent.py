@@ -17,7 +17,7 @@ from dotenv import load_dotenv
 try:
     import pytesseract
     from pdf2image import convert_from_path
-    from PIL import Image  # noqa: F401  # imported for type / backend
+    from PIL import Image, ImageOps  # type: ignore
     OCR_AVAILABLE = True
 except Exception:
     OCR_AVAILABLE = False
@@ -69,8 +69,30 @@ class ReaderAgent:
                 images = convert_from_path(file_path, poppler_path=poppler_path, dpi=dpi)
             else:
                 images = convert_from_path(file_path, dpi=dpi)
+
+            # Configure Tesseract for printed vs. handwritten text
+            ocr_mode = os.getenv("OCR_MODE", "printed").lower()
+            # Allow full override if user wants to experiment
+            custom_config = os.getenv("OCR_CONFIG")
+            if not custom_config:
+                if ocr_mode == "handwritten":
+                    # Settings that can work better for clearer handwriting
+                    custom_config = "--oem 1 --psm 7"
+                else:
+                    # Default for printed text
+                    custom_config = "--oem 3 --psm 6"
+
             for img in images:
-                ocr_text += pytesseract.image_to_string(img) + "\n"
+                # Basic preprocessing: grayscale + contrast/threshold to help OCR
+                try:
+                    pil_img = img.convert("L")
+                    pil_img = ImageOps.autocontrast(pil_img)
+                    threshold = int(os.getenv("OCR_THRESHOLD", "140"))
+                    pil_img = pil_img.point(lambda x: 255 if x > threshold else 0, mode="1")
+                except Exception:
+                    pil_img = img
+
+                ocr_text += pytesseract.image_to_string(pil_img, config=custom_config) + "\n"
         except Exception as e:
             print(f"OCR fallback failed for {file_path}: {e}")
         return ocr_text
