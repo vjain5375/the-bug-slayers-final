@@ -959,12 +959,12 @@ def show_home_page():
     if st.session_state.documents_processed and 'processing_results' in st.session_state:
         result = st.session_state.processing_results
         
-        # Display Topics with Key Points
+        # Display Topics with Key Points (show all topics and content)
         if result.get('topics'):
             st.markdown("### 📚 Extracted Topics & Key Points")
             topics = result['topics']
             
-            for idx, topic_data in enumerate(topics[:10], 1):  # Show first 10 topics
+            for idx, topic_data in enumerate(topics, 1):
                 topic_name = topic_data.get('topic', f'Topic {idx}')
                 subtopics = topic_data.get('subtopics', [])
                 key_points = topic_data.get('key_points', [])
@@ -972,12 +972,12 @@ def show_home_page():
                 with st.expander(f"📖 {idx}. {topic_name}", expanded=(idx == 1)):
                     if subtopics:
                         st.markdown("**Subtopics:**")
-                        for subtopic in subtopics[:5]:  # Show first 5 subtopics
+                        for subtopic in subtopics:
                             st.markdown(f"  • {subtopic}")
                     
                     if key_points:
                         st.markdown("**Key Points:**")
-                        for point in key_points[:5]:  # Show first 5 key points
+                        for point in key_points:
                             st.markdown(f"  ✓ {point}")
                     else:
                         # If no key points from LLM, show sample chunks from this topic
@@ -986,14 +986,11 @@ def show_home_page():
                             if chunk.get('metadata', {}).get('topic', '') == topic_name
                         ]
                         if topic_chunks:
-                            st.markdown("**Sample Content:**")
-                            for chunk in topic_chunks[:2]:  # Show first 2 chunks
-                                chunk_text = chunk.get('text', '')[:200]  # First 200 chars
+                            st.markdown("**Content Samples:**")
+                            for chunk in topic_chunks:
+                                chunk_text = chunk.get('text', '')
                                 if chunk_text:
-                                    st.markdown(f"  • {chunk_text}...")
-            
-            if len(topics) > 10:
-                st.info(f"📊 Showing first 10 of {len(topics)} topics. More topics available in the processed content.")
+                                    st.markdown(f"  • {chunk_text}")
         
         # Display Sample Extracted Text/Chunks
         if result.get('chunks'):
@@ -1001,21 +998,21 @@ def show_home_page():
             st.markdown(f"**Total Chunks:** {len(result['chunks'])}")
             
             with st.expander("View Sample Chunks", expanded=False):
-                # Group chunks by topic
+                # Group chunks by topic (show all chunks)
                 chunks_by_topic = {}
-                for chunk in result['chunks'][:20]:  # Show first 20 chunks
+                for chunk in result['chunks']:
                     topic = chunk.get('metadata', {}).get('topic', 'General')
                     if topic not in chunks_by_topic:
                         chunks_by_topic[topic] = []
                     chunks_by_topic[topic].append(chunk)
                 
-                for topic_name, topic_chunks in list(chunks_by_topic.items())[:5]:  # Show first 5 topics
+                for topic_name, topic_chunks in chunks_by_topic.items():
                     st.markdown(f"**📌 Topic: {topic_name}** ({len(topic_chunks)} chunks)")
-                    for i, chunk in enumerate(topic_chunks[:3], 1):  # Show first 3 chunks per topic
+                    for i, chunk in enumerate(topic_chunks, 1):
                         chunk_text = chunk.get('text', '')
                         source = chunk.get('metadata', {}).get('source', 'Unknown')
                         st.markdown(f"  **Chunk {i}** (from {source}):")
-                        st.text(chunk_text[:300] + "..." if len(chunk_text) > 300 else chunk_text)
+                        st.text(chunk_text)
                         st.markdown("---")
         
         st.markdown("---")
