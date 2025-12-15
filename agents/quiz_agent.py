@@ -5,6 +5,7 @@ Generates adaptive quizzes with multiple difficulty levels
 
 import json
 import re
+import random
 from typing import List, Dict, Optional
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -131,34 +132,52 @@ Only return the JSON array, no additional text."""
         return self._simple_quiz_generation(text_chunks, difficulty, num_questions)
     
     def _simple_quiz_generation(self, text_chunks: List[Dict], difficulty: str, num_questions: int) -> List[Dict]:
-        """Simple fallback quiz generation"""
-        questions = []
-        
+        """
+        Simple fallback quiz generation when LLM is unavailable.
+        Tries to build more realistic options from the text instead of
+        placeholder strings like 'Option B (incorrect)'.
+        """
+        questions: List[Dict] = []
+
         for chunk in text_chunks[:num_questions]:
             text = chunk.get('text', '')
             topic = chunk.get('metadata', {}).get('topic', 'General')
-            
-            # Simple extraction: create a basic question
-            sentences = text.split('.')
-            if len(sentences) >= 2:
-                question = f"Which of the following is true about {sentences[0][:50]}?"
-                correct_answer = sentences[1].strip()[:100]
-                
-                questions.append({
-                    'question': question,
-                    'options': [
-                        correct_answer,
-                        "Option B (incorrect)",
-                        "Option C (incorrect)",
-                        "Option D (incorrect)"
-                    ],
-                    'correct_answer': correct_answer,
-                    'correct_index': 0,
-                    'topic': topic,
-                    'difficulty': difficulty,
-                    'explanation': ''
-                })
-        
+
+            # Split into candidate sentences
+            raw_sentences = re.split(r'[.!?]\s+', text)
+            sentences = [s.strip() for s in raw_sentences if len(s.strip()) > 30]
+            if len(sentences) < 2:
+                continue
+
+            main_sentence = sentences[0]
+            correct_answer = sentences[1][:160].strip()
+
+            # Use other sentences as distractors
+            distractors_pool = sentences[2:10]
+            random.shuffle(distractors_pool)
+            distractors = [s[:160].strip() for s in distractors_pool[:3]]
+
+            # If we don't have enough good distractors, fall back to generic ones
+            while len(distractors) < 3:
+                distractors.append("None of the above statements.")
+
+            options = [correct_answer] + distractors
+            # Shuffle options so correct answer isn't always first
+            random.shuffle(options)
+            correct_index = options.index(correct_answer)
+
+            question_text = f"Which of the following statements is supported by the material about {main_sentence[:60]}?"
+
+            questions.append({
+                'question': question_text,
+                'options': options,
+                'correct_answer': correct_answer,
+                'correct_index': correct_index,
+                'topic': topic,
+                'difficulty': difficulty,
+                'explanation': ''
+            })
+
         return questions
     
     def generate_adaptive_quiz(self, text_chunks: List[Dict], user_performance: Optional[Dict] = None) -> List[Dict]:
