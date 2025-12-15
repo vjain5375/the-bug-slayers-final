@@ -1185,14 +1185,30 @@ def show_quizzes_page():
             st.metric("Score", f"{result['score']}/{result['total']}")
             st.metric("Accuracy", f"{result['accuracy']*100:.1f}%")
             
-            with st.expander("View Details"):
+            with st.expander("View Details", expanded=True):
                 for detail in result['details']:
                     is_correct = detail['is_correct']
                     icon = "✅" if is_correct else "❌"
+
+                    # Derive option labels (A, B, C, D) from indices
+                    def idx_to_label(idx: int) -> str:
+                        return chr(ord("A") + idx) if isinstance(idx, int) and 0 <= idx < 26 else "-"
+
+                    ua_idx = detail.get('user_answer_index', -1)
+                    ca_idx = detail.get('correct_answer_index', -1)
+                    ua_label = idx_to_label(ua_idx)
+                    ca_label = idx_to_label(ca_idx)
+
+                    ua_text = detail.get('user_answer_text') or "No answer selected."
+                    ca_text = detail.get('correct_answer_text') or "N/A"
+
                     st.markdown(f"{icon} **Q{detail['question_index']+1}**")
-                    st.markdown(f"Your answer: {detail['user_answer']} | Correct: {detail['correct_answer']}")
-                    if detail.get('explanation'):
-                        st.info(detail['explanation'])
+                    st.markdown(f"**Your answer:** {ua_label}. {ua_text}")
+                    st.markdown(f"**Correct answer:** {ca_label}. {ca_text}")
+
+                    explanation = detail.get('explanation')
+                    if explanation:
+                        st.info(f"**Explanation:** {explanation}")
     else:
         st.info("Click 'Generate Quiz' to create a quiz from your study materials!")
 

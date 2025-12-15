@@ -114,6 +114,11 @@ Only return the JSON array, no additional text."""
                                 q['correct_index'] = correct_idx
                             except ValueError:
                                 continue
+
+                        # Ensure we always have some explanation text
+                        raw_expl = str(q.get('explanation', '') or '').strip()
+                        if not raw_expl:
+                            raw_expl = f'The correct answer "{q["correct_answer"].strip()}" best matches the information in the study material.'
                         
                         validated.append({
                             'question': q['question'].strip(),
@@ -122,7 +127,7 @@ Only return the JSON array, no additional text."""
                             'correct_index': q.get('correct_index', 0),
                             'topic': q.get('topic', 'General'),
                             'difficulty': q.get('difficulty', difficulty),
-                            'explanation': q.get('explanation', '')
+                            'explanation': raw_expl,
                         })
                 return validated[:num_questions]
         except Exception as e:
@@ -233,20 +238,27 @@ Only return the JSON array, no additional text."""
         details = []
         
         for i, question in enumerate(questions):
-            user_answer = user_answers.get(i, -1)
+            options = question.get('options', [])
+            user_index = user_answers.get(i, -1)
             correct_index = question.get('correct_index', 0)
-            is_correct = user_answer == correct_index
-            
+
+            is_correct = user_index == correct_index
             if is_correct:
                 correct += 1
-            
+
+            # Safely map indices to option text
+            user_text = options[user_index] if 0 <= user_index < len(options) else ""
+            correct_text = options[correct_index] if 0 <= correct_index < len(options) else question.get('correct_answer', '')
+
             details.append({
                 'question_index': i,
                 'question': question['question'],
-                'user_answer': user_answer,
-                'correct_answer': correct_index,
+                'user_answer_index': user_index,
+                'user_answer_text': user_text,
+                'correct_answer_index': correct_index,
+                'correct_answer_text': correct_text,
                 'is_correct': is_correct,
-                'explanation': question.get('explanation', '')
+                'explanation': question.get('explanation', ''),
             })
         
         accuracy = correct / total if total > 0 else 0
