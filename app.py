@@ -690,17 +690,19 @@ def main():
             "Analytics": "📊"
         }
         
-        # Get current index for radio button
-        current_index = 0
-        if st.session_state.current_page in nav_options:
-            current_index = list(nav_options.keys()).index(st.session_state.current_page)
-        
+        # Ensure sidebar radio reflects the current page selection
+        if 'page_selector' not in st.session_state:
+            st.session_state.page_selector = st.session_state.current_page
+        else:
+            # Keep radio and current_page in sync if current_page was changed from main buttons
+            if st.session_state.page_selector != st.session_state.current_page:
+                st.session_state.page_selector = st.session_state.current_page
+
         page = st.radio(
             "Select Page",
             list(nav_options.keys()),
             format_func=lambda x: f"{nav_options[x]} {x}",
             key="page_selector",
-            index=current_index
         )
         
         # Sync with main page navigation
@@ -891,7 +893,9 @@ def main():
             button_type = "primary" if st.session_state.current_page == page_name else "secondary"
             nav_button = st.button(f"{icon}\n{page_name}", use_container_width=True, key=f"main_nav_{page_name}", type=button_type)
             if nav_button:
+                # Update both the main page state and sidebar radio state
                 st.session_state.current_page = page_name
+                st.session_state.page_selector = page_name
                 st.rerun()
     
     st.markdown("<br>", unsafe_allow_html=True)
@@ -1029,21 +1033,25 @@ def show_home_page():
     with col1:
         if st.button("📇 **Flashcards**\n\nGenerate Q/A Cards", use_container_width=True, type="primary", key="quick_flashcards_home"):
             st.session_state.current_page = "Flashcards"
+            st.session_state.page_selector = "Flashcards"
             st.rerun()
     
     with col2:
         if st.button("📝 **Quizzes**\n\nTake Practice Tests", use_container_width=True, type="primary", key="quick_quizzes_home"):
             st.session_state.current_page = "Quizzes"
+            st.session_state.page_selector = "Quizzes"
             st.rerun()
     
     with col3:
         if st.button("📅 **Planner**\n\nRevision Schedule", use_container_width=True, type="primary", key="quick_planner_home"):
             st.session_state.current_page = "Revision Planner"
+            st.session_state.page_selector = "Revision Planner"
             st.rerun()
     
     with col4:
         if st.button("💬 **Chat**\n\nAsk Questions", use_container_width=True, type="primary", key="quick_chat_home"):
             st.session_state.current_page = "Chat Assistant"
+            st.session_state.page_selector = "Chat Assistant"
             st.rerun()
     
     st.markdown("<br>", unsafe_allow_html=True)
