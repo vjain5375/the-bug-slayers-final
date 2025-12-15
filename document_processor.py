@@ -10,6 +10,15 @@ from pathlib import Path
 import PyPDF2
 from docx import Document
 
+# Optional OCR imports (for image-based / scanned PDFs)
+try:
+    import pytesseract
+    from pdf2image import convert_from_path
+    from PIL import Image  # noqa: F401  # imported for type / backend
+    OCR_AVAILABLE = True
+except Exception:
+    OCR_AVAILABLE = False
+
 
 class DocumentProcessor:
     """Processes various document formats and splits them into chunks"""
@@ -18,14 +27,56 @@ class DocumentProcessor:
         self.chunk_size = chunk_size
         self.chunk_overlap = chunk_overlap
     
+    def _extract_text_from_pdf_ocr(self, file_path: str) -> str:
+        """
+        Fallback OCR-based text extraction for image-only / scanned PDFs.
+
+        This requires:
+          - Tesseract installed on the system
+          - pytesseract, pdf2image, Pillow installed in the environment
+        """
+        if not OCR_AVAILABLE:
+            return ""
+
+        # Optional: allow user to specify tesseract path via env var (especially useful on Windows)
+        tess_cmd = os.getenv("TESSERACT_CMD")
+        if tess_cmd:
+            pytesseract.pytesseract.tesseract_cmd = tess_cmd
+
+        ocr_text = ""
+        try:
+            images = convert_from_path(file_path)
+            for img in images:
+                ocr_text += pytesseract.image_to_string(img) + "\n"
+        except Exception as e:
+            print(f"OCR fallback failed for {file_path}: {e}")
+        return ocr_text
+
     def extract_text_from_pdf(self, file_path: str) -> str:
-        """Extract text from PDF file"""
+        """Extract text from PDF file, with OCR fallback for scanned documents."""
         text = ""
         try:
             with open(file_path, 'rb') as file:
                 pdf_reader = PyPDF2.PdfReader(file)
                 for page in pdf_reader.pages:
-                    text += page.extract_text() + "\n"
+                    try:
+                        page_text = page.extract_text() or ""
+                    except Exception as e:
+                        print(f"Error extracting text from page in {file_path}: {e}")
+                        page_text = ""
+                    text += page_text + ("\n" if page_text else "")
+
+            # If no text was extracted at all, try OCR as a fallback
+            if not text.strip():
+                if OCR_AVAILABLE:
+                    print(f"No selectable text found in {file_path}. Trying OCR fallback...")
+                    text = self._extract_text_from_pdf_ocr(file_path)
+                else:
+                    print(
+                        f"No selectable text found in {file_path}, and OCR dependencies are missing.\n"
+                        "Install Tesseract on your system and `pytesseract`, `pdf2image`, `Pillow` "
+                        "in your Python environment to enable OCR for scanned PDFs."
+                    )
         except Exception as e:
             print(f"Error reading PDF {file_path}: {e}")
         return text
