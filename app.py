@@ -690,22 +690,20 @@ def main():
             "Analytics": "📊"
         }
         
-        # Ensure sidebar radio reflects the current page selection
-        if 'page_selector' not in st.session_state:
-            st.session_state.page_selector = st.session_state.current_page
-        else:
-            # Keep radio and current_page in sync if current_page was changed from main buttons
-            if st.session_state.page_selector != st.session_state.current_page:
-                st.session_state.page_selector = st.session_state.current_page
-
+        # Get current index for radio button to ensure it shows the correct selection
+        current_index = 0
+        if st.session_state.current_page in nav_options:
+            current_index = list(nav_options.keys()).index(st.session_state.current_page)
+        
         page = st.radio(
             "Select Page",
             list(nav_options.keys()),
             format_func=lambda x: f"{nav_options[x]} {x}",
             key="page_selector",
+            index=current_index
         )
         
-        # Sync with main page navigation
+        # Always sync current_page with radio selection and trigger rerun if changed
         if page != st.session_state.current_page:
             st.session_state.current_page = page
             st.rerun()
