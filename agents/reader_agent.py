@@ -61,7 +61,12 @@ class ReaderAgent:
 
         ocr_text = ""
         try:
-            images = convert_from_path(file_path)
+            # On Windows, pdf2image needs poppler. Allow configuring its path via POPPLER_PATH env var.
+            poppler_path = os.getenv("POPPLER_PATH") or None
+            if poppler_path:
+                images = convert_from_path(file_path, poppler_path=poppler_path)
+            else:
+                images = convert_from_path(file_path)
             for img in images:
                 ocr_text += pytesseract.image_to_string(img) + "\n"
         except Exception as e:
