@@ -68,20 +68,26 @@ class VectorStore:
         self.embedding_backend = embedding_backend or os.getenv("EMBEDDING_BACKEND", "auto").lower()
         self.embedding_model = None
         
-        # Fast-path: if auto and an API key is present, prefer API (faster init than local model)
+        # Fast-path: prefer API only when an OpenAI key is present (Gemini embeddings are unsupported here)
         if self.embedding_backend == "auto":
-            if os.getenv("OPENAI_API_KEY") or os.getenv("GOOGLE_API_KEY"):
+            if os.getenv("OPENAI_API_KEY"):
                 self.embedding_backend = "api"
-                logger.info("Embedding backend auto-switched to 'api' because API key is set (faster startup).")
+                logger.info("Embedding backend auto-switched to 'api' because OPENAI_API_KEY is set (faster startup).")
             else:
                 self.embedding_backend = "local"
         
         # If explicitly set to 'api', skip local model
         if self.embedding_backend == "api":
             logger.info("Embedding backend set to 'api' - skipping SentenceTransformer init")
-            self._init_api_backend()
-            self._init_chromadb()
-            return
+            try:
+                self._init_api_backend()
+                if self.embedding_backend == "api_unavailable":
+                    raise RuntimeError("API backend unavailable or not configured")
+                self._init_chromadb()
+                return
+            except Exception as e:
+                logger.warning("API embedding backend unavailable, falling back to local: %s", e)
+                self.embedding_backend = "local"
         
         # Try to initialize local SentenceTransformer on CPU
         try:
