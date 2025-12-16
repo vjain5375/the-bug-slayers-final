@@ -699,7 +699,6 @@ def main():
             "Select Page",
             list(nav_options.keys()),
             format_func=lambda x: f"{nav_options[x]} {x}",
-            key="page_selector",
             index=current_index
         )
         
