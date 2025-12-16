@@ -5,6 +5,7 @@ Generates adaptive quizzes with multiple difficulty levels
 
 import json
 import re
+import random
 from typing import List, Dict, Optional
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -150,22 +151,38 @@ Only return the JSON array, no additional text."""
             text = chunk.get('text', '')
             topic = chunk.get('metadata', {}).get('topic', 'General')
             
-            # Simple extraction: create a basic question
-            sentences = text.split('.')
+            # Simple extraction: create a basic question with more realistic options
+            sentences = [s.strip() for s in text.split('.') if s.strip()]
             if len(sentences) >= 2:
-                question = f"Which of the following is true about {sentences[0][:50]}?"
-                correct_answer = sentences[1].strip()[:100]
-                
+                # Use the first sentence as the basis of the question and the second as the correct answer
+                question = f"Which of the following is true about {sentences[0][:80]}?"
+                correct_answer = sentences[1][:160]
+
+                # Use other sentences from the same chunk as plausible distractors
+                distractor_candidates = sentences[2:]
+                distractors = distractor_candidates[:3]
+
+                # If we don't have enough sentences, fall back to generic but non-obvious distractors
+                generic_distractors = [
+                    "This statement does not accurately describe the concept.",
+                    "This is only partially related to the topic.",
+                    "This is a common misconception about the topic."
+                ]
+                for gd in generic_distractors:
+                    if len(distractors) >= 3:
+                        break
+                    distractors.append(gd)
+
+                options = [correct_answer] + distractors[:3]
+                # Shuffle options so the correct answer is not always first
+                random.shuffle(options)
+                correct_index = options.index(correct_answer)
+
                 questions.append({
                     'question': question,
-                    'options': [
-                        correct_answer,
-                        "Option B (incorrect)",
-                        "Option C (incorrect)",
-                        "Option D (incorrect)"
-                    ],
+                    'options': options,
                     'correct_answer': correct_answer,
-                    'correct_index': 0,
+                    'correct_index': correct_index,
                     'topic': topic,
                     'difficulty': difficulty,
                     'explanation': ''
