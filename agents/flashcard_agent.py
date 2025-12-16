@@ -99,6 +99,18 @@ Only return the JSON array, no additional text or explanation."""
                             'topic': card.get('topic', 'General'),
                             'difficulty': card.get('difficulty', 'medium')
                         })
+
+                # If the LLM returned fewer cards than requested, top up using the
+                # simple deterministic generator so the user still gets approximately
+                # the number they selected (as long as there is enough content).
+                if len(validated) < num_flashcards:
+                    needed = num_flashcards - len(validated)
+                    simple_cards = self._simple_flashcard_generation(text_chunks, num_flashcards)
+                    for card in simple_cards:
+                        if len(validated) >= num_flashcards:
+                            break
+                        validated.append(card)
+
                 return validated[:num_flashcards]
         except Exception as e:
             print(f"Error generating flashcards: {e}")

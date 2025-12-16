@@ -123,6 +123,18 @@ Only return the JSON array, no additional text."""
                             'difficulty': q.get('difficulty', difficulty),
                             'explanation': q.get('explanation', '')
                         })
+
+                # If the LLM returned fewer questions than requested, top up using the
+                # simple deterministic generator so the user still gets approximately
+                # the number they selected (as long as there is enough content).
+                if len(validated) < num_questions:
+                    needed = num_questions - len(validated)
+                    simple_questions = self._simple_quiz_generation(text_chunks, difficulty, num_questions)
+                    for q in simple_questions:
+                        if len(validated) >= num_questions:
+                            break
+                        validated.append(q)
+
                 return validated[:num_questions]
         except Exception as e:
             print(f"Error generating quiz: {e}")
