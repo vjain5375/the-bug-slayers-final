@@ -5,7 +5,6 @@ Generates adaptive quizzes with multiple difficulty levels
 
 import json
 import re
-import random
 from typing import List, Dict, Optional
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
@@ -114,11 +113,6 @@ Only return the JSON array, no additional text."""
                                 q['correct_index'] = correct_idx
                             except ValueError:
                                 continue
-
-                        # Ensure we always have some explanation text
-                        raw_expl = str(q.get('explanation', '') or '').strip()
-                        if not raw_expl:
-                            raw_expl = f'The correct answer "{q["correct_answer"].strip()}" best matches the information in the study material.'
                         
                         validated.append({
                             'question': q['question'].strip(),
@@ -127,7 +121,7 @@ Only return the JSON array, no additional text."""
                             'correct_index': q.get('correct_index', 0),
                             'topic': q.get('topic', 'General'),
                             'difficulty': q.get('difficulty', difficulty),
-                            'explanation': raw_expl,
+                            'explanation': q.get('explanation', '')
                         })
                 return validated[:num_questions]
         except Exception as e:
@@ -137,68 +131,56 @@ Only return the JSON array, no additional text."""
         return self._simple_quiz_generation(text_chunks, difficulty, num_questions)
     
     def _simple_quiz_generation(self, text_chunks: List[Dict], difficulty: str, num_questions: int) -> List[Dict]:
-        """
-        Simple fallback quiz generation when LLM is unavailable.
-        Tries to build more realistic options from the text instead of
-        placeholder strings like 'Option B (incorrect)'.
-        """
-        questions: List[Dict] = []
-
+        """Simple fallback quiz generation"""
+        questions = []
+        
         for chunk in text_chunks[:num_questions]:
             text = chunk.get('text', '')
             topic = chunk.get('metadata', {}).get('topic', 'General')
-
-            # Split into candidate sentences
-            raw_sentences = re.split(r'[.!?]\s+', text)
-            sentences = [s.strip() for s in raw_sentences if len(s.strip()) > 30]
-            if len(sentences) < 2:
-                continue
-
-            main_sentence = sentences[0]
-            correct_answer = sentences[1][:160].strip()
-
-            # Use other sentences as distractors
-            distractors_pool = sentences[2:10]
-            random.shuffle(distractors_pool)
-            distractors = [s[:160].strip() for s in distractors_pool[:3]]
-
-            # If we don't have enough good distractors, fall back to generic ones
-            while len(distractors) < 3:
-                distractors.append("None of the above statements.")
-
-            options = [correct_answer] + distractors
-            # Shuffle options so correct answer isn't always first
-            random.shuffle(options)
-            correct_index = options.index(correct_answer)
-
-            question_text = f"Which of the following statements is supported by the material about {main_sentence[:60]}?"
-
-            questions.append({
-                'question': question_text,
-                'options': options,
-                'correct_answer': correct_answer,
-                'correct_index': correct_index,
-                'topic': topic,
-                'difficulty': difficulty,
-                'explanation': ''
-            })
-
+            
+            # Simple extraction: create a basic question
+            sentences = text.split('.')
+            if len(sentences) >= 2:
+                question = f"Which of the following is true about {sentences[0][:50]}?"
+                correct_answer = sentences[1].strip()[:100]
+                
+                questions.append({
+                    'question': question,
+                    'options': [
+                        correct_answer,
+                        "Option B (incorrect)",
+                        "Option C (incorrect)",
+                        "Option D (incorrect)"
+                    ],
+                    'correct_answer': correct_answer,
+                    'correct_index': 0,
+                    'topic': topic,
+                    'difficulty': difficulty,
+                    'explanation': ''
+                })
+        
         return questions
     
-    def generate_adaptive_quiz(self, text_chunks: List[Dict], user_performance: Optional[Dict] = None) -> List[Dict]:
+    def generate_adaptive_quiz(
+        self,
+        text_chunks: List[Dict],
+        user_performance: Optional[Dict] = None,
+        num_questions: int = 5,
+    ) -> List[Dict]:
         """
         Generate adaptive quiz based on user performance
         
         Args:
             text_chunks: List of text chunks
             user_performance: Dict with 'accuracy' and 'weak_topics' keys
+            num_questions: Number of questions to generate
             
         Returns:
             List of quiz questions with adjusted difficulty
         """
         if not user_performance:
             # Default to medium difficulty
-            return self.generate_quiz(text_chunks, "medium", 5)
+            return self.generate_quiz(text_chunks, "medium", num_questions)
         
         accuracy = user_performance.get('accuracy', 0.5)
         weak_topics = user_performance.get('weak_topics', [])
@@ -220,7 +202,7 @@ Only return the JSON array, no additional text."""
             if topic_chunks:
                 text_chunks = topic_chunks + text_chunks[:3]  # Add some general chunks
         
-        return self.generate_quiz(text_chunks, difficulty, 5)
+        return self.generate_quiz(text_chunks, difficulty, num_questions)
     
     def evaluate_quiz(self, questions: List[Dict], user_answers: Dict[int, int]) -> Dict:
         """
@@ -238,27 +220,20 @@ Only return the JSON array, no additional text."""
         details = []
         
         for i, question in enumerate(questions):
-            options = question.get('options', [])
-            user_index = user_answers.get(i, -1)
+            user_answer = user_answers.get(i, -1)
             correct_index = question.get('correct_index', 0)
-
-            is_correct = user_index == correct_index
+            is_correct = user_answer == correct_index
+            
             if is_correct:
                 correct += 1
-
-            # Safely map indices to option text
-            user_text = options[user_index] if 0 <= user_index < len(options) else ""
-            correct_text = options[correct_index] if 0 <= correct_index < len(options) else question.get('correct_answer', '')
-
+            
             details.append({
                 'question_index': i,
                 'question': question['question'],
-                'user_answer_index': user_index,
-                'user_answer_text': user_text,
-                'correct_answer_index': correct_index,
-                'correct_answer_text': correct_text,
+                'user_answer': user_answer,
+                'correct_answer': correct_index,
                 'is_correct': is_correct,
-                'explanation': question.get('explanation', ''),
+                'explanation': question.get('explanation', '')
             })
         
         accuracy = correct / total if total > 0 else 0

@@ -690,7 +690,7 @@ def main():
             "Analytics": "📊"
         }
         
-        # Get current index for radio button to ensure it shows the correct selection
+        # Get current index for radio button
         current_index = 0
         if st.session_state.current_page in nav_options:
             current_index = list(nav_options.keys()).index(st.session_state.current_page)
@@ -703,7 +703,7 @@ def main():
             index=current_index
         )
         
-        # Always sync current_page with radio selection and trigger rerun if changed
+        # Sync with main page navigation
         if page != st.session_state.current_page:
             st.session_state.current_page = page
             st.rerun()
@@ -891,7 +891,6 @@ def main():
             button_type = "primary" if st.session_state.current_page == page_name else "secondary"
             nav_button = st.button(f"{icon}\n{page_name}", use_container_width=True, key=f"main_nav_{page_name}", type=button_type)
             if nav_button:
-                # Update the main page state (radio will sync via index on rerun)
                 st.session_state.current_page = page_name
                 st.rerun()
     
@@ -960,12 +959,12 @@ def show_home_page():
     if st.session_state.documents_processed and 'processing_results' in st.session_state:
         result = st.session_state.processing_results
         
-        # Display Topics with Key Points (show all topics and content)
+        # Display Topics with Key Points
         if result.get('topics'):
             st.markdown("### 📚 Extracted Topics & Key Points")
             topics = result['topics']
             
-            for idx, topic_data in enumerate(topics, 1):
+            for idx, topic_data in enumerate(topics[:10], 1):  # Show first 10 topics
                 topic_name = topic_data.get('topic', f'Topic {idx}')
                 subtopics = topic_data.get('subtopics', [])
                 key_points = topic_data.get('key_points', [])
@@ -973,12 +972,12 @@ def show_home_page():
                 with st.expander(f"📖 {idx}. {topic_name}", expanded=(idx == 1)):
                     if subtopics:
                         st.markdown("**Subtopics:**")
-                        for subtopic in subtopics:
+                        for subtopic in subtopics[:5]:  # Show first 5 subtopics
                             st.markdown(f"  • {subtopic}")
                     
                     if key_points:
                         st.markdown("**Key Points:**")
-                        for point in key_points:
+                        for point in key_points[:5]:  # Show first 5 key points
                             st.markdown(f"  ✓ {point}")
                     else:
                         # If no key points from LLM, show sample chunks from this topic
@@ -987,11 +986,14 @@ def show_home_page():
                             if chunk.get('metadata', {}).get('topic', '') == topic_name
                         ]
                         if topic_chunks:
-                            st.markdown("**Content Samples:**")
-                            for chunk in topic_chunks:
-                                chunk_text = chunk.get('text', '')
+                            st.markdown("**Sample Content:**")
+                            for chunk in topic_chunks[:2]:  # Show first 2 chunks
+                                chunk_text = chunk.get('text', '')[:200]  # First 200 chars
                                 if chunk_text:
-                                    st.markdown(f"  • {chunk_text}")
+                                    st.markdown(f"  • {chunk_text}...")
+            
+            if len(topics) > 10:
+                st.info(f"📊 Showing first 10 of {len(topics)} topics. More topics available in the processed content.")
         
         # Display Sample Extracted Text/Chunks
         if result.get('chunks'):
@@ -999,14 +1001,22 @@ def show_home_page():
             st.markdown(f"**Total Chunks:** {len(result['chunks'])}")
             
             with st.expander("View Sample Chunks", expanded=False):
-                # Show all chunks sequentially (no truncation, no topic limit)
-                for i, chunk in enumerate(result['chunks'], 1):
-                    chunk_text = chunk.get('text', '')
-                    source = chunk.get('metadata', {}).get('source', 'Unknown')
+                # Group chunks by topic
+                chunks_by_topic = {}
+                for chunk in result['chunks'][:20]:  # Show first 20 chunks
                     topic = chunk.get('metadata', {}).get('topic', 'General')
-                    st.markdown(f"**Chunk {i}** (from {source}, topic: {topic})")
-                    st.text(chunk_text)
-                    st.markdown("---")
+                    if topic not in chunks_by_topic:
+                        chunks_by_topic[topic] = []
+                    chunks_by_topic[topic].append(chunk)
+                
+                for topic_name, topic_chunks in list(chunks_by_topic.items())[:5]:  # Show first 5 topics
+                    st.markdown(f"**📌 Topic: {topic_name}** ({len(topic_chunks)} chunks)")
+                    for i, chunk in enumerate(topic_chunks[:3], 1):  # Show first 3 chunks per topic
+                        chunk_text = chunk.get('text', '')
+                        source = chunk.get('metadata', {}).get('source', 'Unknown')
+                        st.markdown(f"  **Chunk {i}** (from {source}):")
+                        st.text(chunk_text[:300] + "..." if len(chunk_text) > 300 else chunk_text)
+                        st.markdown("---")
         
         st.markdown("---")
     
@@ -1135,8 +1145,14 @@ def show_quizzes_page():
     with col1:
         difficulty = st.selectbox("Difficulty", ["easy", "medium", "hard"], index=1)
     with col2:
-        # Allow generating more questions in a single quiz (up to 30)
-        num_questions = st.slider("Questions", 3, 30, value=st.session_state.num_questions, key="quiz_slider")
+        # Allow a wider range of questions while still using session state default
+        num_questions = st.slider(
+            "Questions",
+            min_value=3,
+            max_value=30,
+            value=st.session_state.num_questions,
+            key="quiz_slider",
+        )
     with col3:
         adaptive = st.checkbox("Adaptive", value=True)
         if st.button("🎯 Generate Quiz", use_container_width=True, type="primary"):
@@ -1176,30 +1192,14 @@ def show_quizzes_page():
             st.metric("Score", f"{result['score']}/{result['total']}")
             st.metric("Accuracy", f"{result['accuracy']*100:.1f}%")
             
-            with st.expander("View Details", expanded=True):
+            with st.expander("View Details"):
                 for detail in result['details']:
                     is_correct = detail['is_correct']
                     icon = "✅" if is_correct else "❌"
-
-                    # Derive option labels (A, B, C, D) from indices
-                    def idx_to_label(idx: int) -> str:
-                        return chr(ord("A") + idx) if isinstance(idx, int) and 0 <= idx < 26 else "-"
-
-                    ua_idx = detail.get('user_answer_index', -1)
-                    ca_idx = detail.get('correct_answer_index', -1)
-                    ua_label = idx_to_label(ua_idx)
-                    ca_label = idx_to_label(ca_idx)
-
-                    ua_text = detail.get('user_answer_text') or "No answer selected."
-                    ca_text = detail.get('correct_answer_text') or "N/A"
-
                     st.markdown(f"{icon} **Q{detail['question_index']+1}**")
-                    st.markdown(f"**Your answer:** {ua_label}. {ua_text}")
-                    st.markdown(f"**Correct answer:** {ca_label}. {ca_text}")
-
-                    explanation = detail.get('explanation')
-                    if explanation:
-                        st.info(f"**Explanation:** {explanation}")
+                    st.markdown(f"Your answer: {detail['user_answer']} | Correct: {detail['correct_answer']}")
+                    if detail.get('explanation'):
+                        st.info(detail['explanation'])
     else:
         st.info("Click 'Generate Quiz' to create a quiz from your study materials!")
 

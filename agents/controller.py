@@ -173,7 +173,11 @@ class AgentController:
                 'accuracy': sum(self.memory.user_performance['quiz_scores']) / len(self.memory.user_performance['quiz_scores']),
                 'weak_topics': self.memory.user_performance.get('weak_topics', [])
             }
-            questions = self.quiz_agent.generate_adaptive_quiz(chunks, user_perf)
+            questions = self.quiz_agent.generate_adaptive_quiz(
+                text_chunks=chunks,
+                user_performance=user_perf,
+                num_questions=num_questions,
+            )
         else:
             questions = self.quiz_agent.generate_quiz(chunks, difficulty, num_questions)
         
