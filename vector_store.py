@@ -68,9 +68,17 @@ class VectorStore:
         self.embedding_backend = embedding_backend or os.getenv("EMBEDDING_BACKEND", "auto").lower()
         self.embedding_model = None
         
+        # Fast-path: if auto and an API key is present, prefer API (faster init than local model)
+        if self.embedding_backend == "auto":
+            if os.getenv("OPENAI_API_KEY") or os.getenv("GOOGLE_API_KEY"):
+                self.embedding_backend = "api"
+                logger.info("Embedding backend auto-switched to 'api' because API key is set (faster startup).")
+            else:
+                self.embedding_backend = "local"
+        
         # If explicitly set to 'api', skip local model
         if self.embedding_backend == "api":
-            logger.info("Embedding backend forced to 'api' - skipping SentenceTransformer init")
+            logger.info("Embedding backend set to 'api' - skipping SentenceTransformer init")
             self._init_api_backend()
             self._init_chromadb()
             return

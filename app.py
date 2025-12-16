@@ -6,6 +6,7 @@ Personalized study assistant with flashcards, quizzes, and revision planning
 import streamlit as st
 import os
 import logging
+import hashlib
 import traceback
 from pathlib import Path
 from dotenv import load_dotenv
@@ -139,6 +140,8 @@ if 'num_flashcards' not in st.session_state:
     st.session_state.num_flashcards = 10
 if 'num_questions' not in st.session_state:
     st.session_state.num_questions = 10
+if 'last_processed_signature' not in st.session_state:
+    st.session_state.last_processed_signature = None
 
 # Load CSS (simplified version - can be expanded)
 st.markdown("""
@@ -211,6 +214,19 @@ def initialize_components():
             st.error(f"⚠️ Failed to initialize AI agents: {e}")
             st.stop()
 
+def _compute_docs_signature(doc_files):
+    """Create a quick signature of documents based on name, size, and mtime"""
+    entries = []
+    for doc in doc_files:
+        p = Path(doc)
+        if p.exists():
+            stat = p.stat()
+            entries.append(f"{p.name}:{stat.st_size}:{int(stat.st_mtime)}")
+    if not entries:
+        return ""
+    entries.sort()
+    return hashlib.md5("|".join(entries).encode()).hexdigest()
+
 def process_documents():
     """Process all documents using Reader Agent"""
     docs_dir = ensure_documents_directory()
@@ -219,6 +235,17 @@ def process_documents():
     if not doc_files:
         st.error("No documents found. Please upload PDF, DOCX, or TXT files.")
         return False
+    
+    # Skip reprocessing if nothing has changed
+    signature = _compute_docs_signature(doc_files)
+    if (
+        signature
+        and st.session_state.documents_processed
+        and st.session_state.get('processing_results')
+        and st.session_state.get('last_processed_signature') == signature
+    ):
+        st.info("Documents unchanged. Skipping reprocessing.")
+        return True
     
     # Update latest document based on upload order (most recent is last)
     if st.session_state.document_upload_order:
@@ -242,6 +269,7 @@ def process_documents():
         
         # Store processing results for display
         st.session_state.processing_results = result
+        st.session_state.last_processed_signature = signature
         
         return True
     else:
