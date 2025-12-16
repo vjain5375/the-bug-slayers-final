@@ -47,7 +47,7 @@ class QuizAgent:
         
         # Combine a limited number of chunks into context to keep prompts fast
         context_parts = []
-        for chunk in text_chunks[:3]:  # Use top 3 chunks for faster LLM calls
+        for chunk in text_chunks[:8]:  # Use more chunks to improve coverage
             topic = chunk.get('metadata', {}).get('topic', 'General')
             text = chunk.get('text', '')
             context_parts.append(f"[Topic: {topic}]\n{text}")
@@ -144,42 +144,70 @@ Only return the JSON array, no additional text."""
         return self._simple_quiz_generation(text_chunks, difficulty, num_questions)
     
     def _simple_quiz_generation(self, text_chunks: List[Dict], difficulty: str, num_questions: int) -> List[Dict]:
-        """Simple fallback quiz generation"""
-        questions = []
-        
-        for chunk in text_chunks[:num_questions]:
+        """Simple fallback quiz generation that can produce up to the requested count even with few chunks"""
+        questions: List[Dict] = []
+        if not text_chunks:
+            return questions
+
+        # Pre-processed chunks with sentences to reuse
+        processed_chunks = []
+        for chunk in text_chunks:
             text = chunk.get('text', '')
             topic = chunk.get('metadata', {}).get('topic', 'General')
-            
-            # Simple extraction: create a basic question with more realistic options
-            sentences = [s.strip() for s in text.split('.') if s.strip()]
-            if len(sentences) >= 2:
-                # Use the first sentence as the basis of the question and the second as the correct answer
-                question = f"Which of the following is true about {sentences[0][:80]}?"
-                correct_answer = sentences[1][:160]
+            # Split on ., ?, ! to get more sentence-like fragments
+            sentences = [s.strip() for s in re.split(r'[\.!\?]', text) if len(s.strip()) > 10]
+            if sentences:
+                processed_chunks.append((topic, sentences))
 
-                # Use other sentences from the same chunk as plausible distractors
-                distractor_candidates = sentences[2:]
-                distractors = distractor_candidates[:3]
+        if not processed_chunks:
+            return questions
 
-                # If we don't have enough sentences, fall back to generic but non-obvious distractors
-                generic_distractors = [
-                    "This statement does not accurately describe the concept.",
-                    "This is only partially related to the topic.",
-                    "This is a common misconception about the topic."
-                ]
+        generic_distractors = [
+            "This statement does not accurately describe the concept.",
+            "This is only partially related to the topic.",
+            "This is a common misconception about the topic.",
+            "This detail is unrelated to the described process."
+        ]
+
+        # Round-robin through chunks, generating multiple questions per chunk if possible
+        chunk_index = 0
+        safety_limit = num_questions * 3  # avoid infinite loops on very small content
+        attempts = 0
+
+        while len(questions) < num_questions and attempts < safety_limit:
+            attempts += 1
+            topic, sentences = processed_chunks[chunk_index % len(processed_chunks)]
+            chunk_index += 1
+
+            if len(sentences) < 2:
+                continue
+
+            # Use pairs of adjacent sentences to build Q/A
+            for i in range(len(sentences) - 1):
+                if len(questions) >= num_questions:
+                    break
+
+                stem = sentences[i][:120]
+                correct_answer = sentences[i + 1][:200]
+
+                # Distractors from other sentences in the same chunk
+                distractor_pool = sentences[:i] + sentences[i + 2:]
+                distractors = [d for d in distractor_pool if len(d) > 12][:3]
+
                 for gd in generic_distractors:
                     if len(distractors) >= 3:
                         break
                     distractors.append(gd)
 
+                if len(distractors) < 3:
+                    continue
+
                 options = [correct_answer] + distractors[:3]
-                # Shuffle options so the correct answer is not always first
                 random.shuffle(options)
                 correct_index = options.index(correct_answer)
 
                 questions.append({
-                    'question': question,
+                    'question': f"Which of the following is true about {stem}?",
                     'options': options,
                     'correct_answer': correct_answer,
                     'correct_index': correct_index,
@@ -187,6 +215,8 @@ Only return the JSON array, no additional text."""
                     'difficulty': difficulty,
                     'explanation': ''
                 })
+
+        return questions
         
         return questions
     
