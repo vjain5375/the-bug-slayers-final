@@ -1189,11 +1189,14 @@ def show_quizzes_page():
                 difficulty, num_questions, adaptive
             )
             processing_msg.empty()
-            st.session_state.quizzes = questions
-            st.session_state.quiz_answers = {}
-            st.session_state.num_questions = 10  # Reset to default
-            st.success(f"✅ Generated {len(questions)} questions!")
-            st.rerun()
+            if not questions:
+                st.error("No quiz could be generated. Please ensure documents are processed and contain enough text.")
+            else:
+                st.session_state.quizzes = questions
+                st.session_state.quiz_answers = {}
+                st.session_state.num_questions = 10  # Reset to default
+                st.success(f"✅ Generated {len(questions)} questions!")
+                st.rerun()
     
     # Display quiz
     if st.session_state.quizzes:

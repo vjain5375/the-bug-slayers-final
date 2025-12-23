@@ -166,6 +166,8 @@ class AgentController:
             List of quiz questions
         """
         chunks = self.memory.chunks
+        if not chunks:
+            return []
         
         if adaptive and self.memory.user_performance.get('quiz_scores'):
             # Use adaptive quiz generation

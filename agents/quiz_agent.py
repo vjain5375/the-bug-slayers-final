@@ -42,6 +42,9 @@ class QuizAgent:
         Returns:
             List of quiz question dictionaries
         """
+        if not text_chunks:
+            return []
+
         if not self.llm:
             return self._simple_quiz_generation(text_chunks, difficulty, num_questions)
         
