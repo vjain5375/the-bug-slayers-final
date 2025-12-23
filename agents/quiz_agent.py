@@ -106,30 +106,14 @@ Only return the JSON array, no additional text."""
                 # Validate and clean questions
                 validated = []
                 for q in questions:
-                    if 'question' in q and 'options' in q and 'correct_answer' in q:
-                        # Ensure correct_index is set
-                        if 'correct_index' not in q:
-                            try:
-                                correct_idx = q['options'].index(q['correct_answer'])
-                                q['correct_index'] = correct_idx
-                            except ValueError:
-                                continue
-                        
-                        validated.append({
-                            'question': q['question'].strip(),
-                            'options': [opt.strip() for opt in q['options']],
-                            'correct_answer': q['correct_answer'].strip(),
-                            'correct_index': q.get('correct_index', 0),
-                            'topic': q.get('topic', 'General'),
-                            'difficulty': q.get('difficulty', difficulty),
-                            'explanation': q.get('explanation', '')
-                        })
+                    cleaned = self._validate_question_dict(q, difficulty)
+                    if cleaned:
+                        validated.append(cleaned)
 
                 # If the LLM returned fewer questions than requested, top up using the
                 # simple deterministic generator so the user still gets approximately
                 # the number they selected (as long as there is enough content).
                 if len(validated) < num_questions:
-                    needed = num_questions - len(validated)
                     simple_questions = self._simple_quiz_generation(text_chunks, difficulty, num_questions)
                     for q in simple_questions:
                         if len(validated) >= num_questions:
@@ -142,6 +126,75 @@ Only return the JSON array, no additional text."""
         
         # Fallback to simple generation
         return self._simple_quiz_generation(text_chunks, difficulty, num_questions)
+    
+    def _validate_question_dict(self, q: Dict, default_difficulty: str) -> Optional[Dict]:
+        """Normalize and validate a single question dict to avoid index/option mismatch"""
+        if not q or 'question' not in q:
+            return None
+        
+        # Normalize options
+        raw_options = q.get('options', []) or []
+        options: List[str] = []
+        seen = set()
+        for opt in raw_options:
+            if not opt:
+                continue
+            clean = str(opt).strip()
+            if not clean:
+                continue
+            key = clean.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            options.append(clean)
+        # Ensure we have 4 options by adding generic distractors if needed
+        generic_distractors = [
+            "Partially correct but incomplete.",
+            "Related concept but not the right answer.",
+            "Common misconception about this topic.",
+            "Unrelated detail to the question."
+        ]
+        for gd in generic_distractors:
+            if len(options) >= 4:
+                break
+            if gd.lower() not in seen:
+                options.append(gd)
+                seen.add(gd.lower())
+        options = options[:4]
+        if len(options) < 2:
+            return None
+        
+        # Resolve correct answer/index
+        correct_answer = str(q.get('correct_answer', '')).strip()
+        correct_index = q.get('correct_index', None)
+        # Try to locate correct answer in options (case-insensitive)
+        idx = None
+        if correct_answer:
+            for i, opt in enumerate(options):
+                if opt.lower() == correct_answer.lower():
+                    idx = i
+                    break
+        if idx is None and isinstance(correct_index, int) and 0 <= correct_index < len(options):
+            idx = correct_index
+            correct_answer = options[idx]
+        if idx is None:
+            return None  # cannot trust correctness
+        correct_index = idx
+        correct_answer = options[correct_index]
+        
+        explanation = str(q.get('explanation', '') or "").strip()
+        if not explanation:
+            explanation = f"The correct choice is: {correct_answer}"
+        
+        return {
+            'question': str(q.get('question', '')).strip(),
+            'options': options,
+            'correct_answer': correct_answer,
+            'correct_index': correct_index,
+            'topic': q.get('topic', 'General'),
+            'difficulty': q.get('difficulty', default_difficulty),
+            'explanation': explanation
+        }
     
     def _simple_quiz_generation(self, text_chunks: List[Dict], difficulty: str, num_questions: int) -> List[Dict]:
         """Simple fallback quiz generation that can produce up to the requested count even with few chunks"""
@@ -213,11 +266,9 @@ Only return the JSON array, no additional text."""
                     'correct_index': correct_index,
                     'topic': topic,
                     'difficulty': difficulty,
-                    'explanation': ''
+                    'explanation': f"The statement that best fits is: {correct_answer}"
                 })
 
-        return questions
-        
         return questions
     
     def generate_adaptive_quiz(
@@ -279,18 +330,30 @@ Only return the JSON array, no additional text."""
         details = []
         
         for i, question in enumerate(questions):
-            user_answer = user_answers.get(i, -1)
+            user_answer_idx = user_answers.get(i, -1)
+            options = question.get('options', [])
             correct_index = question.get('correct_index', 0)
-            is_correct = user_answer == correct_index
-            
+            correct_index = correct_index if isinstance(correct_index, int) else 0
+
+            # Clamp indices to available options
+            if options:
+                if correct_index < 0 or correct_index >= len(options):
+                    correct_index = 0
+
+            is_correct = user_answer_idx == correct_index
             if is_correct:
                 correct += 1
+
+            user_answer_text = options[user_answer_idx] if options and 0 <= user_answer_idx < len(options) else "Not answered"
+            correct_answer_text = options[correct_index] if options and 0 <= correct_index < len(options) else question.get('correct_answer', '')
             
             details.append({
                 'question_index': i,
                 'question': question['question'],
-                'user_answer': user_answer,
-                'correct_answer': correct_index,
+                'user_answer_index': user_answer_idx,
+                'correct_answer_index': correct_index,
+                'user_answer': user_answer_text,
+                'correct_answer': correct_answer_text,
                 'is_correct': is_correct,
                 'explanation': question.get('explanation', '')
             })

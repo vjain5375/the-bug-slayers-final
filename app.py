@@ -1223,10 +1223,11 @@ def show_quizzes_page():
                 for detail in result['details']:
                     is_correct = detail['is_correct']
                     icon = "✅" if is_correct else "❌"
-                    st.markdown(f"{icon} **Q{detail['question_index']+1}**")
-                    st.markdown(f"Your answer: {detail['user_answer']} | Correct: {detail['correct_answer']}")
-                    if detail.get('explanation'):
-                        st.info(detail['explanation'])
+                st.markdown(f"{icon} **Q{detail['question_index']+1}**")
+                st.markdown(f"Your answer: {detail.get('user_answer', 'Not answered')}")
+                st.markdown(f"Correct answer: {detail.get('correct_answer', '')}")
+                if detail.get('explanation'):
+                    st.info(detail['explanation'])
     else:
         st.info("Click 'Generate Quiz' to create a quiz from your study materials!")
 
