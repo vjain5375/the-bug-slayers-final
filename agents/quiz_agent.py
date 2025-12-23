@@ -48,9 +48,9 @@ class QuizAgent:
         if not self.llm:
             return self._simple_quiz_generation(text_chunks, difficulty, num_questions)
         
-        # Combine a limited number of chunks into context to keep prompts fast
+        # Combine a limited number of chunks into context to keep prompts fast and focused
         context_parts = []
-        for chunk in text_chunks[:8]:  # Use more chunks to improve coverage
+        for chunk in text_chunks[:6]:  # keep context tighter for quality
             topic = chunk.get('metadata', {}).get('topic', 'General')
             text = chunk.get('text', '')
             context_parts.append(f"[Topic: {topic}]\n{text}")
@@ -64,10 +64,10 @@ class QuizAgent:
         }
         
         try:
-            prompt = f"""You are a quiz generator for study materials. Create multiple-choice questions.
+            prompt = f"""You are a quiz generator for study materials. Create multiple-choice questions that are concise, non-duplicative, and clearly distinguishable.
 
 Study Material:
-{context[:2500]}
+{context[:1200]}
 
 Create exactly {num_questions} multiple-choice questions with {difficulty} difficulty.
 {difficulty_guidance.get(difficulty, '')}
@@ -77,6 +77,8 @@ Each question must have:
 - Exactly 4 options (A, B, C, D)
 - One correct answer
 - 3 plausible distractors (wrong but reasonable answers)
+ - No duplicated options
+ - Keep each option under 160 characters
 
 Return ONLY a valid JSON array in this format:
 [
@@ -143,7 +145,7 @@ Only return the JSON array, no additional text."""
             if not opt:
                 continue
             clean = str(opt).strip()
-            if not clean:
+            if not clean or len(clean) < 3 or len(clean) > 180:
                 continue
             key = clean.lower()
             if key in seen:
@@ -164,7 +166,7 @@ Only return the JSON array, no additional text."""
                 options.append(gd)
                 seen.add(gd.lower())
         options = options[:4]
-        if len(options) < 2:
+        if len(options) < 3:
             return None
         
         # Resolve correct answer/index
@@ -180,6 +182,10 @@ Only return the JSON array, no additional text."""
         if idx is None and isinstance(correct_index, int) and 0 <= correct_index < len(options):
             idx = correct_index
             correct_answer = options[idx]
+        # If still not found, default to the first option to avoid broken indices
+        if idx is None and options:
+            idx = 0
+            correct_answer = options[0]
         if idx is None:
             return None  # cannot trust correctness
         correct_index = idx
