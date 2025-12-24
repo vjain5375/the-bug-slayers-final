@@ -108,11 +108,21 @@ Only return the JSON array, no additional text or explanation."""
                 flashcards = json.loads(json_match.group(0))
                 # Validate and clean flashcards
                 validated = []
+                seen_questions = set()
+                min_q_len = 12
+                min_a_len = 20
                 for card in flashcards:
                     if 'question' in card and 'answer' in card:
+                        question = card['question'].strip()
+                        answer = card['answer'].strip()
+                        if len(question) < min_q_len or len(answer) < min_a_len:
+                            continue
+                        if question.lower() in seen_questions:
+                            continue
+                        seen_questions.add(question.lower())
                         validated.append({
-                            'question': card['question'].strip(),
-                            'answer': card['answer'].strip(),
+                            'question': question,
+                            'answer': answer,
                             'topic': card.get('topic', 'General'),
                             'difficulty': card.get('difficulty', 'medium').lower()
                         })
