@@ -129,7 +129,17 @@ Only return the JSON array, no additional text."""
                         if normalized:
                             validated.append(normalized)
 
-                return validated[:num_questions]
+                # Deduplicate questions by text to avoid repeated items
+                deduped = []
+                seen_questions = set()
+                for item in validated:
+                    qtext = item['question'].strip().lower()
+                    if qtext in seen_questions:
+                        continue
+                    seen_questions.add(qtext)
+                    deduped.append(item)
+
+                return deduped[:num_questions]
         except Exception as e:
             print(f"Error generating quiz: {e}")
         
@@ -275,9 +285,21 @@ Only return the JSON array, no additional text."""
         if len(question) < 10:
             return None
 
+        # Shuffle options to reduce positional repetition
+        # Keep track of the correct answer after shuffling
+        import random
+        indexed_opts = list(enumerate(deduped))
+        random.shuffle(indexed_opts)
+        shuffled = [opt for _, opt in indexed_opts]
+        try:
+            correct_index = shuffled.index(correct_answer)
+        except ValueError:
+            correct_index = 0
+            correct_answer = shuffled[0]
+
         return {
             'question': question,
-            'options': deduped,
+            'options': shuffled,
             'correct_answer': correct_answer,
             'correct_index': correct_index,
             'topic': topic,
