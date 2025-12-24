@@ -49,6 +49,23 @@ class FlashcardAgent:
         if not text_chunks:
             return []
         
+        # Pre-clean chunks and drop low-signal ones
+        cleaned_chunks = []
+        for chunk in text_chunks:
+            raw_text = chunk.get('text', '')
+            cleaned_text = self._strip_boilerplate(raw_text)
+            sentences = self._clean_and_split_sentences(cleaned_text)
+            if len(cleaned_text) < 80 or len(sentences) < 2:
+                continue
+            cleaned_chunks.append({
+                "text": cleaned_text,
+                "sentences": sentences,
+                "metadata": chunk.get('metadata', {})
+            })
+        
+        if not cleaned_chunks:
+            return []
+        
         target_counts = self._build_target_counts(num_flashcards, difficulty_mix)
         target_difficulties = [
             diff for diff, count in target_counts.items() for _ in range(count)
@@ -57,11 +74,11 @@ class FlashcardAgent:
             target_difficulties = ["medium"] * num_flashcards
 
         if not self.llm:
-            return self._simple_flashcard_generation(text_chunks, target_difficulties)
+            return self._simple_flashcard_generation(cleaned_chunks, target_difficulties)
         
         # Combine chunks into context
         context_parts = []
-        for chunk in text_chunks[:5]:  # Use top 5 chunks
+        for chunk in cleaned_chunks[:6]:  # Use top 6 cleaned chunks
             topic = chunk.get('metadata', {}).get('topic', 'General')
             text = chunk.get('text', '')
             context_parts.append(f"[Topic: {topic}]\n{text}")
@@ -69,10 +86,10 @@ class FlashcardAgent:
         context = "\n\n---\n\n".join(context_parts)
         
         try:
-            prompt = f"""You are a flashcard generator for study materials. Create concise, effective flashcards.
+            prompt = f"""You are a flashcard generator for study materials. Create concise, effective flashcards that avoid boilerplate and placeholders.
 
 Study Material:
-{context[:4000]}  # Limit context size
+{context[:1200]}  # Limit context size
 
 Create exactly {num_flashcards} question-answer pairs that:
 1. Cover key concepts and definitions
@@ -80,6 +97,7 @@ Create exactly {num_flashcards} question-answer pairs that:
 3. Test understanding, not just memorization
 4. Cover different topics from the material
 5. Difficulty mix: {target_counts} (use these counts as closely as possible)
+6. Do NOT include copyright/ISBN/legal text. Do NOT return empty or placeholder questions.
 
 Return ONLY a valid JSON array in this format:
 [
@@ -109,8 +127,8 @@ Only return the JSON array, no additional text or explanation."""
                 # Validate and clean flashcards
                 validated = []
                 seen_questions = set()
-                min_q_len = 12
-                min_a_len = 20
+                min_q_len = 16
+                min_a_len = 24
                 max_len = 240
                 for card in flashcards:
                     if 'question' in card and 'answer' in card:
@@ -131,17 +149,10 @@ Only return the JSON array, no additional text or explanation."""
                 # Ensure count and difficulty mix by topping up with deterministic cards
                 if len(validated) < num_flashcards:
                     simple_cards = self._simple_flashcard_generation(
-                        text_chunks,
+                        cleaned_chunks,
                         target_difficulties[len(validated):]
                     )
                     validated.extend(simple_cards)
-
-                # If still short, duplicate best available to meet count
-                while len(validated) < num_flashcards and validated:
-                    validated.append(validated[len(validated) % len(validated)])
-                # If nothing validated, fall back entirely
-                if not validated:
-                    validated = self._simple_flashcard_generation(text_chunks, target_difficulties[:num_flashcards])
 
                 # Trim and align difficulties to target list
                 validated = validated[:num_flashcards]
@@ -154,29 +165,23 @@ Only return the JSON array, no additional text or explanation."""
             print(f"Error generating flashcards: {e}")
         
         # Fallback to simple generation
-        return self._simple_flashcard_generation(text_chunks, target_difficulties)
+        return self._simple_flashcard_generation(cleaned_chunks, target_difficulties)
     
-    def _simple_flashcard_generation(self, text_chunks: List[Dict], target_difficulties: List[str]) -> List[Dict]:
+    def _simple_flashcard_generation(self, cleaned_chunks: List[Dict], target_difficulties: List[str]) -> List[Dict]:
         """Simple fallback flashcard generation honoring target difficulties"""
         flashcards = []
-        if not text_chunks:
+        if not cleaned_chunks:
             return flashcards
-
+        
         # Cycle through chunks and difficulties
         for idx, difficulty in enumerate(target_difficulties):
-            chunk = text_chunks[idx % len(text_chunks)]
-            raw_text = chunk.get('text', '')
-            text = self._strip_boilerplate(raw_text)
+            chunk = cleaned_chunks[idx % len(cleaned_chunks)]
+            text = chunk.get('text', '')
+            sentences = chunk.get('sentences', [])
             topic = chunk.get('metadata', {}).get('topic', 'General')
-            if len(text) < 40:
+            if len(sentences) < 2:
                 continue
             
-            # Simple extraction: use first sentence as question seed, next sentences as answer
-            sentences = [s.strip() for s in re.split(r'[.!?]', text) if len(s.strip()) > 4]
-            if not sentences:
-                sentences = [text[:160]] if text else []
-            if not sentences:
-                continue
             question_seed = sentences[0][:140]
             answer_seed = ' '.join(sentences[1:3]).strip() if len(sentences) > 1 else text[:220]
             if not answer_seed:
@@ -187,7 +192,7 @@ Only return the JSON array, no additional text or explanation."""
                 answer_seed = answer_seed + '.'
             
             question_text = f"What is {question_seed}?".strip()
-            if len(question_text) < 12 or len(answer_seed) < 20:
+            if len(question_text) < 16 or len(answer_seed) < 24:
                 continue
             
             flashcards.append({
@@ -227,20 +232,31 @@ Only return the JSON array, no additional text or explanation."""
         """Remove boilerplate like copyright/ISBN/dates and trim length."""
         if not text:
             return ""
-        lowered = text.lower()
         lines = []
         for line in text.splitlines():
             l = line.strip()
             l_lower = l.lower()
             if any(keyword in l_lower for keyword in [
-                "copyright", "isbn", "rights reserved", "revision history", "first release", "typo updates"
+                "copyright", "isbn", "rights reserved", "revision history", "first release", "typo updates",
+                "all rights reserved", "page ", "chapter "
             ]):
+                continue
+            if re.match(r"^\d{4}-\d{2}-\d{2}", l):
+                continue
+            if re.match(r"^[A-Z0-9 ,:-]{15,}$", l):
                 continue
             lines.append(l)
         cleaned = " ".join(lines)
         # Collapse whitespace and truncate
         cleaned = re.sub(r"\s+", " ", cleaned).strip()
         return cleaned[:400]
+    
+    def _clean_and_split_sentences(self, text: str) -> List[str]:
+        """Split text into reasonable sentences, filtering very short fragments."""
+        if not text:
+            return []
+        sentences = [s.strip() for s in re.split(r'[.!?]', text) if len(s.strip()) > 4]
+        return sentences
     
     def save_flashcards(self, flashcards: List[Dict], file_path: str = "outputs/flashcards.json"):
         """Save flashcards to JSON file"""
