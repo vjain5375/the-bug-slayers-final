@@ -111,10 +111,11 @@ Only return the JSON array, no additional text or explanation."""
                 seen_questions = set()
                 min_q_len = 12
                 min_a_len = 20
+                max_len = 240
                 for card in flashcards:
                     if 'question' in card and 'answer' in card:
-                        question = card['question'].strip()
-                        answer = card['answer'].strip()
+                        question = self._strip_boilerplate(card['question'].strip())[:max_len]
+                        answer = self._strip_boilerplate(card['answer'].strip())[:max_len]
                         if len(question) < min_q_len or len(answer) < min_a_len:
                             continue
                         if question.lower() in seen_questions:
@@ -164,15 +165,22 @@ Only return the JSON array, no additional text or explanation."""
         # Cycle through chunks and difficulties
         for idx, difficulty in enumerate(target_difficulties):
             chunk = text_chunks[idx % len(text_chunks)]
-            text = chunk.get('text', '')
+            raw_text = chunk.get('text', '')
+            text = self._strip_boilerplate(raw_text)
             topic = chunk.get('metadata', {}).get('topic', 'General')
             
             # Simple extraction: use first sentence as question seed, next sentences as answer
-            sentences = [s.strip() for s in re.split(r'[.!?]', text) if s.strip()]
-            question_seed = sentences[0] if sentences else text[:80] or "this topic"
-            answer_seed = ' '.join(sentences[1:3]).strip() if len(sentences) > 1 else text[:200]
+            sentences = [s.strip() for s in re.split(r'[.!?]', text) if len(s.strip()) > 4]
+            if not sentences:
+                sentences = [text[:160]] if text else []
+            if not sentences:
+                continue
+            question_seed = sentences[0][:140]
+            answer_seed = ' '.join(sentences[1:3]).strip() if len(sentences) > 1 else text[:220]
             if not answer_seed:
                 answer_seed = "Review this concept."
+            if len(answer_seed) > 240:
+                answer_seed = answer_seed[:240]
             if not answer_seed.endswith('.'):
                 answer_seed = answer_seed + '.'
             
@@ -208,6 +216,25 @@ Only return the JSON array, no additional text or explanation."""
             level = levels[i % len(levels)]
             counts[level] += 1
         return counts
+    
+    def _strip_boilerplate(self, text: str) -> str:
+        """Remove boilerplate like copyright/ISBN/dates and trim length."""
+        if not text:
+            return ""
+        lowered = text.lower()
+        lines = []
+        for line in text.splitlines():
+            l = line.strip()
+            l_lower = l.lower()
+            if any(keyword in l_lower for keyword in [
+                "copyright", "isbn", "rights reserved", "revision history", "first release", "typo updates"
+            ]):
+                continue
+            lines.append(l)
+        cleaned = " ".join(lines)
+        # Collapse whitespace and truncate
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        return cleaned[:400]
     
     def save_flashcards(self, flashcards: List[Dict], file_path: str = "outputs/flashcards.json"):
         """Save flashcards to JSON file"""
