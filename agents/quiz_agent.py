@@ -64,7 +64,7 @@ class QuizAgent:
         }
         
         try:
-            prompt = f"""You are a quiz generator for study materials. Create multiple-choice questions that are concise, non-duplicative, and clearly distinguishable.
+            prompt = f"""You are a quiz generator for study materials. Create multiple-choice questions that are concise, non-duplicative, and clearly distinguishable. Use clear, grammatical language for each option.
 
 Study Material:
 {context[:1200]}
@@ -79,6 +79,7 @@ Each question must have:
 - 3 plausible distractors (wrong but reasonable answers)
  - No duplicated options
  - Keep each option under 160 characters
+- Avoid URLs, file names, or boilerplate. Write options in clean sentence fragments.
 
 Return ONLY a valid JSON array in this format:
 [
@@ -230,7 +231,7 @@ Only return the JSON array, no additional text."""
         explanation = q.get('explanation', '')
         topic = q.get('topic', 'General')
 
-        # Deduplicate options case-insensitively
+        # Deduplicate options case-insensitively and clean language
         deduped = []
         seen = set()
         for opt in options:
@@ -238,6 +239,9 @@ Only return the JSON array, no additional text."""
                 continue
             clean = opt.strip()
             if len(clean) < 3 or len(clean) > 180:
+                continue
+            clean = self._clean_option_text(clean)
+            if len(clean) < 3:
                 continue
             key = clean.lower()
             if key in seen:
@@ -306,6 +310,19 @@ Only return the JSON array, no additional text."""
             'difficulty': difficulty,
             'explanation': explanation,
         }
+    
+    def _clean_option_text(self, text: str) -> str:
+        """Lightly clean option text for readability."""
+        # Remove URLs and collapse whitespace
+        text = re.sub(r"https?://\S+", "", text)
+        text = re.sub(r"\s+", " ", text).strip()
+        # Capitalize first letter if alphabetic
+        if text and text[0].isalpha():
+            text = text[0].upper() + text[1:]
+        # Trim overlong options
+        if len(text) > 180:
+            text = text[:180]
+        return text
     
     def _simple_quiz_generation(self, text_chunks: List[Dict], difficulty: str, num_questions: int) -> List[Dict]:
         """Simple fallback quiz generation that can produce up to the requested count even with few chunks"""
