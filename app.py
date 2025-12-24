@@ -270,6 +270,7 @@ def process_documents():
         # Store processing results for display
         st.session_state.processing_results = result
         st.session_state.last_processed_signature = signature
+        st.session_state.last_index_count = result.get('total_chunks', 0)
         
         return True
     else:
@@ -1328,10 +1329,15 @@ def show_chat_page():
     # Check if vector store has content
     try:
         count = st.session_state.vector_store.get_collection_count()
+        # If index is empty but we have chunks in memory, reindex on the fly
+        if count == 0 and st.session_state.agent_controller and st.session_state.agent_controller.memory.chunks:
+            st.info("Re-indexing your processed content...")
+            st.session_state.vector_store.add_documents(st.session_state.agent_controller.memory.chunks)
+            count = st.session_state.vector_store.get_collection_count()
         if count == 0:
             st.warning("⚠️ No documents indexed yet. Please process your documents first!")
             return
-    except:
+    except Exception:
         st.warning("⚠️ Vector store not initialized. Please process documents first!")
         return
     
