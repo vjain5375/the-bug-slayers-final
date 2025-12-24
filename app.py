@@ -1128,14 +1128,34 @@ def show_flashcards_page():
         st.warning("Please process documents first!")
         return
     
-    col1, col2 = st.columns([3, 1])
+    col1, col2, col3 = st.columns([2, 2, 1])
     with col1:
         num_flashcards = st.slider("Number of flashcards", 5, 30, value=st.session_state.num_flashcards, key="flashcard_slider")
     with col2:
+        difficulty_mix_label = st.selectbox(
+            "Difficulty mix",
+            [
+                "Easy + Medium",
+                "Medium + Hard",
+                "Easy + Medium + Hard"
+            ],
+            index=2,
+            help="Choose how difficulties are distributed across the generated flashcards."
+        )
+        mix_map = {
+            "Easy + Medium": "easy_medium",
+            "Medium + Hard": "medium_hard",
+            "Easy + Medium + Hard": "easy_medium_hard",
+        }
+        difficulty_mix = mix_map.get(difficulty_mix_label, "easy_medium_hard")
+    with col3:
         if st.button("🔄 Generate Flashcards", use_container_width=True, type="primary"):
             # Show static processing message
             processing_msg = st.info("Processing... Generating flashcards...")
-            flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards)
+            flashcards = st.session_state.agent_controller.generate_flashcards(
+                num_flashcards,
+                difficulty_mix=difficulty_mix
+            )
             processing_msg.empty()
             st.session_state.flashcards = flashcards
             st.session_state.num_flashcards = 10  # Reset to default

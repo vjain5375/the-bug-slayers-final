@@ -29,19 +29,35 @@ class FlashcardAgent:
         else:
             self.llm = None
     
-    def generate_flashcards(self, text_chunks: List[Dict], num_flashcards: int = 10) -> List[Dict]:
+    def generate_flashcards(
+        self,
+        text_chunks: List[Dict],
+        num_flashcards: int = 10,
+        difficulty_mix: str = "easy_medium_hard",
+    ) -> List[Dict]:
         """
         Generate flashcards from text chunks
         
         Args:
             text_chunks: List of text chunks with metadata
             num_flashcards: Number of flashcards to generate
+            difficulty_mix: one of ["easy_medium", "medium_hard", "easy_medium_hard"]
             
         Returns:
             List of flashcard dictionaries with 'question' and 'answer' keys
         """
+        if not text_chunks:
+            return []
+        
+        target_counts = self._build_target_counts(num_flashcards, difficulty_mix)
+        target_difficulties = [
+            diff for diff, count in target_counts.items() for _ in range(count)
+        ]
+        if not target_difficulties:
+            target_difficulties = ["medium"] * num_flashcards
+
         if not self.llm:
-            return self._simple_flashcard_generation(text_chunks, num_flashcards)
+            return self._simple_flashcard_generation(text_chunks, target_difficulties)
         
         # Combine chunks into context
         context_parts = []
@@ -63,6 +79,7 @@ Create exactly {num_flashcards} question-answer pairs that:
 2. Are concise (answers should be 1-3 sentences)
 3. Test understanding, not just memorization
 4. Cover different topics from the material
+5. Difficulty mix: {target_counts} (use these counts as closely as possible)
 
 Return ONLY a valid JSON array in this format:
 [
@@ -97,32 +114,43 @@ Only return the JSON array, no additional text or explanation."""
                             'question': card['question'].strip(),
                             'answer': card['answer'].strip(),
                             'topic': card.get('topic', 'General'),
-                            'difficulty': card.get('difficulty', 'medium')
+                            'difficulty': card.get('difficulty', 'medium').lower()
                         })
 
-                # If the LLM returned fewer cards than requested, top up using the
-                # simple deterministic generator so the user still gets approximately
-                # the number they selected (as long as there is enough content).
+                # Ensure count and difficulty mix by topping up with deterministic cards
                 if len(validated) < num_flashcards:
-                    needed = num_flashcards - len(validated)
-                    simple_cards = self._simple_flashcard_generation(text_chunks, num_flashcards)
-                    for card in simple_cards:
-                        if len(validated) >= num_flashcards:
-                            break
-                        validated.append(card)
+                    simple_cards = self._simple_flashcard_generation(
+                        text_chunks,
+                        target_difficulties[len(validated):]
+                    )
+                    validated.extend(simple_cards)
 
-                return validated[:num_flashcards]
+                # If still short, duplicate easiest available to meet count
+                while len(validated) < num_flashcards and validated:
+                    validated.append(validated[len(validated) % len(validated)])
+
+                # Trim and align difficulties to target list
+                validated = validated[:num_flashcards]
+                for idx, card in enumerate(validated):
+                    if idx < len(target_difficulties):
+                        card['difficulty'] = target_difficulties[idx]
+
+                return validated
         except Exception as e:
             print(f"Error generating flashcards: {e}")
         
         # Fallback to simple generation
-        return self._simple_flashcard_generation(text_chunks, num_flashcards)
+        return self._simple_flashcard_generation(text_chunks, target_difficulties)
     
-    def _simple_flashcard_generation(self, text_chunks: List[Dict], num_flashcards: int) -> List[Dict]:
-        """Simple fallback flashcard generation"""
+    def _simple_flashcard_generation(self, text_chunks: List[Dict], target_difficulties: List[str]) -> List[Dict]:
+        """Simple fallback flashcard generation honoring target difficulties"""
         flashcards = []
-        
-        for chunk in text_chunks[:num_flashcards]:
+        if not text_chunks:
+            return flashcards
+
+        # Cycle through chunks and difficulties
+        for idx, difficulty in enumerate(target_difficulties):
+            chunk = text_chunks[idx % len(text_chunks)]
             text = chunk.get('text', '')
             topic = chunk.get('metadata', {}).get('topic', 'General')
             
@@ -130,16 +158,32 @@ Only return the JSON array, no additional text or explanation."""
             sentences = text.split('.')
             if len(sentences) >= 2:
                 question = f"What is {sentences[0].strip()}?"
-                answer = '. '.join(sentences[1:3]).strip() + '.'
+                answer = '. '.join(sentences[1:3]).strip()
+                if not answer.endswith('.'):
+                    answer = answer + '.'
                 
                 flashcards.append({
                     'question': question,
                     'answer': answer,
                     'topic': topic,
-                    'difficulty': 'medium'
+                    'difficulty': difficulty
                 })
         
         return flashcards
+    
+    def _build_target_counts(self, total: int, mix: str) -> Dict[str, int]:
+        """Compute how many cards per difficulty based on mix selection."""
+        mix_map = {
+            "easy_medium": ["easy", "medium"],
+            "medium_hard": ["medium", "hard"],
+            "easy_medium_hard": ["easy", "medium", "hard"],
+        }
+        levels = mix_map.get((mix or "easy_medium_hard").lower(), ["easy", "medium", "hard"])
+        counts = {k: 0 for k in ["easy", "medium", "hard"]}
+        for i in range(total):
+            level = levels[i % len(levels)]
+            counts[level] += 1
+        return counts
     
     def save_flashcards(self, flashcards: List[Dict], file_path: str = "outputs/flashcards.json"):
         """Save flashcards to JSON file"""

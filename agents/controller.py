@@ -127,13 +127,19 @@ class AgentController:
             'total_topics': len(topics)
         }
     
-    def generate_flashcards(self, num_flashcards: int = 10, topic: Optional[str] = None) -> List[Dict]:
+    def generate_flashcards(
+        self,
+        num_flashcards: int = 10,
+        topic: Optional[str] = None,
+        difficulty_mix: str = "easy_medium_hard",
+    ) -> List[Dict]:
         """
         Generate flashcards from processed materials
         
         Args:
             num_flashcards: Number of flashcards to generate
             topic: Optional specific topic to focus on
+            difficulty_mix: Difficulty distribution preset
             
         Returns:
             List of flashcards
@@ -143,7 +149,11 @@ class AgentController:
         if topic:
             chunks = self.memory.get_topic_chunks(topic)
         
-        flashcards = self.flashcard_agent.generate_flashcards(chunks, num_flashcards)
+        flashcards = self.flashcard_agent.generate_flashcards(
+            chunks,
+            num_flashcards,
+            difficulty_mix=difficulty_mix,
+        )
         
         # Store in memory
         self.memory.add_flashcards(flashcards)
