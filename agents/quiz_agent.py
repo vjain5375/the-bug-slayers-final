@@ -113,7 +113,9 @@ Only return the JSON array, no additional text."""
                 for q in questions:
                     cleaned = self._validate_question_dict(q, difficulty)
                     if cleaned:
-                        validated.append(cleaned)
+                        normalized = self._normalize_question(cleaned, difficulty)
+                        if normalized:
+                            validated.append(normalized)
 
                 # If the LLM returned fewer questions than requested, top up using the
                 # simple deterministic generator so the user still gets approximately
@@ -123,7 +125,9 @@ Only return the JSON array, no additional text."""
                     for q in simple_questions:
                         if len(validated) >= num_questions:
                             break
-                        validated.append(q)
+                        normalized = self._normalize_question(q, difficulty)
+                        if normalized:
+                            validated.append(normalized)
 
                 return validated[:num_questions]
         except Exception as e:
@@ -203,6 +207,82 @@ Only return the JSON array, no additional text."""
             'topic': q.get('topic', 'General'),
             'difficulty': q.get('difficulty', default_difficulty),
             'explanation': explanation
+        }
+    
+    def _normalize_question(self, q: Dict, default_difficulty: str) -> Optional[Dict]:
+        """
+        Final pass to ensure options are unique, lengths reasonable, and correct_index is valid.
+        """
+        question = q.get('question', '').strip()
+        options = q.get('options', []) or []
+        correct_index = q.get('correct_index', 0)
+        difficulty = q.get('difficulty', default_difficulty)
+        explanation = q.get('explanation', '')
+        topic = q.get('topic', 'General')
+
+        # Deduplicate options case-insensitively
+        deduped = []
+        seen = set()
+        for opt in options:
+            if not opt:
+                continue
+            clean = opt.strip()
+            if len(clean) < 3 or len(clean) > 180:
+                continue
+            key = clean.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            deduped.append(clean)
+
+        # If correct option was removed due to duplication/length, reset to first
+        if correct_index >= len(options) or correct_index < 0:
+            correct_index = 0
+        # Ensure correct answer stays in list; if missing, prepend it
+        correct_answer = q.get('correct_answer', '').strip()
+        if correct_answer:
+            if correct_answer.lower() not in [o.lower() for o in deduped]:
+                deduped.insert(0, correct_answer)
+                correct_index = 0
+        if len(deduped) < 3:
+            return None
+
+        # Trim/pad to 4 options
+        generic_distractors = [
+            "This is partially correct but incomplete.",
+            "This is related but not the correct answer.",
+            "This is a common misconception.",
+            "This detail does not answer the question."
+        ]
+        for gd in generic_distractors:
+            if len(deduped) >= 4:
+                break
+            if gd.lower() not in [o.lower() for o in deduped]:
+                deduped.append(gd)
+        deduped = deduped[:4]
+
+        # Recompute correct_index
+        if correct_answer:
+            try:
+                correct_index = next(i for i, o in enumerate(deduped) if o.lower() == correct_answer.lower())
+            except StopIteration:
+                correct_index = 0
+                correct_answer = deduped[0]
+        else:
+            correct_index = 0
+            correct_answer = deduped[0]
+
+        if len(question) < 10:
+            return None
+
+        return {
+            'question': question,
+            'options': deduped,
+            'correct_answer': correct_answer,
+            'correct_index': correct_index,
+            'topic': topic,
+            'difficulty': difficulty,
+            'explanation': explanation,
         }
     
     def _simple_quiz_generation(self, text_chunks: List[Dict], difficulty: str, num_questions: int) -> List[Dict]:
