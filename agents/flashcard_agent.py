@@ -168,6 +168,8 @@ Only return the JSON array, no additional text or explanation."""
             raw_text = chunk.get('text', '')
             text = self._strip_boilerplate(raw_text)
             topic = chunk.get('metadata', {}).get('topic', 'General')
+            if len(text) < 40:
+                continue
             
             # Simple extraction: use first sentence as question seed, next sentences as answer
             sentences = [s.strip() for s in re.split(r'[.!?]', text) if len(s.strip()) > 4]
@@ -184,8 +186,12 @@ Only return the JSON array, no additional text or explanation."""
             if not answer_seed.endswith('.'):
                 answer_seed = answer_seed + '.'
             
+            question_text = f"What is {question_seed}?".strip()
+            if len(question_text) < 12 or len(answer_seed) < 20:
+                continue
+            
             flashcards.append({
-                'question': f"What is {question_seed}?",
+                'question': question_text,
                 'answer': answer_seed,
                 'topic': topic,
                 'difficulty': difficulty
