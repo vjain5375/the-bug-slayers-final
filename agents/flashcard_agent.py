@@ -125,9 +125,12 @@ Only return the JSON array, no additional text or explanation."""
                     )
                     validated.extend(simple_cards)
 
-                # If still short, duplicate easiest available to meet count
+                # If still short, duplicate best available to meet count
                 while len(validated) < num_flashcards and validated:
                     validated.append(validated[len(validated) % len(validated)])
+                # If nothing validated, fall back entirely
+                if not validated:
+                    validated = self._simple_flashcard_generation(text_chunks, target_difficulties[:num_flashcards])
 
                 # Trim and align difficulties to target list
                 validated = validated[:num_flashcards]
@@ -154,21 +157,32 @@ Only return the JSON array, no additional text or explanation."""
             text = chunk.get('text', '')
             topic = chunk.get('metadata', {}).get('topic', 'General')
             
-            # Simple extraction: first sentence as question, rest as answer
-            sentences = text.split('.')
-            if len(sentences) >= 2:
-                question = f"What is {sentences[0].strip()}?"
-                answer = '. '.join(sentences[1:3]).strip()
-                if not answer.endswith('.'):
-                    answer = answer + '.'
-                
-                flashcards.append({
-                    'question': question,
-                    'answer': answer,
-                    'topic': topic,
-                    'difficulty': difficulty
-                })
+            # Simple extraction: use first sentence as question seed, next sentences as answer
+            sentences = [s.strip() for s in re.split(r'[.!?]', text) if s.strip()]
+            question_seed = sentences[0] if sentences else text[:80] or "this topic"
+            answer_seed = ' '.join(sentences[1:3]).strip() if len(sentences) > 1 else text[:200]
+            if not answer_seed:
+                answer_seed = "Review this concept."
+            if not answer_seed.endswith('.'):
+                answer_seed = answer_seed + '.'
+            
+            flashcards.append({
+                'question': f"What is {question_seed}?",
+                'answer': answer_seed,
+                'topic': topic,
+                'difficulty': difficulty
+            })
         
+        # If still short, pad with generic reminders to reach target count
+        while len(flashcards) < len(target_difficulties):
+            difficulty = target_difficulties[len(flashcards)]
+            flashcards.append({
+                'question': "Review key concept?",
+                'answer': "Focus on the most important definition or process in this topic.",
+                'topic': "General",
+                'difficulty': difficulty
+            })
+
         return flashcards
     
     def _build_target_counts(self, total: int, mix: str) -> Dict[str, int]:
