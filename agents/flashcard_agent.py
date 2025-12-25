@@ -273,16 +273,25 @@ Only return the JSON array, no additional text or explanation."""
                 return json.load(f)
         return []
     
-    def generate_topic_flashcards(self, topic: str, chunks: List[Dict], num_flashcards: int = 5) -> List[Dict]:
-        """Generate flashcards for a specific topic"""
-        # Filter chunks by topic
-        topic_chunks = [
-            chunk for chunk in chunks
-            if chunk.get('metadata', {}).get('topic', '').lower() == topic.lower()
-        ]
+    def export_to_csv(self, flashcards: List[Dict]) -> str:
+        """Export flashcards to Anki-compatible CSV string"""
+        if not flashcards:
+            return ""
         
-        if not topic_chunks:
-            return []
+        import csv
+        import io
         
-        return self.generate_flashcards(topic_chunks, num_flashcards)
+        output = io.StringIO()
+        writer = csv.writer(output, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        
+        # Anki format: Front, Back, Tags
+        writer.writerow(['Front', 'Back', 'Tags'])
+        
+        for card in flashcards:
+            topic = card.get('topic', 'General').replace(' ', '_')
+            difficulty = card.get('difficulty', 'medium')
+            tags = f"study_assistant {topic} {difficulty}"
+            writer.writerow([card['question'], card['answer'], tags])
+            
+        return output.getvalue()
 

@@ -104,7 +104,7 @@ streamlit run app.py
 ---
 
 ## 📌 Roadmap
-- [ ] Export flashcards/quizzes as Anki decks & CSV.
+- [x] Export flashcards/quizzes as Anki decks & CSV.
 - [ ] Shared study rooms with invite links.
 - [ ] Automated grading for custom answers.
 - [ ] Voice interface for mobile learners.

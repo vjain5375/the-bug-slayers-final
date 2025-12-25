@@ -1174,6 +1174,17 @@ def show_flashcards_page():
     # Display flashcards
     if st.session_state.flashcards:
         st.markdown(f"### 📚 {len(st.session_state.flashcards)} Flashcards")
+        
+        # Add Export Button
+        csv_data = st.session_state.agent_controller.flashcard_agent.export_to_csv(st.session_state.flashcards)
+        st.download_button(
+            label="📥 Export to Anki (CSV)",
+            data=csv_data,
+            file_name="flashcards_anki.csv",
+            mime="text/csv",
+            help="Download flashcards in a format compatible with Anki import"
+        )
+        
         for i, card in enumerate(st.session_state.flashcards):
             with st.expander(f"Card {i+1}: {card.get('topic', 'General')} - {card.get('difficulty', 'medium').upper()}"):
                 st.markdown(f"**Q:** {card['question']}")
@@ -1222,6 +1233,17 @@ def show_quizzes_page():
     # Display quiz
     if st.session_state.quizzes:
         st.markdown(f"### 📋 Quiz ({len(st.session_state.quizzes)} questions)")
+        
+        # Add Export Button
+        csv_data = st.session_state.agent_controller.quiz_agent.export_to_csv(st.session_state.quizzes)
+        st.download_button(
+            label="📥 Export Quiz to CSV",
+            data=csv_data,
+            file_name="quiz_questions.csv",
+            mime="text/csv",
+            help="Download quiz questions and answers as a CSV file"
+        )
+        
         for i, q in enumerate(st.session_state.quizzes):
             st.markdown(f"**Q{i+1}:** {q['question']}")
             selected = st.radio(

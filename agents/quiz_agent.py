@@ -48,9 +48,17 @@ class QuizAgent:
         if not self.llm:
             return self._simple_quiz_generation(text_chunks, difficulty, num_questions)
         
-        # Combine a limited number of chunks into context to keep prompts fast and focused
+        # Select chunks more intelligently - sample across the document if many chunks
+        selected_chunks = []
+        if len(text_chunks) <= 10:
+            selected_chunks = text_chunks
+        else:
+            # Sample 10 chunks across the document
+            indices = sorted(random.sample(range(len(text_chunks)), min(10, len(text_chunks))))
+            selected_chunks = [text_chunks[i] for i in indices]
+
         context_parts = []
-        for chunk in text_chunks[:6]:  # keep context tighter for quality
+        for chunk in selected_chunks:
             topic = chunk.get('metadata', {}).get('topic', 'General')
             text = chunk.get('text', '')
             context_parts.append(f"[Topic: {topic}]\n{text}")
@@ -58,44 +66,45 @@ class QuizAgent:
         context = "\n\n---\n\n".join(context_parts)
         
         difficulty_guidance = {
-            "easy": "Simple recall questions with straightforward answers",
-            "medium": "Questions requiring understanding and application",
-            "hard": "Complex questions requiring analysis and synthesis"
+            "easy": "Focus on basic terminology, definitions, and direct facts. Questions should be straightforward.",
+            "medium": "Focus on understanding relationships between concepts, application of principles, and explaining processes.",
+            "hard": "Focus on complex scenarios, critical analysis of methods, identifying subtle differences, and synthesis of multiple ideas."
         }
         
         try:
-            prompt = f"""You are a quiz generator for study materials. Create multiple-choice questions that are concise, non-duplicative, and clearly distinguishable. Use clear, grammatical language for each option.
+            prompt = f"""You are a high-quality educational quiz generator. Your goal is to create diverse, challenging, and meaningful multiple-choice questions based on the provided study material.
 
-Study Material:
-{context[:1200]}
+Study Material Context:
+{context[:6000]}
 
-Create exactly {num_questions} multiple-choice questions with {difficulty} difficulty.
-{difficulty_guidance.get(difficulty, '')}
-
-Each question must have:
-- A clear question statement
-- Exactly 4 options (A, B, C, D)
-- One correct answer
-- 3 plausible distractors (wrong but reasonable answers)
- - No duplicated options
- - Keep each option under 160 characters
-- Avoid URLs, file names, or boilerplate. Write options in clean sentence fragments.
+Instructions:
+1. Create exactly {num_questions} multiple-choice questions with {difficulty} difficulty.
+2. {difficulty_guidance.get(difficulty, '')}
+3. VARIETY IS CRITICAL: Do NOT use the same question pattern (like "Which of the following is true...") for every question. 
+4. DO NOT use section headers or repetitive phrases as options. Each option must be a meaningful, distinct statement or value.
+5. DISTRACTORS MUST BE PLAUSIBLE: Distractors should look like possible correct answers but be factually incorrect or inappropriate based on the context. Avoid "None of the above" or obviously silly options.
+6. CONTENT FOCUS: Ensure questions cover different topics and subtopics from the provided context.
+7. STRUCTURE:
+   - A clear, specific question.
+   - 4 distinct, meaningful options (A, B, C, D).
+   - One clearly correct answer.
+   - An explanation that clarifies why the answer is correct and why others are not.
 
 Return ONLY a valid JSON array in this format:
 [
   {{
-    "question": "Question text?",
-    "options": ["Option A", "Option B", "Option C", "Option D"],
-    "correct_answer": "Option A",
+    "question": "A specific, well-formulated question?",
+    "options": ["Distinct Option A", "Distinct Option B", "Distinct Option C", "Distinct Option D"],
+    "correct_answer": "Exactly one of the options",
     "correct_index": 0,
-    "topic": "Topic name",
+    "topic": "Relevant topic from context",
     "difficulty": "{difficulty}",
-    "explanation": "Brief explanation of why the answer is correct"
+    "explanation": "A detailed explanation of the concept and why this specific answer is correct."
   }},
   ...
 ]
 
-Only return the JSON array, no additional text."""
+Only return the JSON array, no additional text or markdown formatting."""
             
             messages = [
                 SystemMessage(content="You are an expert at creating educational quizzes. Generate clear, well-structured multiple-choice questions."),
@@ -118,18 +127,6 @@ Only return the JSON array, no additional text."""
                         if normalized:
                             validated.append(normalized)
 
-                # If the LLM returned fewer questions than requested, top up using the
-                # simple deterministic generator so the user still gets approximately
-                # the number they selected (as long as there is enough content).
-                if len(validated) < num_questions:
-                    simple_questions = self._simple_quiz_generation(text_chunks, difficulty, num_questions)
-                    for q in simple_questions:
-                        if len(validated) >= num_questions:
-                            break
-                        normalized = self._normalize_question(q, difficulty)
-                        if normalized:
-                            validated.append(normalized)
-
                 # Deduplicate questions by text to avoid repeated items
                 deduped = []
                 seen_questions = set()
@@ -146,7 +143,7 @@ Only return the JSON array, no additional text."""
         
         # Fallback to simple generation
         return self._simple_quiz_generation(text_chunks, difficulty, num_questions)
-    
+
     def _validate_question_dict(self, q: Dict, default_difficulty: str) -> Optional[Dict]:
         """Normalize and validate a single question dict to avoid index/option mismatch"""
         if not q or 'question' not in q:
@@ -167,6 +164,7 @@ Only return the JSON array, no additional text."""
                 continue
             seen.add(key)
             options.append(clean)
+        
         # Ensure we have 4 options by adding generic distractors if needed
         generic_distractors = [
             "Partially correct but incomplete.",
@@ -180,6 +178,7 @@ Only return the JSON array, no additional text."""
             if gd.lower() not in seen:
                 options.append(gd)
                 seen.add(gd.lower())
+        
         options = options[:4]
         if len(options) < 3:
             return None
@@ -187,6 +186,7 @@ Only return the JSON array, no additional text."""
         # Resolve correct answer/index
         correct_answer = str(q.get('correct_answer', '')).strip()
         correct_index = q.get('correct_index', None)
+        
         # Try to locate correct answer in options (case-insensitive)
         idx = None
         if correct_answer:
@@ -194,15 +194,19 @@ Only return the JSON array, no additional text."""
                 if opt.lower() == correct_answer.lower():
                     idx = i
                     break
+        
         if idx is None and isinstance(correct_index, int) and 0 <= correct_index < len(options):
             idx = correct_index
             correct_answer = options[idx]
+        
         # If still not found, default to the first option to avoid broken indices
         if idx is None and options:
             idx = 0
             correct_answer = options[0]
+        
         if idx is None:
-            return None  # cannot trust correctness
+            return None
+        
         correct_index = idx
         correct_answer = options[correct_index]
         
@@ -219,211 +223,102 @@ Only return the JSON array, no additional text."""
             'difficulty': q.get('difficulty', default_difficulty),
             'explanation': explanation
         }
-    
+
     def _normalize_question(self, q: Dict, default_difficulty: str) -> Optional[Dict]:
-        """
-        Final pass to ensure options are unique, lengths reasonable, and correct_index is valid.
-        """
+        """Final pass to ensure options are unique and structure is correct."""
         question = q.get('question', '').strip()
-        options = q.get('options', []) or []
+        options = q.get('options', [])
+        correct_answer = q.get('correct_answer', '')
         correct_index = q.get('correct_index', 0)
-        difficulty = q.get('difficulty', default_difficulty)
-        explanation = q.get('explanation', '')
-        topic = q.get('topic', 'General')
-
-        # Deduplicate options case-insensitively and clean language
-        deduped = []
-        seen = set()
-        for opt in options:
-            if not opt:
-                continue
-            clean = opt.strip()
-            if len(clean) < 3 or len(clean) > 180:
-                continue
-            clean = self._clean_option_text(clean)
-            if len(clean) < 3:
-                continue
-            key = clean.lower()
-            if key in seen:
-                continue
-            seen.add(key)
-            deduped.append(clean)
-
-        # If correct option was removed due to duplication/length, reset to first
-        if correct_index >= len(options) or correct_index < 0:
-            correct_index = 0
-        # Ensure correct answer stays in list; if missing, prepend it
-        correct_answer = q.get('correct_answer', '').strip()
-        if correct_answer:
-            if correct_answer.lower() not in [o.lower() for o in deduped]:
-                deduped.insert(0, correct_answer)
-                correct_index = 0
-        if len(deduped) < 3:
-            return None
-
-        # Trim/pad to 4 options
-        generic_distractors = [
-            "This is partially correct but incomplete.",
-            "This is related but not the correct answer.",
-            "This is a common misconception.",
-            "This detail does not answer the question."
-        ]
-        for gd in generic_distractors:
-            if len(deduped) >= 4:
-                break
-            if gd.lower() not in [o.lower() for o in deduped]:
-                deduped.append(gd)
-        deduped = deduped[:4]
-
-        # Recompute correct_index
-        if correct_answer:
-            try:
-                correct_index = next(i for i, o in enumerate(deduped) if o.lower() == correct_answer.lower())
-            except StopIteration:
-                correct_index = 0
-                correct_answer = deduped[0]
-        else:
-            correct_index = 0
-            correct_answer = deduped[0]
-
-        if len(question) < 10:
-            return None
-
-        # Shuffle options to reduce positional repetition
-        # Keep track of the correct answer after shuffling
-        import random
-        indexed_opts = list(enumerate(deduped))
+        
+        # Final shuffle for variety
+        indexed_opts = list(enumerate(options))
         random.shuffle(indexed_opts)
         shuffled = [opt for _, opt in indexed_opts]
+        
         try:
-            correct_index = shuffled.index(correct_answer)
+            new_correct_index = shuffled.index(correct_answer)
         except ValueError:
-            correct_index = 0
+            new_correct_index = 0
             correct_answer = shuffled[0]
-
+            
         return {
             'question': question,
             'options': shuffled,
             'correct_answer': correct_answer,
-            'correct_index': correct_index,
-            'topic': topic,
-            'difficulty': difficulty,
-            'explanation': explanation,
+            'correct_index': new_correct_index,
+            'topic': q.get('topic', 'General'),
+            'difficulty': q.get('difficulty', default_difficulty),
+            'explanation': q.get('explanation', '')
         }
-    
-    def _clean_option_text(self, text: str) -> str:
-        """Lightly clean option text for readability."""
-        # Remove URLs and collapse whitespace
-        text = re.sub(r"https?://\S+", "", text)
-        text = re.sub(r"\s+", " ", text).strip()
-        # Capitalize first letter if alphabetic
-        if text and text[0].isalpha():
-            text = text[0].upper() + text[1:]
-        # Trim overlong options
-        if len(text) > 180:
-            text = text[:180]
-        return text
-    
+
     def _simple_quiz_generation(self, text_chunks: List[Dict], difficulty: str, num_questions: int) -> List[Dict]:
-        """Simple fallback quiz generation that can produce up to the requested count even with few chunks"""
-        questions: List[Dict] = []
-        if not text_chunks:
-            return questions
-
-        # Pre-processed chunks with sentences to reuse
-        processed_chunks = []
-        for chunk in text_chunks:
-            text = chunk.get('text', '')
+        """Simple fallback quiz generation when LLM is unavailable"""
+        questions = []
+        
+        # Mix up the chunks for variety
+        shuffled_chunks = list(text_chunks)
+        random.shuffle(shuffled_chunks)
+        
+        for chunk in shuffled_chunks[:num_questions]:
+            text = chunk.get('text', '').strip()
             topic = chunk.get('metadata', {}).get('topic', 'General')
-            # Split on ., ?, ! to get more sentence-like fragments
-            sentences = [s.strip() for s in re.split(r'[\.!\?]', text) if len(s.strip()) > 10]
-            if sentences:
-                processed_chunks.append((topic, sentences))
-
-        if not processed_chunks:
-            return questions
-
-        generic_distractors = [
-            "This statement does not accurately describe the concept.",
-            "This is only partially related to the topic.",
-            "This is a common misconception about the topic.",
-            "This detail is unrelated to the described process."
-        ]
-
-        # Round-robin through chunks, generating multiple questions per chunk if possible
-        chunk_index = 0
-        safety_limit = num_questions * 3  # avoid infinite loops on very small content
-        attempts = 0
-
-        while len(questions) < num_questions and attempts < safety_limit:
-            attempts += 1
-            topic, sentences = processed_chunks[chunk_index % len(processed_chunks)]
-            chunk_index += 1
-
-            if len(sentences) < 2:
+            
+            if not text:
                 continue
 
-            # Use pairs of adjacent sentences to build Q/A
-            for i in range(len(sentences) - 1):
-                if len(questions) >= num_questions:
-                    break
-
-                stem = sentences[i][:120]
-                correct_answer = sentences[i + 1][:200]
-
-                # Distractors from other sentences in the same chunk
-                distractor_pool = sentences[:i] + sentences[i + 2:]
-                distractors = [d for d in distractor_pool if len(d) > 12][:3]
-
-                for gd in generic_distractors:
-                    if len(distractors) >= 3:
-                        break
-                    distractors.append(gd)
-
-                if len(distractors) < 3:
-                    continue
-
-                options = [correct_answer] + distractors[:3]
+            # Better fallback: try to find a meaningful sentence for a question
+            sentences = [s.strip() for s in text.split('.') if len(s.strip()) > 30]
+            if len(sentences) >= 2:
+                # Use a random sentence (except the first one maybe) for the question content
+                target_idx = random.randint(0, len(sentences) - 2)
+                context_sentence = sentences[target_idx]
+                fact_sentence = sentences[target_idx + 1]
+                
+                question = f"Based on the section about {topic}, what is mentioned regarding: '{context_sentence[:60]}...'?"
+                correct_answer = fact_sentence[:120]
+                
+                # Create more varied dummy distractors
+                distractors = [
+                    f"A concept unrelated to {topic}",
+                    "The opposite of what was described in the text",
+                    f"A different aspect of {topic} not mentioned in this specific context"
+                ]
+                
+                options = [correct_answer] + distractors
                 random.shuffle(options)
-                correct_index = options.index(correct_answer)
-
+                
                 questions.append({
-                    'question': f"Which of the following is true about {stem}?",
+                    'question': question,
                     'options': options,
                     'correct_answer': correct_answer,
-                    'correct_index': correct_index,
+                    'correct_index': options.index(correct_answer),
                     'topic': topic,
                     'difficulty': difficulty,
-                    'explanation': f"The statement that best fits is: {correct_answer}"
+                    'explanation': f"This information is directly stated in the study material for {topic}."
                 })
-
-        return questions
-    
-    def generate_adaptive_quiz(
-        self,
-        text_chunks: List[Dict],
-        user_performance: Optional[Dict] = None,
-        num_questions: int = 5,
-    ) -> List[Dict]:
-        """
-        Generate adaptive quiz based on user performance
+            else:
+                # Ultimate fallback for very short chunks
+                questions.append({
+                    'question': f"What is the main focus of the following text: '{text[:50]}...'?",
+                    'options': [topic, "Another topic", "General knowledge", "Not mentioned"],
+                    'correct_answer': topic,
+                    'correct_index': 0,
+                    'topic': topic,
+                    'difficulty': difficulty,
+                    'explanation': "The topic is derived from the metadata of the provided text chunk."
+                })
         
-        Args:
-            text_chunks: List of text chunks
-            user_performance: Dict with 'accuracy' and 'weak_topics' keys
-            num_questions: Number of questions to generate
-            
-        Returns:
-            List of quiz questions with adjusted difficulty
-        """
+        return questions[:num_questions]
+    
+    def generate_adaptive_quiz(self, text_chunks: List[Dict], user_performance: Optional[Dict] = None, num_questions: int = 5) -> List[Dict]:
+        """Generate adaptive quiz based on user performance"""
         if not user_performance:
-            # Default to medium difficulty
             return self.generate_quiz(text_chunks, "medium", num_questions)
         
         accuracy = user_performance.get('accuracy', 0.5)
         weak_topics = user_performance.get('weak_topics', [])
         
-        # Adjust difficulty based on accuracy
         if accuracy > 0.8:
             difficulty = "hard"
         elif accuracy > 0.6:
@@ -431,28 +326,18 @@ Only return the JSON array, no additional text."""
         else:
             difficulty = "easy"
         
-        # Prioritize weak topics if specified
         if weak_topics:
             topic_chunks = [
                 chunk for chunk in text_chunks
                 if chunk.get('metadata', {}).get('topic', '').lower() in [t.lower() for t in weak_topics]
             ]
             if topic_chunks:
-                text_chunks = topic_chunks + text_chunks[:3]  # Add some general chunks
+                text_chunks = topic_chunks + text_chunks[:3]
         
         return self.generate_quiz(text_chunks, difficulty, num_questions)
     
     def evaluate_quiz(self, questions: List[Dict], user_answers: Dict[int, int]) -> Dict:
-        """
-        Evaluate quiz answers and return performance metrics
-        
-        Args:
-            questions: List of quiz questions
-            user_answers: Dict mapping question index to selected option index
-            
-        Returns:
-            Dict with 'score', 'accuracy', 'correct', 'total', and 'details'
-        """
+        """Evaluate quiz answers"""
         correct = 0
         total = len(questions)
         details = []
@@ -461,25 +346,17 @@ Only return the JSON array, no additional text."""
             user_answer_idx = user_answers.get(i, -1)
             options = question.get('options', [])
             correct_index = question.get('correct_index', 0)
-            correct_index = correct_index if isinstance(correct_index, int) else 0
-
-            # Clamp indices to available options
-            if options:
-                if correct_index < 0 or correct_index >= len(options):
-                    correct_index = 0
-
+            
             is_correct = user_answer_idx == correct_index
             if is_correct:
                 correct += 1
-
-            user_answer_text = options[user_answer_idx] if options and 0 <= user_answer_idx < len(options) else "Not answered"
-            correct_answer_text = options[correct_index] if options and 0 <= correct_index < len(options) else question.get('correct_answer', '')
+            
+            user_answer_text = options[user_answer_idx] if 0 <= user_answer_idx < len(options) else "Not answered"
+            correct_answer_text = options[correct_index] if 0 <= correct_index < len(options) else ""
             
             details.append({
                 'question_index': i,
                 'question': question['question'],
-                'user_answer_index': user_answer_idx,
-                'correct_answer_index': correct_index,
                 'user_answer': user_answer_text,
                 'correct_answer': correct_answer_text,
                 'is_correct': is_correct,
@@ -504,10 +381,32 @@ Only return the JSON array, no additional text."""
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(questions, f, indent=2, ensure_ascii=False)
     
-    def load_quiz(self, file_path: str = "outputs/quizzes.json") -> List[Dict]:
-        """Load quiz from JSON file"""
-        if Path(file_path).exists():
-            with open(file_path, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        return []
-
+    def export_to_csv(self, questions: List[Dict]) -> str:
+        """Export quiz questions to CSV string"""
+        if not questions:
+            return ""
+        
+        import csv
+        import io
+        
+        output = io.StringIO()
+        writer = csv.writer(output, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        
+        writer.writerow(['Question', 'Option A', 'Option B', 'Option C', 'Option D', 'Correct Answer', 'Explanation'])
+        
+        for q in questions:
+            options = q.get('options', ['', '', '', ''])
+            while len(options) < 4:
+                options.append('')
+                
+            writer.writerow([
+                q.get('question', ''),
+                options[0],
+                options[1],
+                options[2],
+                options[3],
+                q.get('correct_answer', ''),
+                q.get('explanation', '')
+            ])
+            
+        return output.getvalue()

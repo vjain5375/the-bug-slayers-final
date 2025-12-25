@@ -1,4 +1,4 @@
-# 👋 Hi, I’m Vaibhav Jain
+# 👋 Hi, I’m Vansh Jain
 
 AI tinkerer who loves pairing multi-agent workflows with delightful front-end experiences. I enjoy building things that learn from documents, generate study plans, and celebrate culture through immersive microsites.
 
@@ -20,7 +20,7 @@ AI tinkerer who loves pairing multi-agent workflows with delightful front-end ex
 | [Urjasangam Hub](https://github.com/vjain5375/Urjasangam_Final) | Multi-event festival hub with cosmic backgrounds and per-event microsites. | Next.js · App Router · GSAP · Tailwind |
 
 ## 📊 By the Numbers
-![Vaibhav's GitHub stats](https://github-readme-stats.vercel.app/api?username=vjain5375&show_icons=true&theme=radical)
+![Vansh's GitHub stats](https://github-readme-stats.vercel.app/api?username=vjain5375&show_icons=true&theme=radical)
 ![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=vjain5375&layout=compact&theme=radical)
 ![Streak](https://streak-stats.demolab.com?user=vjain5375&theme=radical)
 
