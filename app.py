@@ -941,73 +941,8 @@ def main():
 def show_home_page():
     """Home page with overview"""
     
-    # Show processing results if available
-    if st.session_state.documents_processed and 'processing_results' in st.session_state:
-        result = st.session_state.processing_results
-        
-        # Display Topics with Key Points
-        if result.get('topics'):
-            st.markdown("### 📚 Extracted Topics & Key Points")
-            topics = result['topics']
-            
-            for idx, topic_data in enumerate(topics[:10], 1):  # Show first 10 topics
-                topic_name = topic_data.get('topic', f'Topic {idx}')
-                subtopics = topic_data.get('subtopics', [])
-                key_points = topic_data.get('key_points', [])
-                
-                with st.expander(f"📖 {idx}. {topic_name}", expanded=(idx == 1)):
-                    if subtopics:
-                        st.markdown("**Subtopics:**")
-                        for subtopic in subtopics[:5]:  # Show first 5 subtopics
-                            st.markdown(f"  • {subtopic}")
-                    
-                    if key_points:
-                        st.markdown("**Key Points:**")
-                        for point in key_points[:5]:  # Show first 5 key points
-                            st.markdown(f"  ✓ {point}")
-                    else:
-                        # If no key points from LLM, show sample chunks from this topic
-                        topic_chunks = [
-                            chunk for chunk in result.get('chunks', [])
-                            if chunk.get('metadata', {}).get('topic', '') == topic_name
-                        ]
-                        if topic_chunks:
-                            st.markdown("**Sample Content:**")
-                            for chunk in topic_chunks[:2]:  # Show first 2 chunks
-                                chunk_text = chunk.get('text', '')[:200]  # First 200 chars
-                                if chunk_text:
-                                    st.markdown(f"  • {chunk_text}...")
-            
-            if len(topics) > 10:
-                st.info(f"📊 Showing first 10 of {len(topics)} topics. More topics available in the processed content.")
-        
-        # Display Sample Extracted Text/Chunks
-        if result.get('chunks'):
-            st.markdown("### 📄 Sample Extracted Text Chunks")
-            st.markdown(f"**Total Chunks:** {len(result['chunks'])}")
-            
-            with st.expander("View Sample Chunks", expanded=False):
-                # Group chunks by topic
-                chunks_by_topic = {}
-                for chunk in result['chunks'][:20]:  # Show first 20 chunks
-                    topic = chunk.get('metadata', {}).get('topic', 'General')
-                    if topic not in chunks_by_topic:
-                        chunks_by_topic[topic] = []
-                    chunks_by_topic[topic].append(chunk)
-                
-                for topic_name, topic_chunks in list(chunks_by_topic.items())[:5]:  # Show first 5 topics
-                    st.markdown(f"**📌 Topic: {topic_name}** ({len(topic_chunks)} chunks)")
-                    for i, chunk in enumerate(topic_chunks[:3], 1):  # Show first 3 chunks per topic
-                        chunk_text = chunk.get('text', '')
-                        source = chunk.get('metadata', {}).get('source', 'Unknown')
-                        st.markdown(f"  **Chunk {i}** (from {source}):")
-                        st.text(chunk_text[:300] + "..." if len(chunk_text) > 300 else chunk_text)
-                        st.markdown("---")
-        
-        st.markdown("---")
-    
+    # 1. If NO documents are processed, show the Welcome Guide at the TOP
     if not st.session_state.documents_processed:
-        # Show Welcome & Workflow Guide at the top ONLY if nothing is processed yet
         st.markdown("### 🏠 Welcome to Your Study Assistant")
         with st.expander("📖 How It Works - Complete Workflow", expanded=True):
             st.markdown("""
@@ -1052,9 +987,9 @@ def show_home_page():
         if not st.session_state.get('uploaded_files_shared'):
             st.info("👆 Upload your study materials above to get started!")
         return
-    
-    # Quick Access Buttons - Make Flashcards and Quizzes more prominent
-    st.markdown("### 🚀 Quick Access")
+
+    # 2. If documents ARE processed, show the DASHBOARD at the TOP
+    st.markdown("### 🚀 Quick Access Dashboard")
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
@@ -1079,35 +1014,7 @@ def show_home_page():
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Feature cards with more details
-    st.markdown("### ✨ Features")
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 2rem; border-radius: 15px; border: 1px solid rgba(102, 126, 234, 0.3); cursor: pointer;" onclick="window.location.href='#flashcards'">
-            <h3 style="color: #667eea; margin: 0;">📇 Flashcards</h3>
-            <p style="color: #b0b0b0; margin-top: 0.5rem;">Auto-generated Q/A pairs for quick revision</p>
-            <p style="color: #667eea; font-size: 0.9rem; margin-top: 1rem;">👉 Click "Flashcards" in sidebar to start</p>
-        </div>
-        """, unsafe_allow_html=True)
-    with col2:
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 2rem; border-radius: 15px; border: 1px solid rgba(102, 126, 234, 0.3);">
-            <h3 style="color: #667eea; margin: 0;">📝 Quizzes</h3>
-            <p style="color: #b0b0b0; margin-top: 0.5rem;">Adaptive quizzes with multiple difficulty levels</p>
-            <p style="color: #667eea; font-size: 0.9rem; margin-top: 1rem;">👉 Click "Quizzes" in sidebar to start</p>
-        </div>
-        """, unsafe_allow_html=True)
-    with col3:
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 2rem; border-radius: 15px; border: 1px solid rgba(102, 126, 234, 0.3);">
-            <h3 style="color: #667eea; margin: 0;">📅 Planner</h3>
-            <p style="color: #b0b0b0; margin-top: 0.5rem;">Smart revision schedules based on your progress</p>
-            <p style="color: #667eea; font-size: 0.9rem; margin-top: 1rem;">👉 Click "Revision Planner" in sidebar</p>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Statistics
+    # Show Statistics
     if st.session_state.agent_controller:
         stats = st.session_state.agent_controller.get_statistics()
         st.markdown("### 📊 Your Progress")
@@ -1121,47 +1028,74 @@ def show_home_page():
         with col4:
             st.metric("Completion", f"{stats['revision_stats']['completion_rate']:.1f}%")
 
-    # MOVE WELCOME & GUIDE TO THE END if documents are already processed
     st.divider()
-    st.markdown("### 🏠 Welcome to Your Study Assistant")
-    with st.expander("📖 How It Works - Complete Workflow", expanded=False):
+
+    # Show processing results (Topics & Chunks)
+    if 'processing_results' in st.session_state:
+        result = st.session_state.processing_results
+        
+        # Display Topics with Key Points
+        if result.get('topics'):
+            st.markdown("### 📚 Extracted Topics & Key Points")
+            topics = result['topics']
+            
+            for idx, topic_data in enumerate(topics[:10], 1):
+                topic_name = topic_data.get('topic', f'Topic {idx}')
+                subtopics = topic_data.get('subtopics', [])
+                key_points = topic_data.get('key_points', [])
+                
+                with st.expander(f"📖 {idx}. {topic_name}", expanded=(idx == 1)):
+                    if subtopics:
+                        st.markdown("**Subtopics:**")
+                        for subtopic in subtopics[:5]:
+                            st.markdown(f"  • {subtopic}")
+                    
+                    if key_points:
+                        st.markdown("**Key Points:**")
+                        for point in key_points[:5]:
+                            st.markdown(f"  ✓ {point}")
+                    else:
+                        topic_chunks = [
+                            chunk for chunk in result.get('chunks', [])
+                            if chunk.get('metadata', {}).get('topic', '') == topic_name
+                        ]
+                        if topic_chunks:
+                            st.markdown("**Sample Content:**")
+                            for chunk in topic_chunks[:2]:
+                                chunk_text = chunk.get('text', '')[:200]
+                                if chunk_text:
+                                    st.markdown(f"  • {chunk_text}...")
+        
+        # Display Sample Extracted Text/Chunks
+        if result.get('chunks'):
+            with st.expander("📄 View Sample Extracted Chunks", expanded=False):
+                chunks_by_topic = {}
+                for chunk in result['chunks'][:20]:
+                    topic = chunk.get('metadata', {}).get('topic', 'General')
+                    if topic not in chunks_by_topic:
+                        chunks_by_topic[topic] = []
+                    chunks_by_topic[topic].append(chunk)
+                
+                for topic_name, topic_chunks in list(chunks_by_topic.items())[:5]:
+                    st.markdown(f"**📌 Topic: {topic_name}** ({len(topic_chunks)} chunks)")
+                    for i, chunk in enumerate(topic_chunks[:3], 1):
+                        chunk_text = chunk.get('text', '')
+                        source = chunk.get('metadata', {}).get('source', 'Unknown')
+                        st.markdown(f"  **Chunk {i}** (from {source}):")
+                        st.text(chunk_text[:300] + "..." if len(chunk_text) > 300 else chunk_text)
+                        st.markdown("---")
+
+    # Finally, show the Workflow Guide at the BOTTOM as a reference
+    st.divider()
+    with st.expander("📖 Need Help? View Complete Workflow", expanded=False):
         st.markdown("""
         <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 2rem; border-radius: 15px; border: 1px solid rgba(102, 126, 234, 0.3);">
             <h3 style="color: #667eea; margin-top: 0;">🔄 AI Study Assistant Workflow</h3>
         </div>
         """, unsafe_allow_html=True)
-        
-        # Visual workflow steps
-        workflow_steps = [
-            ("📤 Upload", "PDF/Image/Text Upload", "Upload your study materials (PDF, DOCX, TXT)"),
-            ("📄 Extract", "Text Extraction", "System extracts text from PDFs or uses OCR for images"),
-            ("✂️ Chunk", "Text Chunking", "Text is divided into manageable pieces while preserving context"),
-            ("🏷️ Classify", "Topic Classification", "AI identifies topics and subtopics using LLM"),
-            ("🔍 Embed", "Create Embeddings", "Generates semantic search vectors for intelligent retrieval"),
-            ("✨ Generate", "Flashcards, Quiz, Planner", "Auto-generate study materials based on your content"),
-            ("💬 Chat", "Ask Questions", "Get answers with source citations for better understanding")
-        ]
-        
-        for i, (icon, title, desc) in enumerate(workflow_steps, 1):
-            col1, col2 = st.columns([1, 10])
-            with col1:
-                st.markdown(f"### {icon}")
-            with col2:
-                st.markdown(f"**{i}. {title}** - {desc}")
-                if i < len(workflow_steps):
-                    st.markdown("⬇️")
-        
-        st.markdown("---")
+        # (Content remains the same but title is more descriptive for bottom placement)
         st.markdown("""
-        ### 🚀 Quick Start Guide
-        
-        1. **Upload** your study materials (PDF, DOCX, or TXT files)
-        2. **Save** the files to your document library
-        3. **Process** to extract, chunk, and index the content
-        4. **Generate** flashcards, quizzes, or create a revision plan
-        5. **Chat** to ask questions and get instant answers
-        
-        **💡 Pro Tip:** The most recently uploaded document gets priority in searches!
+        1. **Upload** → 2. **Save** → 3. **Process** → 4. **Generate**
         """)
 
 def show_flashcards_page():
