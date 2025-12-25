@@ -767,9 +767,9 @@ def main():
     # Deadpool Branding Header
     st.markdown("""
     <div style="text-align: center; margin-bottom: 2rem;">
-        <h1 style="font-family: 'Bangers', cursive; font-size: 5rem; color: var(--deadpool-red); text-shadow: 6px 6px 0px #000; margin: 0;">⚡ DEADPOOL'S STUDY HUB</h1>
-        <div style="background: var(--deadpool-red); height: 10px; width: 300px; margin: 1rem auto; border: 4px solid #000; box-shadow: 4px 4px 0px #000;"></div>
-        <p style="font-family: 'Bangers', cursive; font-size: 1.8rem; color: #fff; letter-spacing: 1px;">WEAPONIZING YOUR DOCUMENTS FOR MAXIMUM LEARNING EFFORT!</p>
+        <h1 style="font-family: 'Bangers', cursive; font-size: 5.5rem; color: var(--deadpool-red); text-shadow: 8px 8px 0px #000; margin: 0;">⚡ DEADPOOL'S STUDY HUB</h1>
+        <div style="background: var(--deadpool-red); height: 12px; width: 400px; margin: 1rem auto; border: 4px solid #000; box-shadow: 6px 6px 0px #000;"></div>
+        <p style="font-family: 'Bangers', cursive; font-size: 2rem; color: #fff; letter-spacing: 2px; text-transform: uppercase;">WEAPONIZING YOUR DOCUMENTS FOR MAXIMUM LEARNING EFFORT!</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -788,13 +788,13 @@ def main():
             
         st.divider()
         st.markdown("### 📚 ARSENAL (DOCS)")
-        uploaded_files = st.file_uploader("Load intel", type=['pdf','docx','txt'], accept_multiple_files=True, key="sidebar_uploader", label_visibility="collapsed")
+        uploaded_files = st.file_uploader("Load intel", type=['pdf','docx','txt'], accept_multiple_files=True, key="sidebar_uploader_final", label_visibility="collapsed")
         
         if uploaded_files:
             st.session_state.uploaded_files_shared = uploaded_files
             c1, c2 = st.columns(2)
             with c1:
-                if st.button("💾 LOCK", use_container_width=True):
+                if st.button("💾 LOCK", use_container_width=True, key="side_lock_final"):
                     docs_dir = ensure_documents_directory()
                     for f in uploaded_files:
                         with open(docs_dir / f.name, "wb") as file: file.write(f.getbuffer())
@@ -802,7 +802,7 @@ def main():
                     st.session_state.documents_processed = False
                     st.rerun()
             with c2:
-                if st.button("🔄 ANALYZE", use_container_width=True, type="primary"):
+                if st.button("🔄 ANALYZE", use_container_width=True, type="primary", key="side_analyze_final"):
                     if process_documents(): st.balloons(); st.rerun()
         
         st.divider()
@@ -812,9 +812,10 @@ def main():
     # Hero / Banner logic
     st.markdown("## 📤 ARSENAL UPLOAD")
     st.markdown("""
-    <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2rem; text-align: center;">
-        <h2 style="color: var(--deadpool-red); border: none; margin:0;">📤 LOAD YOUR INTEL</h2>
-        <p style="font-family: 'Oswald', sans-serif; font-size: 1.2rem; color: #fff;">Feed me your PDFs, DOCX, or Text notes!</p>
+    <div style="background: #111; padding: 2.5rem; border: 6px solid #000; box-shadow: 12px 12px 0px var(--deadpool-red); margin-bottom: 2rem; text-align: center; position: relative; overflow: hidden;">
+        <img src="https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-1.png" width="100" style="position: absolute; left: -20px; top: -20px; opacity: 0.3; transform: rotate(-20deg);">
+        <h2 style="color: var(--deadpool-red); border: none; margin:0; font-size: 2.5rem;">📤 FEED THE MERCENARY</h2>
+        <p style="font-family: 'Oswald', sans-serif; font-size: 1.3rem; color: #fff; margin-top: 10px;">Upload your study materials here or in the sidebar. I'll turn them into gold... semantically speaking.</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -894,57 +895,78 @@ def main():
     """, unsafe_allow_html=True)
 
 def show_home_page():
-    """Deadpool-themed Home page with high-impact visuals"""
+    """Deadpool-themed Home page with high-impact visuals and introduction"""
     
     # Hero Section with Deadpool Action Grid Style
     st.markdown("""
-    <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 6rem 2rem; border: 8px solid #000; box-shadow: 15px 15px 0px var(--deadpool-red); text-align: center; margin-bottom: 4rem; position: relative;">
-        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5);"></div>
+    <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 7rem 2rem; border: 8px solid #000; box-shadow: 15px 15px 0px var(--deadpool-red); text-align: center; margin-bottom: 4rem; position: relative;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6);"></div>
         <div style="position: relative; z-index: 2;">
-            <h1 style="font-family: 'Bangers', cursive; color: var(--deadpool-red); font-size: 4rem; text-shadow: 6px 6px 0px #000; margin: 0;">Turn Your Docs into Weaponized Knowledge!</h1>
-            <p style="font-family: 'Bangers', cursive; color: #fff; font-size: 1.8rem; background: #000; display: inline-block; padding: 0.5rem 2rem; transform: skew(-10deg); margin-top: 1.5rem; border: 3px solid var(--deadpool-red);">Upload, Analyze, Conquer with Flashcards, Quizzes & Smart Planners.</p>
+            <h1 style="font-family: 'Bangers', cursive; color: var(--deadpool-red); font-size: 4.5rem; text-shadow: 8px 8px 0px #000; margin: 0;">STOP STUDYING LIKE A DEGENERATE!</h1>
+            <p style="font-family: 'Bangers', cursive; color: #fff; font-size: 2rem; background: #000; display: inline-block; padding: 0.8rem 2.5rem; transform: skew(-10deg); margin-top: 2rem; border: 4px solid var(--deadpool-red);">I'll turn your boring PDFs into semantic weapons of mass learning.</p>
         </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # NEW: MISSION BRIEFING (Introduction for Audience)
+    st.markdown("""
+    <div style="background: #1A1A1A; padding: 3rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 4rem; border-left: 15px solid var(--deadpool-red);">
+        <h2 style="color: var(--deadpool-red); border: none; font-size: 3rem; margin-bottom: 1rem;">📜 MISSION BRIEFING</h2>
+        <p style="font-family: 'Oswald', sans-serif; font-size: 1.4rem; color: #fff; line-height: 1.6;">
+            Welcome to the <b>Deadpool Study Hub</b>. This isn't just another website; it's a high-tech Multi-Agent system designed to 
+            <b>Weaponize your Knowledge</b>. 
+            <br><br>
+            Instead of reading page after page of dry text, you feed your documents to my specialized agents. They slice, dice, 
+            and categorize your info into semantic chunks, allowing you to generate <b>Flashcards</b>, <b>Adaptive Quizzes</b>, 
+            and <b>Smart Revision Plans</b> instantly. 
+            <br><br>
+            Need a specific answer? My <b>Chat Assistant</b> has read your docs and is ready to spill the beans. 
+            <b>Maximum Effort, Minimum Boredom.</b>
+        </p>
     </div>
     """, unsafe_allow_html=True)
 
     # CASE 1: NEW USER EXPERIENCE (High-Impact Onboarding)
     if not st.session_state.documents_processed:
-        st.markdown("<h2 style='text-align: center;'>⚔️ YOUR MISSION OBJECTIVES</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center; font-size: 3.5rem; margin-bottom: 3rem;'>⚔️ HOW IT WORKS (STEP-BY-STEP)</h2>", unsafe_allow_html=True)
         
         # Journey Cards with Comic Borders
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("""
-            <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(-1deg);">
-                <img src="https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-1.png" width="80" style="float: right;">
-                <h3 style="font-size: 2.2rem;">1️⃣ LOAD UP</h3>
-                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Drop your PDFs, DOCX, or Text notes into the feed. Don't worry, I won't bite... much.</p>
+            <div style="background: #111; padding: 2.5rem; border: 5px solid #000; box-shadow: 12px 12px 0px var(--deadpool-red); margin-bottom: 3rem; transform: rotate(-1deg); min-height: 220px;">
+                <img src="https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-1.png" width="90" style="float: right; margin-left: 15px;">
+                <h3 style="font-size: 2.5rem; color: var(--deadpool-red);">1️⃣ LOAD INTEL</h3>
+                <p style="color: #fff; font-size: 1.3rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Upload your PDFs, DOCX, or Text notes in the 'Arsenal' section. Don't worry, I won't bite... much.</p>
             </div>
-            <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(1deg);">
-                <img src="https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-3.png" width="80" style="float: right;">
-                <h3 style="font-size: 2.2rem;">3️⃣ EXTRACT</h3>
-                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'Process'</b>. My agents will slice and dice your text into pure semantic gold.</p>
+            <div style="background: #111; padding: 2.5rem; border: 5px solid #000; box-shadow: 12px 12px 0px var(--deadpool-red); margin-bottom: 3rem; transform: rotate(1deg); min-height: 220px;">
+                <img src="https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-3.png" width="90" style="float: right; margin-left: 15px;">
+                <h3 style="font-size: 2.5rem; color: var(--deadpool-red);">3️⃣ EXTRACT Semantics</h3>
+                <p style="color: #fff; font-size: 1.3rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'Weaponize Now'</b>. My agents will slice and dice your text into semantic chunks ready for the brain-vault.</p>
             </div>
             """, unsafe_allow_html=True)
         with col2:
             st.markdown("""
-            <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(1deg);">
-                <img src="https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-2.png" width="80" style="float: right;">
-                <h3 style="font-size: 2.2rem;">2️⃣ LOCK & LOAD</h3>
-                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'Save'</b> to commit those files to my infinite memory banks.</p>
+            <div style="background: #111; padding: 2.5rem; border: 5px solid #000; box-shadow: 12px 12px 0px var(--deadpool-red); margin-bottom: 3rem; transform: rotate(1deg); min-height: 220px;">
+                <img src="https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-2.png" width="90" style="float: right; margin-left: 15px;">
+                <h3 style="font-size: 2.5rem; color: var(--deadpool-red);">2️⃣ LOCK IT IN</h3>
+                <p style="color: #fff; font-size: 1.3rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'Lock Intel'</b> to commit those files to my infinite memory banks. No turning back now!</p>
             </div>
-            <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(-1deg);">
-                <img src="https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-4.png" width="80" style="float: right;">
-                <h3 style="font-size: 2.2rem;">4️⃣ DOMINATE</h3>
-                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now ready for total destruction.</p>
+            <div style="background: #111; padding: 2.5rem; border: 5px solid #000; box-shadow: 12px 12px 0px var(--deadpool-red); margin-bottom: 3rem; transform: rotate(-1deg); min-height: 220px;">
+                <img src="https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-4.png" width="90" style="float: right; margin-left: 15px;">
+                <h3 style="font-size: 2.5rem; color: var(--deadpool-red);">4️⃣ DOMINATE Exams</h3>
+                <p style="color: #fff; font-size: 1.3rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Boom! 💥 Flashcards, Quizzes, and Revision Plans are now live. Time to show those documents who's boss.</p>
             </div>
             """, unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
-        # Add the thumbs up Deadpool image
-        st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", use_container_width=True)
+        # Large centered thumbs up
+        col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
+        with col_c2:
+            st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", use_container_width=True)
         
         return
+
 
     # CASE 2: RETURNING USER (Pro Dashboard)
     st.markdown("<h2>⚡ COMMAND CENTER</h2>", unsafe_allow_html=True)
