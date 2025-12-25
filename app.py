@@ -1385,7 +1385,7 @@ def show_planner_page():
         st.info("Create a revision plan to get started!")
 
 def show_chat_page():
-    """Chat assistant page"""
+    """Chat assistant page - Real-time AI study help"""
     st.markdown("### 💬 Chat Assistant")
     st.markdown("Ask questions about your study materials and get instant answers with source citations.")
     
