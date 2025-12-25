@@ -143,163 +143,142 @@ if 'num_questions' not in st.session_state:
 if 'last_processed_signature' not in st.session_state:
     st.session_state.last_processed_signature = None
 
-# Load CSS (Premium Deadpool Comic Theme)
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@400;700&display=swap');
+    # Load CSS (Premium Deadpool Comic Theme)
+    st.markdown("""
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@400;700&display=swap');
 
-    :root {
-        --deadpool-red: #E62429;
-        --deadpool-black: #000000;
-        --deadpool-dark-red: #8B0000;
-        --comic-white: #FFFFFF;
-        --comic-border: 4px solid #000000;
-    }
+        :root {
+            --deadpool-red: #E62429;
+            --deadpool-black: #000000;
+            --deadpool-dark-red: #8B0000;
+            --comic-white: #FFFFFF;
+            --comic-border: 4px solid #000000;
+        }
 
-    /* Global Overrides */
-    .stApp {
-        background-color: var(--deadpool-black);
-        color: var(--comic-white);
-        font-family: 'Oswald', sans-serif;
-    }
+        /* Global Overrides */
+        .stApp {
+            background-color: var(--deadpool-black);
+            color: var(--comic-white);
+            font-family: 'Oswald', sans-serif;
+        }
 
-    /* Comic Grid Background */
-    .stApp::before {
-        content: "";
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background-image: 
-            linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
-            url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-        background-attachment: fixed;
-        z-index: -1;
-    }
+        /* Comic Grid Background */
+        .stApp::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)),
+                url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            background-attachment: fixed;
+            z-index: -1;
+        }
 
-    /* Header Styling */
-    header[data-testid="stHeader"] {
-        background-color: var(--deadpool-red) !important;
-        border-bottom: 5px solid #000 !important;
-    }
+        /* Header Styling */
+        header[data-testid="stHeader"] {
+            background-color: var(--deadpool-red) !important;
+            border-bottom: 5px solid #000 !important;
+            height: 60px !important;
+        }
 
-    /* Sidebar Styling */
-    [data-testid="stSidebar"] {
-        background-color: #111 !important;
-        border-right: 5px solid var(--deadpool-red) !important;
-    }
+        /* Sidebar Styling */
+        [data-testid="stSidebar"] {
+            background-color: #111 !important;
+            border-right: 5px solid var(--deadpool-red) !important;
+        }
 
-    /* Uniform Comic Buttons */
-    .stButton > button {
-        font-family: 'Bangers', cursive !important;
-        background-color: var(--deadpool-red) !important;
-        color: white !important;
-        font-size: 1.2rem !important;
-        border: 4px solid #000 !important;
-        border-radius: 0px !important;
-        padding: 0.5rem 1rem !important;
-        box-shadow: 5px 5px 0px #000 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 1px !important;
-        width: 100% !important;
-        min-height: 60px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        white-space: normal !important;
-        word-wrap: break-word !important;
-        line-height: 1.1 !important;
-        margin-bottom: 10px !important;
-    }
+        /* Uniform Comic Buttons */
+        .stButton > button {
+            font-family: 'Bangers', cursive !important;
+            background-color: var(--deadpool-red) !important;
+            color: white !important;
+            font-size: 1.2rem !important;
+            border: 4px solid #000 !important;
+            border-radius: 0px !important;
+            padding: 0.5rem 1rem !important;
+            box-shadow: 5px 5px 0px #000 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+            width: 100% !important;
+            min-height: 55px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            white-space: normal !important;
+            word-wrap: break-word !important;
+            line-height: 1.1 !important;
+            margin-bottom: 5px !important;
+            transition: all 0.1s ease !important;
+        }
 
-    /* Navigation Buttons Specific Style - Fix for uniformity */
-    [data-testid="stHorizontalBlock"] div div div .stButton > button {
-        height: 80px !important; 
-        font-size: 1.1rem !important;
-        white-space: normal !important; /* Allow break for longer names but keep height */
-    }
+        .stButton > button:hover {
+            background-color: #FF3B3F !important;
+            transform: translate(-2px, -2px) !important;
+            box-shadow: 7px 7px 0px #000 !important;
+        }
 
-    .stButton > button:hover {
-        background-color: #FF3B3F !important;
-        transform: translate(-3px, -3px) !important;
-        box-shadow: 8px 8px 0px #000 !important;
-        border-color: #000 !important;
-    }
+        .stButton > button:active {
+            transform: translate(2px, 2px) !important;
+            box-shadow: 2px 2px 0px #000 !important;
+        }
 
-    .stButton > button:active {
-        transform: translate(2px, 2px) !important;
-        box-shadow: 2px 2px 0px #000 !important;
-    }
+        /* Comic Panels (Cards) */
+        .stVerticalBlock > div > div {
+            background: #1A1A1A !important;
+            border: 4px solid #000 !important;
+            border-radius: 0px !important;
+            padding: 1.2rem !important;
+            box-shadow: 8px 8px 0px var(--deadpool-red) !important;
+            margin-bottom: 1.5rem !important;
+        }
 
-    /* Comic Panels (Cards) */
-    .stVerticalBlock > div > div {
-        background: #1A1A1A !important;
-        border: 5px solid #000 !important;
-        border-radius: 0px !important;
-        padding: 1.5rem !important;
-        box-shadow: 10px 10px 0px var(--deadpool-red) !important;
-        margin-bottom: 2rem !important;
-    }
+        /* Inputs */
+        .stTextInput input, .stTextArea textarea, .stFileUploader {
+            background-color: #222 !important;
+            border: 3px solid #444 !important;
+            color: #fff !important;
+            border-radius: 0px !important;
+        }
+        .stTextInput input:focus { border-color: var(--deadpool-red) !important; }
 
-    /* Metrics */
-    [data-testid="stMetric"] {
-        background: #000 !important;
-        border: 4px solid var(--deadpool-red) !important;
-        padding: 1rem !important;
-        box-shadow: 6px 6px 0px #000 !important;
-    }
+        /* Typography */
+        h1, h2, h3, h4 {
+            font-family: 'Bangers', cursive !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1.5px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
 
-    /* Inputs */
-    .stTextInput input, .stTextArea textarea, .stFileUploader {
-        background-color: #222 !important;
-        border: 4px solid #000 !important;
-        color: #fff !important;
-        font-size: 1rem !important;
-        border-radius: 0px !important;
-    }
+        h1 { color: var(--deadpool-red) !important; font-size: 4rem !important; text-shadow: 5px 5px 0px #000 !important; }
+        h2 { color: #fff !important; font-size: 2.2rem !important; margin-bottom: 10px !important; }
+        h3 { color: var(--deadpool-red) !important; font-size: 1.6rem !important; }
 
-    /* Markdown Text */
-    h1, h2, h3 {
-        font-family: 'Bangers', cursive !important;
-        text-transform: uppercase !important;
-        letter-spacing: 2px !important;
-    }
+        /* Reduced Spacing */
+        .main .block-container {
+            padding-top: 1rem !important;
+            padding-bottom: 1rem !important;
+            max-width: 1300px !important;
+        }
+        
+        div[data-testid="stVerticalBlock"] > div {
+            padding-top: 0px !important;
+            padding-bottom: 0px !important;
+        }
 
-    h1 { color: var(--deadpool-red) !important; font-size: 3.5rem !important; text-shadow: 4px 4px 0px #000 !important; }
-    h2 { color: #fff !important; font-size: 2.2rem !important; border-bottom: 5px solid var(--deadpool-red); display: inline-block; margin-bottom: 1.2rem !important; }
-    h3 { color: var(--deadpool-red) !important; font-size: 1.8rem !important; }
-
-    /* Custom Halftone Overlay */
-    .halftone {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background-image: radial-gradient(circle, #000 1px, transparent 1px);
-        background-size: 6px 6px;
-        opacity: 0.15;
-        pointer-events: none;
-        z-index: 1000;
-    }
-    
-    /* Better spacing for main content */
-    .main .block-container {
-        padding-top: 2rem !important;
-        max-width: 1200px !important;
-    }
-
-    /* Fixed height for info/success boxes to prevent vertical stretch */
-    .stAlert {
-        padding: 0.75rem 1rem !important;
-        min-height: auto !important;
-    }
-    
-    /* Sticker images */
-    .sticker {
-        transition: transform 0.3s ease;
-    }
-    .sticker:hover {
-        transform: scale(1.1) rotate(5deg);
-    }
-</style>
-<div class="halftone"></div>
-""", unsafe_allow_html=True)
+        /* Fixed Image Stickers */
+        .side-sticker { position: fixed; z-index: 100; pointer-events: none; opacity: 0.8; }
+        
+        /* Custom Halftone */
+        .halftone {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: radial-gradient(circle, #000 1.2px, transparent 1.2px);
+            background-size: 8px 8px; opacity: 0.1; pointer-events: none; z-index: 1000;
+        }
+    </style>
+    <div class="halftone"></div>
+    """, unsafe_allow_html=True)
 
 def initialize_components():
     """Initialize vector store and agent controller with robust error handling"""
@@ -777,191 +756,181 @@ def main():
     </script>
     """, unsafe_allow_html=True)
     
-    # Deadpool Branding Header
-    st.markdown("""
-    <div style="text-align: center; margin-bottom: 1rem;">
-        <h1 style="font-family: 'Bangers', cursive; font-size: 5rem; color: var(--deadpool-red); text-shadow: 6px 6px 0px #000; margin: 0;">⚡ DEADPOOL'S STUDY HUB</h1>
-        <div style="background: var(--deadpool-red); height: 8px; width: 350px; margin: 0.5rem auto; border: 3px solid #000; box-shadow: 4px 4px 0px #000;"></div>
-        <p style="font-family: 'Bangers', cursive; font-size: 1.8rem; color: #fff; letter-spacing: 1px; text-transform: uppercase;">YOUR PERSONAL AI STUDY ASSISTANT</p>
-    </div>
-    """, unsafe_allow_html=True)
+    # --- TOP BRANDING ---
+    st.markdown("<p style='text-align:center; color: var(--deadpool-red); font-family: Bangers; letter-spacing: 3px; font-size: 1.3rem; margin-top: -40px; text-shadow: 2px 2px 0px #000;'>AI-ASSISTANT POWERED BY - DEADPOOL</p>", unsafe_allow_html=True)
     
-    # Sidebar - Menu
+    col_h1, col_h2 = st.columns([4, 1])
+    with col_h1:
+        st.markdown("<h1 style='margin-bottom: 0px;'>⚡ DEADPOOL'S STUDY HUB</h1>", unsafe_allow_html=True)
+        st.markdown("<div style='background: var(--deadpool-red); height: 6px; width: 280px; margin-top: 5px; border: 2px solid #000; box-shadow: 3px 3px 0px #000;'></div>", unsafe_allow_html=True)
+    with col_h2:
+        st.image("https://pngimg.com/uploads/deadpool/deadpool_PNG10.png", width=110)
+
+    # --- SIDEBAR MENU ---
     with st.sidebar:
-        st.image("https://pngimg.com/uploads/deadpool/deadpool_PNG10.png", width=120)
-        st.markdown("<h2 class='sidebar-title'>💀 MENU</h2>", unsafe_allow_html=True)
+        st.image("https://pngimg.com/uploads/deadpool/deadpool_PNG43.png", width=180)
+        st.markdown("<h2 style='border:none; text-align:center; color:var(--deadpool-red);'>💀 MENU</h2>", unsafe_allow_html=True)
         
-        # Navigation
         nav_options = {"Home":"🏠","Flashcards":"📇","Quizzes":"📝","Revision Planner":"📅","Chat Assistant":"💬","Analytics":"📊"}
         current_index = list(nav_options.keys()).index(st.session_state.current_page) if st.session_state.current_page in nav_options else 0
         
-        page = st.radio("Choose Action", list(nav_options.keys()), format_func=lambda x: f"{nav_options[x]} {x}", index=current_index)
+        page = st.radio("SELECT OBJECTIVE", list(nav_options.keys()), format_func=lambda x: f"{nav_options[x]} {x}", index=current_index, label_visibility="collapsed")
         if page != st.session_state.current_page:
             st.session_state.current_page = page
             st.rerun()
             
         st.divider()
-        # Sidebar Documents
-        st.markdown("### 📚 DOCUMENTS")
-        uploaded_files = st.file_uploader("Upload Files", type=['pdf','docx','txt'], accept_multiple_files=True, key="sidebar_uploader_simple", label_visibility="collapsed")
+        st.markdown("### 📚 SIDE UPLOAD")
+        uploaded_files_side = st.file_uploader("Intel Feed", type=['pdf','docx','txt'], accept_multiple_files=True, key="side_up_v3", label_visibility="collapsed")
         
-        if uploaded_files:
-            st.session_state.uploaded_files_shared = uploaded_files
-            c1, c2 = st.columns(2)
-            with c1:
-                if st.button("💾 SAVE", use_container_width=True, key="side_lock_simple"):
+        if uploaded_files_side:
+            st.session_state.uploaded_files_shared = uploaded_files_side
+            sc1, sc2 = st.columns(2)
+            with sc1:
+                if st.button("💾 SAVE", key="side_save_v3"):
                     docs_dir = ensure_documents_directory()
-                    for f in uploaded_files:
+                    for f in uploaded_files_side:
                         with open(docs_dir / f.name, "wb") as file: file.write(f.getbuffer())
-                    st.success("Saved!")
+                    st.success("Locked!")
                     st.session_state.documents_processed = False
                     st.rerun()
-            with c2:
-                if st.button("🔄 PROCESS", use_container_width=True, type="primary", key="side_analyze_simple"):
+            with sc2:
+                if st.button("🔄 PROCESS", key="side_proc_v3", type="primary"):
                     if process_documents(): st.balloons(); st.rerun()
         
         st.divider()
-        st.image("https://pngimg.com/uploads/deadpool/deadpool_PNG43.png", width=150)
-        st.markdown("<p style='text-align:center; font-style:italic; color:#666;'>- Just do it! -</p>", unsafe_allow_html=True)
-    
-    # Hero / Upload Section
-    st.markdown("## 📤 UPLOAD DOCUMENTS")
-    st.markdown("""
-    <div style="background: #111; padding: 1.5rem; border: 5px solid #000; box-shadow: 8px 8px 0px var(--deadpool-red); margin-bottom: 1.5rem; text-align: center; position: relative; overflow: hidden;">
-        <img src="https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-1.png" width="80" style="position: absolute; left: -15px; top: -15px; opacity: 0.2; transform: rotate(-20deg);">
-        <h2 style="color: var(--deadpool-red); border: none; margin:0; font-size: 2.2rem;">📤 UPLOAD YOUR NOTES</h2>
-        <p style="font-family: 'Oswald', sans-serif; font-size: 1.2rem; color: #fff; margin-top: 5px;">Drop your PDFs or Text notes here and I'll handle the rest!</p>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    col_up, col_img = st.columns([3, 1])
-    with col_up:
-        uploaded_files_main = st.file_uploader("Upload files", type=['pdf','docx','txt'], accept_multiple_files=True, key="main_uploader_simple", label_visibility="collapsed")
-        if uploaded_files_main: st.session_state.uploaded_files_shared = uploaded_files_main
-    
-    with col_img:
-        st.image("https://pngimg.com/uploads/deadpool/deadpool_PNG10.png", width=110)
+        st.image("https://www.pngkit.com/png/full/11-110511_deadpool-png-transparent-deadpool-reading-comic.png", width=160)
+        st.markdown("<p style='text-align:center; font-style:italic; color:#888;'>\"Maximum Effort!\"</p>", unsafe_allow_html=True)
 
-    files_to_process = uploaded_files_main if uploaded_files_main else st.session_state.get('uploaded_files_shared')
-    
-    if files_to_process:
-        c1, c2 = st.columns(2)
-        with c1:
-            if st.button("💾 SAVE FILES", use_container_width=True, key="save_main_simple"):
-                docs_dir = ensure_documents_directory()
-                for f in files_to_process:
-                    with open(docs_dir / f.name, "wb") as file: file.write(f.getbuffer())
-                st.success("✅ Files Saved!")
-                st.session_state.documents_processed = False
-                st.rerun()
-        with c2:
-            if st.button("🔄 PROCESS NOW", use_container_width=True, type="primary", key="process_main_simple"):
-                if process_documents(): st.balloons(); st.rerun()
-    
-    # Existing Documents
-    doc_files = get_document_files()
-    if doc_files:
-        st.markdown("### 📁 YOUR FILES")
-        with st.expander(f"View {len(doc_files)} files in storage", expanded=False):
-            for doc in doc_files:
-                doc_name = Path(doc).name
-                c1, c2 = st.columns([4, 1])
-                c1.markdown(f"📄 **{doc_name}**")
-                if c2.button("🗑️", key=f"del_simple_{doc_name}"):
-                    Path(doc).unlink(); st.rerun()
-    
-    st.divider()
-    
-    # Navigation Buttons Grid
-    st.markdown("## 🎯 QUICK ACTIONS")
-    nav_cols = st.columns(6)
-    pages = list(nav_options.keys())
-    for i in range(6):
-        with nav_cols[i]:
-            p_name = pages[i]
-            is_active = st.session_state.current_page == p_name
-            if st.button(f"{nav_options[p_name]}\n{p_name.upper()}", key=f"nav_grid_simple_{p_name}", use_container_width=True, type="primary" if is_active else "secondary"):
-                st.session_state.current_page = p_name
-                st.rerun()
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Main Content Area
+    # --- ROUTING ---
     if st.session_state.current_page == "Home":
-        show_home_page()
-    elif st.session_state.current_page == "Flashcards":
-        show_flashcards_page()
-    elif st.session_state.current_page == "Quizzes":
-        show_quizzes_page()
-    elif st.session_state.current_page == "Revision Planner":
-        show_planner_page()
-    elif st.session_state.current_page == "Chat Assistant":
-        show_chat_page()
-    elif st.session_state.current_page == "Analytics":
-        show_analytics_page()
+        # MISSION BRIEFING (Introduction)
+        st.markdown("""
+        <div style="background: #1A1A1A; padding: 1.5rem; border: 4px solid #000; box-shadow: 8px 8px 0px var(--deadpool-red); margin-bottom: 1.5rem; border-left: 15px solid var(--deadpool-red);">
+            <h2 style="color: var(--deadpool-red); border: none; font-size: 2.5rem; margin-bottom: 5px;">📜 MISSION BRIEFING</h2>
+            <p style="font-family: 'Oswald', sans-serif; font-size: 1.2rem; color: #fff; line-height: 1.4; margin:0;">
+                1. <b>Upload</b> your notes in the box below.<br>
+                2. Hit <b>Save</b> and <b>Process</b> so I can memorize them.<br>
+                3. Use the <b>Quick Actions</b> grid to start studying!
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    # Footer with Sticker
+        # MAIN UPLOAD
+        col_main1, col_main2 = st.columns([3, 1])
+        with col_main1:
+            st.markdown("### 📤 FEED THE MERCENARY")
+            uploaded_files_main = st.file_uploader("Upload Intel", type=['pdf','docx','txt'], accept_multiple_files=True, key="main_up_v3", label_visibility="collapsed")
+            if uploaded_files_main: st.session_state.uploaded_files_shared = uploaded_files_main
+            
+            files_to_proc = uploaded_files_main if uploaded_files_main else st.session_state.get('uploaded_files_shared')
+            if files_to_proc:
+                mc1, mc2 = st.columns(2)
+                with mc1:
+                    if st.button("💾 SAVE FILES", key="m_save_v3"):
+                        docs_dir = ensure_documents_directory()
+                        for f in files_to_proc:
+                            with open(docs_dir / f.name, "wb") as file: file.write(f.getbuffer())
+                        st.success("✅ Files Locked!")
+                        st.session_state.documents_processed = False
+                        st.rerun()
+                with mc2:
+                    if st.button("🔄 PROCESS NOW", key="m_proc_v3", type="primary"):
+                        if process_documents(): st.balloons(); st.rerun()
+        with col_main2:
+            st.image("https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-5.png", width=130)
+
+        # INVENTORY
+        doc_files = get_document_files()
+        if doc_files:
+            with st.expander(f"📦 CURRENT INVENTORY ({len(doc_files)} files)", expanded=False):
+                for doc in doc_files:
+                    doc_name = Path(doc).name
+                    c1, c2 = st.columns([5, 1])
+                    c1.markdown(f"📄 {doc_name}")
+                    if c2.button("🗑️", key=f"del_v3_{doc_name}"):
+                        Path(doc).unlink(); st.rerun()
+
+        st.divider()
+        
+        # QUICK ACTIONS GRID
+        st.markdown("### 🎯 QUICK ACTIONS")
+        nav_cols = st.columns(6)
+        pages = list(nav_options.keys())
+        for i in range(6):
+            with nav_cols[i]:
+                p_name = pages[i]
+                if st.button(f"{nav_options[p_name]}\n{p_name.upper()}", key=f"btn_v3_{p_name}"):
+                    st.session_state.current_page = p_name
+                    st.rerun()
+
+        show_home_page()
+
+    elif st.session_state.current_page == "Flashcards": show_flashcards_page()
+    elif st.session_state.current_page == "Quizzes": show_quizzes_page()
+    elif st.session_state.current_page == "Revision Planner": show_planner_page()
+    elif st.session_state.current_page == "Chat Assistant": show_chat_page()
+    elif st.session_state.current_page == "Analytics": show_analytics_page()
+
+    # FOOTER
     st.markdown("""
-    <div style="text-align: center; margin-top: 5rem; padding: 2rem; border-top: 4px solid var(--deadpool-red); background: #000;">
-        <img src="https://pngimg.com/uploads/deadpool/deadpool_PNG43.png" width="200" style="margin-bottom: 1rem;">
-        <p style="color: #fff; font-family: 'Oswald', sans-serif; font-size: 0.9rem; margin: 0;">© 2025 Deadpool's Study Hub. No regenerating degenerates allowed.</p>
-        <h3 style="color: var(--deadpool-red); margin-top: 1rem;">💀 MAXIMUM EFFORT! ⚔️</h3>
+    <div style="text-align: center; margin-top: 4rem; padding: 2.5rem; border-top: 5px solid var(--deadpool-red); background: #000;">
+        <img src="https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png" width="220">
+        <h2 style="color: var(--deadpool-red); margin-top: 15px; border:none; font-size: 3rem;">💀 MAXIMUM EFFORT! ⚔️</h2>
+        <p style="color: #555; font-size: 0.9rem;">Powered by Deadpool Intelligence & Taco Grease</p>
     </div>
     """, unsafe_allow_html=True)
 
 def show_home_page():
-    """Deadpool-themed Home page - Simple & Clear"""
-    
-    # Hero Section
-    st.markdown("""
-    <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 5rem 2rem; border: 8px solid #000; box-shadow: 12px 12px 0px var(--deadpool-red); text-align: center; margin-bottom: 2rem; position: relative;">
-        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6);"></div>
-        <div style="position: relative; z-index: 2;">
-            <h1 style="font-family: 'Bangers', cursive; color: var(--deadpool-red); font-size: 4rem; text-shadow: 6px 6px 0px #000; margin: 0;">STOP WASTING TIME!</h1>
-            <p style="font-family: 'Bangers', cursive; color: #fff; font-size: 1.8rem; background: #000; display: inline-block; padding: 0.5rem 2rem; transform: skew(-10deg); margin-top: 1.5rem; border: 4px solid var(--deadpool-red);">I'll read your notes for you. Flashcards, Quizzes & Plans in seconds.</p>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # Simplified How it Works
-    st.markdown("""
-    <div style="background: #1A1A1A; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2rem; border-left: 10px solid var(--deadpool-red);">
-        <h2 style="color: var(--deadpool-red); border: none; font-size: 2.5rem; margin-bottom: 0.5rem;">📖 HOW TO USE THIS SITE</h2>
-        <p style="font-family: 'Oswald', sans-serif; font-size: 1.2rem; color: #fff; line-height: 1.4;">
-            1. <b>Upload:</b> Put your PDFs or notes in the box above.<br>
-            2. <b>Save & Process:</b> Click 'Save Files' then 'Process Now' to let the AI learn your notes.<br>
-            3. <b>Learn:</b> Use the buttons below to generate Quizzes, Flashcards, or Chat with your notes!
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    # CASE 1: NEW USER EXPERIENCE
+    """Home page content - Visual comic strip"""
     if not st.session_state.documents_processed:
-        # Steps Grid
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("""
-            <div style="background: #111; padding: 1.5rem; border: 5px solid #000; box-shadow: 8px 8px 0px var(--deadpool-red); margin-bottom: 2rem; min-height: 180px;">
-                <h3 style="font-size: 2rem; color: var(--deadpool-red);">1️⃣ UPLOAD NOTES</h3>
-                <p style="color: #fff; font-size: 1.1rem; font-family: 'Oswald', sans-serif;">Upload your study material above. I'll take a look!</p>
-            </div>
-            """, unsafe_allow_html=True)
-            st.markdown("""
-            <div style="background: #111; padding: 1.5rem; border: 5px solid #000; box-shadow: 8px 8px 0px var(--deadpool-red); margin-bottom: 2rem; min-height: 180px;">
-                <h3 style="font-size: 2rem; color: var(--deadpool-red);">3️⃣ START LEARNING</h3>
-                <p style="color: #fff; font-size: 1.1rem; font-family: 'Oswald', sans-serif;">Now you can generate quizzes, flashcards, or just chat with me about your notes!</p>
-            </div>
-            """, unsafe_allow_html=True)
-        with col2:
-            st.markdown("""
-            <div style="background: #111; padding: 1.5rem; border: 5px solid #000; box-shadow: 8px 8px 0px var(--deadpool-red); margin-bottom: 2rem; min-height: 180px;">
-                <h3 style="font-size: 2rem; color: var(--deadpool-red);">2️⃣ CLICK PROCESS</h3>
-                <p style="color: #fff; font-size: 1.1rem; font-family: 'Oswald', sans-serif;">Click 'Process Now' so my AI agents can slice and dice the info for you.</p>
-            </div>
-            """, unsafe_allow_html=True)
-            st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=250)
+        st.markdown("<br>", unsafe_allow_html=True)
+        col1, col2, col3, col4 = st.columns(4)
         
+        steps = [
+            ("1️⃣ UPLOAD", "Drop your notes in the box above.", "https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-1.png"),
+            ("2️⃣ SAVE", "Lock those files into my brain.", "https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-2.png"),
+            ("3️⃣ PROCESS", "Let me read them properly.", "https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-3.png"),
+            ("4️⃣ STUDY", "Get quizzes & cards instantly.", "https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-4.png")
+        ]
+        
+        cols = [col1, col2, col3, col4]
+        for i, (title, desc, img) in enumerate(steps):
+            with cols[i]:
+                st.markdown(f"""
+                <div style="background: #111; padding: 1.2rem; border: 4px solid #000; box-shadow: 6px 6px 0px var(--deadpool-red); text-align: center; min-height: 260px;">
+                    <img src="{img}" width="110" style="margin-bottom: 15px;">
+                    <h3 style="font-size: 1.6rem; color:var(--deadpool-red);">{title}</h3>
+                    <p style="font-size: 1rem; color: #ccc; font-family:'Oswald';">{desc}</p>
+                </div>
+                """, unsafe_allow_html=True)
         return
+
+    # DASHBOARD FOR RETURNING USERS
+    st.markdown("<h2>📊 STUDY DASHBOARD</h2>", unsafe_allow_html=True)
+    if st.session_state.agent_controller:
+        stats = st.session_state.agent_controller.get_statistics()
+        c1, c2, c3, c4 = st.columns(4)
+        with c1: st.metric("TOPICS", stats['total_topics'])
+        with c2: st.metric("CARDS", stats['total_flashcards'])
+        with c3: st.metric("QUIZZES", stats['total_quizzes'])
+        with c4: st.metric("DONE", f"{stats['revision_stats']['completion_rate']:.1f}%")
+
+    st.divider()
+    if 'processing_results' in st.session_state:
+        result = st.session_state.processing_results
+        col_t, col_s = st.columns([2, 1])
+        with col_t:
+            if result.get('topics'):
+                st.markdown("### 📚 YOUR TOPICS")
+                for topic in result['topics'][:5]:
+                    with st.expander(f"🔴 {topic.get('topic', 'Topic').upper()}", expanded=False):
+                        for p in topic.get('key_points', [])[:3]: st.markdown(f"⚔️ {p}")
+        with col_s:
+            st.markdown("### 📄 NOTES SNAPS")
+            if result.get('chunks'):
+                for chunk in result['chunks'][:2]:
+                    st.markdown(f"""<div style="background: #222; padding: 1rem; border: 2px solid var(--deadpool-red); font-size: 0.9rem; color: #eee; font-style: italic; box-shadow: 4px 4px 0px #000; margin-bottom: 10px;">"{chunk['text'][:130]}..."</div>""", unsafe_allow_html=True)
 
 
     # CASE 2: RETURNING USER (Simple Dashboard)
