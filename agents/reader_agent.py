@@ -76,18 +76,26 @@ class ReaderAgent:
             custom_config = os.getenv("OCR_CONFIG")
             if not custom_config:
                 if ocr_mode == "handwritten":
-                    # Settings that can work better for clearer handwriting
-                    custom_config = "--oem 1 --psm 7"
+                    # PSM 3 is better for full pages of handwriting
+                    # OEM 1 uses the LSTM engine which is best for handwriting
+                    custom_config = "--oem 1 --psm 3"
                 else:
                     # Default for printed text
                     custom_config = "--oem 3 --psm 6"
 
             for img in images:
-                # Basic preprocessing: grayscale + contrast/threshold to help OCR
+                # ENHANCED PRE-PROCESSING for handwriting
                 try:
+                    # Convert to grayscale
                     pil_img = img.convert("L")
+                    # Increase contrast aggressively to make handwriting clearer
+                    from PIL import ImageEnhance
+                    enhancer = ImageEnhance.Contrast(pil_img)
+                    pil_img = enhancer.enhance(2.0) 
+                    
+                    # Adaptive thresholding logic
                     pil_img = ImageOps.autocontrast(pil_img)
-                    threshold = int(os.getenv("OCR_THRESHOLD", "140"))
+                    threshold = int(os.getenv("OCR_THRESHOLD", "128"))
                     pil_img = pil_img.point(lambda x: 255 if x > threshold else 0, mode="1")
                 except Exception:
                     pil_img = img
