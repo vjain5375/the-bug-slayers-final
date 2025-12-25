@@ -192,53 +192,41 @@ st.markdown("""
         font-family: 'Bangers', cursive !important;
         background-color: var(--deadpool-red) !important;
         color: white !important;
-        font-size: 1.4rem !important;
+        font-size: 1.2rem !important;
         border: 4px solid #000 !important;
         border-radius: 0px !important;
-        padding: 0.8rem 1.5rem !important;
-        box-shadow: 6px 6px 0px #000 !important;
+        padding: 0.5rem 1rem !important;
+        box-shadow: 5px 5px 0px #000 !important;
         text-transform: uppercase !important;
         letter-spacing: 1px !important;
         width: 100% !important;
-        min-height: 70px !important;
-        height: auto !important;
+        min-height: 60px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         white-space: normal !important;
         word-wrap: break-word !important;
-        line-height: 1.2 !important;
+        line-height: 1.1 !important;
         margin-bottom: 10px !important;
     }
 
     /* Navigation Buttons Specific Style - Fix for uniformity */
     [data-testid="stHorizontalBlock"] div div div .stButton > button {
-        height: 100px !important; 
-        font-size: 1.2rem !important;
+        height: 80px !important; 
+        font-size: 1.1rem !important;
+        white-space: normal !important; /* Allow break for longer names but keep height */
     }
 
     .stButton > button:hover {
         background-color: #FF3B3F !important;
         transform: translate(-3px, -3px) !important;
-        box-shadow: 9px 9px 0px #000 !important;
+        box-shadow: 8px 8px 0px #000 !important;
         border-color: #000 !important;
     }
 
     .stButton > button:active {
-        transform: translate(3px, 3px) !important;
+        transform: translate(2px, 2px) !important;
         box-shadow: 2px 2px 0px #000 !important;
-    }
-
-    /* Primary Actions */
-    .stButton > button[kind="primary"] {
-        background-color: var(--deadpool-black) !important;
-        border-color: var(--deadpool-red) !important;
-        color: var(--deadpool-red) !important;
-    }
-    
-    .stButton > button[kind="primary"]:hover {
-        background-color: var(--deadpool-red) !important;
-        color: white !important;
     }
 
     /* Comic Panels (Cards) */
@@ -246,29 +234,17 @@ st.markdown("""
         background: #1A1A1A !important;
         border: 5px solid #000 !important;
         border-radius: 0px !important;
-        padding: 2rem !important;
-        box-shadow: 12px 12px 0px var(--deadpool-red) !important;
-        margin-bottom: 2.5rem !important;
+        padding: 1.5rem !important;
+        box-shadow: 10px 10px 0px var(--deadpool-red) !important;
+        margin-bottom: 2rem !important;
     }
 
     /* Metrics */
     [data-testid="stMetric"] {
         background: #000 !important;
         border: 4px solid var(--deadpool-red) !important;
-        padding: 1.5rem !important;
-        box-shadow: 8px 8px 0px #000 !important;
-    }
-
-    [data-testid="stMetricLabel"] {
-        color: var(--deadpool-red) !important;
-        font-family: 'Bangers', cursive !important;
-        font-size: 1.5rem !important;
-    }
-
-    [data-testid="stMetricValue"] {
-        color: #fff !important;
-        font-family: 'Bangers', cursive !important;
-        font-size: 3rem !important;
+        padding: 1rem !important;
+        box-shadow: 6px 6px 0px #000 !important;
     }
 
     /* Inputs */
@@ -276,17 +252,8 @@ st.markdown("""
         background-color: #222 !important;
         border: 4px solid #000 !important;
         color: #fff !important;
-        font-size: 1.1rem !important;
+        font-size: 1rem !important;
         border-radius: 0px !important;
-    }
-
-    /* Expanders */
-    .streamlit-expanderHeader {
-        font-family: 'Bangers', cursive !important;
-        font-size: 1.4rem !important;
-        background: #000 !important;
-        color: var(--deadpool-red) !important;
-        border: 3px solid #000 !important;
     }
 
     /* Markdown Text */
@@ -296,9 +263,9 @@ st.markdown("""
         letter-spacing: 2px !important;
     }
 
-    h1 { color: var(--deadpool-red) !important; font-size: 4rem !important; text-shadow: 4px 4px 0px #000 !important; }
-    h2 { color: #fff !important; font-size: 2.5rem !important; border-bottom: 5px solid var(--deadpool-red); display: inline-block; margin-bottom: 1.5rem !important; }
-    h3 { color: var(--deadpool-red) !important; }
+    h1 { color: var(--deadpool-red) !important; font-size: 3.5rem !important; text-shadow: 4px 4px 0px #000 !important; }
+    h2 { color: #fff !important; font-size: 2.2rem !important; border-bottom: 5px solid var(--deadpool-red); display: inline-block; margin-bottom: 1.2rem !important; }
+    h3 { color: var(--deadpool-red) !important; font-size: 1.8rem !important; }
 
     /* Custom Halftone Overlay */
     .halftone {
@@ -313,8 +280,22 @@ st.markdown("""
     
     /* Better spacing for main content */
     .main .block-container {
-        padding-top: 3rem !important;
+        padding-top: 2rem !important;
         max-width: 1200px !important;
+    }
+
+    /* Fixed height for info/success boxes to prevent vertical stretch */
+    .stAlert {
+        padding: 0.75rem 1rem !important;
+        min-height: auto !important;
+    }
+    
+    /* Sticker images */
+    .sticker {
+        transition: transform 0.3s ease;
+    }
+    .sticker:hover {
+        transform: scale(1.1) rotate(5deg);
     }
 </style>
 <div class="halftone"></div>
@@ -426,7 +407,10 @@ def process_documents():
     if result['total_chunks'] > 0:
         st.session_state.documents_processed = True
         latest_info = f" (Latest: {st.session_state.latest_document})" if st.session_state.latest_document else ""
-        st.success(f"✅ Processed {result['total_chunks']} chunks from {result['total_topics']} topics!{latest_info}")
+        st.success(f"✅ Weaponized {result['total_chunks']} chunks from {result['total_topics']} topics!{latest_info}")
+        
+        # Trigger Deadpool Balloons
+        st.markdown("<script>window.launchDeadpoolBalloons();</script>", unsafe_allow_html=True)
         
         # Store processing results for display
         st.session_state.processing_results = result
@@ -442,22 +426,49 @@ def main():
     """Main application"""
     initialize_components()
     
-    # Enhanced UI Styling - No Transitions or Animations
+    # Custom Red/White/Black Balloons Script
     st.markdown("""
-    <style>
-        /* Enhanced Buttons - No Transitions */
-        .stButton > button {
-            border-radius: 12px !important;
-            font-weight: 600 !important;
-            padding: 0.75rem 1.5rem !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
-            border: none !important;
+    <script>
+    function createBalloon() {
+        const colors = ['#E62429', '#FFFFFF', '#000000'];
+        const balloon = document.createElement('div');
+        balloon.style.position = 'fixed';
+        balloon.style.bottom = '-50px';
+        balloon.style.left = Math.random() * 100 + 'vw';
+        balloon.style.width = '30px';
+        balloon.style.height = '40px';
+        balloon.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        balloon.style.borderRadius = '50%';
+        balloon.style.zIndex = '9999';
+        balloon.style.pointerEvents = 'none';
+        balloon.style.transition = 'transform 3s ease-out, opacity 3s ease-out';
+        document.body.appendChild(balloon);
+        
+        setTimeout(() => {
+            balloon.style.transform = `translateY(-110vh) translateX(${Math.random() * 100 - 50}px) scale(${Math.random() + 0.5})`;
+            balloon.style.opacity = '0';
+        }, 100);
+        
+        setTimeout(() => balloon.remove(), 4000);
+    }
+    window.launchDeadpoolBalloons = function() {
+        for(let i=0; i<50; i++) {
+            setTimeout(createBalloon, i * 50);
         }
+    }
+    </script>
+    """, unsafe_allow_html=True)
         
         /* Primary Buttons */
         .stButton > button[kind="primary"] {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+            background-color: var(--deadpool-black) !important;
+            color: var(--deadpool-red) !important;
+            border-color: var(--deadpool-red) !important;
+        }
+        
+        .stButton > button[kind="primary"]:hover {
+            background-color: var(--deadpool-red) !important;
+            color: #fff !important;
         }
         
         /* Secondary Buttons */
@@ -749,338 +760,244 @@ def main():
     
     # Deadpool Branding Header
     st.markdown("""
-    <div style="text-align: center; margin-bottom: 4rem;">
+    <div style="text-align: center; margin-bottom: 2rem;">
         <h1 style="font-family: 'Bangers', cursive; font-size: 5rem; color: var(--deadpool-red); text-shadow: 6px 6px 0px #000; margin: 0;">⚡ DEADPOOL'S STUDY HUB</h1>
         <div style="background: var(--deadpool-red); height: 10px; width: 300px; margin: 1rem auto; border: 4px solid #000; box-shadow: 4px 4px 0px #000;"></div>
         <p style="font-family: 'Bangers', cursive; font-size: 1.8rem; color: #fff; letter-spacing: 1px;">WEAPONIZING YOUR DOCUMENTS FOR MAXIMUM LEARNING EFFORT!</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Sidebar - Upload Section First, then Navigation
+    # Sidebar - Mission Control
     with st.sidebar:
-        # Document Management - Upload Section (Moved to top)
-        st.markdown("### 📚 Document Management")
-        st.markdown("""
-        <div style="background: rgba(102, 126, 234, 0.1); padding: 1rem; border-radius: 10px; margin-bottom: 1rem; border: 2px dashed rgba(102, 126, 234, 0.3);">
-            <p style="color: #667eea; margin: 0; text-align: center; font-weight: 600;">📤 Quick Upload</p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.image("https://pngimg.com/uploads/deadpool/deadpool_PNG10.png", width=120)
+        st.markdown("<h2 class='sidebar-title'>💀 MISSION CONTROL</h2>", unsafe_allow_html=True)
         
-        uploaded_files = st.file_uploader(
-            "📎 Upload Study Materials",
-            type=['pdf', 'docx', 'doc', 'txt'],
-            accept_multiple_files=True,
-            key="sidebar_uploader",
-            help="Upload PDF, DOCX, or TXT files"
-        )
+        nav_options = {"Home":"🏠","Flashcards":"📇","Quizzes":"📝","Revision Planner":"📅","Chat Assistant":"💬","Analytics":"📊"}
+        current_index = list(nav_options.keys()).index(st.session_state.current_page) if st.session_state.current_page in nav_options else 0
         
-        # Sync with main page upload
+        page = st.radio("Select Your Objective", list(nav_options.keys()), format_func=lambda x: f"{nav_options[x]} {x}", index=current_index)
+        if page != st.session_state.current_page:
+            st.session_state.current_page = page
+            st.rerun()
+            
+        st.divider()
+        st.markdown("### 📚 ARSENAL (DOCS)")
+        uploaded_files = st.file_uploader("Load intel", type=['pdf','docx','txt'], accept_multiple_files=True, key="sidebar_uploader", label_visibility="collapsed")
+        
         if uploaded_files:
             st.session_state.uploaded_files_shared = uploaded_files
-            st.info(f"📁 {len(uploaded_files)} file(s) selected")
-        elif st.session_state.get('uploaded_files_shared'):
-            st.info(f"📁 {len(st.session_state.uploaded_files_shared)} file(s) from main page")
-        
-        # Use shared files
-        files_to_process_sidebar = uploaded_files if uploaded_files else st.session_state.get('uploaded_files_shared')
-        
-        if files_to_process_sidebar:
-            docs_dir = ensure_documents_directory()
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("💾 Save", use_container_width=True, key="sidebar_save"):
-                    saved = 0
-                    saved_files = []
-                    for uploaded_file in files_to_process_sidebar:
-                        file_path = docs_dir / uploaded_file.name
-                        if not file_path.exists():
-                            with open(file_path, "wb") as f:
-                                f.write(uploaded_file.getbuffer())
-                            saved += 1
-                            saved_files.append(uploaded_file.name)
-                            # Track upload order
-                            if uploaded_file.name not in st.session_state.document_upload_order:
-                                st.session_state.document_upload_order.append(uploaded_file.name)
-                            else:
-                                # Move to end if already exists (re-upload)
-                                st.session_state.document_upload_order.remove(uploaded_file.name)
-                                st.session_state.document_upload_order.append(uploaded_file.name)
-                    
-                    if saved > 0:
-                        # Update latest document
-                        if saved_files:
-                            st.session_state.latest_document = saved_files[-1]
-                        st.success(f"✅ Saved {saved} file(s)!")
-                        st.session_state.documents_processed = False
-                        st.session_state.uploaded_files_shared = None  # Clear after saving
-                        st.rerun()
-                    else:
-                        st.info("Files already exist.")
-            with col2:
-                if st.button("🔄 Process", use_container_width=True, type="primary", key="sidebar_process"):
-                    # Save first if needed
-                    saved_files = []
-                    for uploaded_file in files_to_process_sidebar:
-                        file_path = docs_dir / uploaded_file.name
-                        if not file_path.exists():
-                            with open(file_path, "wb") as f:
-                                f.write(uploaded_file.getbuffer())
-                            saved_files.append(uploaded_file.name)
-                            # Track upload order
-                            if uploaded_file.name not in st.session_state.document_upload_order:
-                                st.session_state.document_upload_order.append(uploaded_file.name)
-                            else:
-                                # Move to end if already exists (re-upload)
-                                st.session_state.document_upload_order.remove(uploaded_file.name)
-                                st.session_state.document_upload_order.append(uploaded_file.name)
-                    
-                    # Update latest document before processing
-                    if saved_files:
-                        st.session_state.latest_document = saved_files[-1]
-                    
-                    if process_documents():
-                        st.session_state.uploaded_files_shared = None  # Clear after processing
-                        # Show summary in sidebar
-                        if 'processing_results' in st.session_state:
-                            result = st.session_state.processing_results
-                            st.success(f"✅ {result['total_chunks']} chunks, {result['total_topics']} topics!")
-                        st.rerun()
-        
-        doc_files = get_document_files()
-        if doc_files:
-            st.info(f"📁 {len(doc_files)} document(s) ready")
-        
-        if st.button("🔄 Process Documents", use_container_width=True, type="primary"):
-            if process_documents():
-                # Show summary in sidebar
-                if 'processing_results' in st.session_state:
-                    result = st.session_state.processing_results
-                    st.success(f"✅ {result['total_chunks']} chunks, {result['total_topics']} topics extracted!")
-        
-        if st.session_state.vector_store:
-            count = st.session_state.vector_store.get_collection_count()
-            st.metric("Indexed Chunks", count)
+            c1, c2 = st.columns(2)
+            with c1:
+                if st.button("💾 LOCK", use_container_width=True):
+                    docs_dir = ensure_documents_directory()
+                    for f in uploaded_files:
+                        with open(docs_dir / f.name, "wb") as file: file.write(f.getbuffer())
+                    st.success("Locked!")
+                    st.session_state.documents_processed = False
+                    st.rerun()
+            with c2:
+                if st.button("🔄 ANALYZE", use_container_width=True, type="primary"):
+                    if process_documents(): st.balloons(); st.rerun()
         
         st.divider()
+        st.image("https://pngimg.com/uploads/deadpool/deadpool_PNG43.png", width=150)
+        st.markdown("<p style='text-align:center; font-style:italic; color:#666;'>- Maximum Effort! -</p>", unsafe_allow_html=True)
+    
+    # Hero / Banner logic
+    st.markdown("## 📤 ARSENAL UPLOAD")
+    st.markdown("""
+    <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2rem; text-align: center;">
+        <h2 style="color: var(--deadpool-red); border: none; margin:0;">📤 LOAD YOUR INTEL</h2>
+        <p style="font-family: 'Oswald', sans-serif; font-size: 1.2rem; color: #fff;">Feed me your PDFs, DOCX, or Text notes!</p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    col_up, col_img = st.columns([3, 1])
+    with col_up:
+        uploaded_files_main = st.file_uploader("Choose intel files", type=['pdf','docx','txt'], accept_multiple_files=True, key="main_uploader", label_visibility="collapsed")
+        if uploaded_files_main: st.session_state.uploaded_files_shared = uploaded_files_main
+    
+    with col_img:
+        st.image("https://pngimg.com/uploads/deadpool/deadpool_PNG10.png", width=120)
+
+    files_to_process = uploaded_files_main if uploaded_files_main else st.session_state.get('uploaded_files_shared')
+    
+    if files_to_process:
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("💾 LOCK INTEL", use_container_width=True, key="save_main_files"):
+                docs_dir = ensure_documents_directory()
+                for f in files_to_process:
+                    with open(docs_dir / f.name, "wb") as file: file.write(f.getbuffer())
+                st.success("✅ Intel locked!")
+                st.session_state.documents_processed = False
+                st.rerun()
+        with c2:
+            if st.button("🔄 WEAPONIZE NOW", use_container_width=True, type="primary", key="process_main_files"):
+                if process_documents(): st.balloons(); st.rerun()
+    
+    # Existing Documents
+    doc_files = get_document_files()
+    if doc_files:
+        st.markdown("### 📁 CURRENT ARSENAL")
+        with st.expander(f"Inspect {len(doc_files)} intel files", expanded=False):
+            for doc in doc_files:
+                doc_name = Path(doc).name
+                c1, c2 = st.columns([4, 1])
+                c1.markdown(f"🗡️ **{doc_name}**")
+                if c2.button("🗑️", key=f"delete_{doc_name}"):
+                    Path(doc).unlink(); st.rerun()
+    
+    st.divider()
+    
+    # Navigation Buttons Grid
+    st.markdown("## 🎯 MISSION OBJECTIVES")
+    nav_cols = st.columns(6)
+    pages = list(nav_options.keys())
+    for i in range(6):
+        with nav_cols[i]:
+            p_name = pages[i]
+            is_active = st.session_state.current_page == p_name
+            if st.button(f"{nav_options[p_name]}\n{p_name.upper()}", key=f"main_nav_{p_name}", use_container_width=True, type="primary" if is_active else "secondary"):
+                st.session_state.current_page = p_name
+                st.rerun()
+    
+    st.markdown("<br>", unsafe_allow_html=True)
         
-        # Navigation Section (Moved below Upload)
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 15px; margin-bottom: 1rem; text-align: center;">
-            <h2 style="color: white; margin: 0; font-size: 1.5rem;">🎯 Navigation</h2>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Make navigation buttons more visible
-        nav_options = {
-            "Home": "🏠",
-            "Flashcards": "📇",
-            "Quizzes": "📝",
-            "Revision Planner": "📅",
-            "Chat Assistant": "💬",
-            "Analytics": "📊"
-        }
-        
-        # Get current index for radio button
         current_index = 0
         if st.session_state.current_page in nav_options:
             current_index = list(nav_options.keys()).index(st.session_state.current_page)
         
         page = st.radio(
-            "Select Page",
+            "Select Objective",
             list(nav_options.keys()),
             format_func=lambda x: f"{nav_options[x]} {x}",
             index=current_index
         )
         
-        # Sync with main page navigation
         if page != st.session_state.current_page:
             st.session_state.current_page = page
             st.rerun()
         
-        st.markdown("---")
-        st.markdown("**💡 Tip:** Use the buttons above to quickly access Flashcards and Quizzes!")
+        st.divider()
+
+        # Arsenal (Uploader)
+        st.markdown("### 📚 ARSENAL (DOCS)")
+        uploaded_files = st.file_uploader(
+            "Load Intel",
+            type=['pdf', 'docx', 'doc', 'txt'],
+            accept_multiple_files=True,
+            key="sidebar_uploader",
+            label_visibility="collapsed"
+        )
+        
+        if uploaded_files:
+            st.session_state.uploaded_files_shared = uploaded_files
+            st.info(f"📁 {len(uploaded_files)} intel ready")
+        
+        files_to_process_sidebar = uploaded_files if uploaded_files else st.session_state.get('uploaded_files_shared')
+        
+        if files_to_process_sidebar:
+            docs_dir = ensure_documents_directory()
+            c1, c2 = st.columns(2)
+            with c1:
+                if st.button("💾 LOCK", use_container_width=True, key="sidebar_save"):
+                    saved = 0
+                    for f in files_to_process_sidebar:
+                        p = docs_dir / f.name
+                        if not p.exists():
+                            with open(p, "wb") as file: file.write(f.getbuffer())
+                            saved += 1
+                    if saved > 0:
+                        st.success(f"Locked {saved}!")
+                        st.session_state.documents_processed = False
+                        st.rerun()
+            with c2:
+                if st.button("🔄 ANALYZE", use_container_width=True, type="primary", key="sidebar_process"):
+                    if process_documents():
+                        st.balloons()
+                        st.rerun()
+        
+        if st.session_state.vector_store:
+            count = st.session_state.vector_store.get_collection_count()
+            st.metric("INTEL CHUNKS", count)
         
         st.divider()
-        
-        # Workflow Guide
-        with st.expander("📖 How It Works - Step by Step", expanded=False):
-            st.markdown("""
-            ### 🔄 AI Study Assistant Workflow
-            
-            **1️⃣ Upload Documents**
-            - Upload PDF, DOCX, or TXT files
-            - Multiple files can be uploaded at once
-            
-            **2️⃣ Text Extraction**
-            - System extracts text from PDFs
-            - Supports OCR for image-based documents
-            
-            **3️⃣ Chunking**
-            - Text is divided into manageable pieces
-            - Maintains context across chunks
-            
-            **4️⃣ Topic Classification**
-            - AI identifies topics and subtopics
-            - Organizes content for better learning
-            
-            **5️⃣ Embeddings**
-            - Creates semantic search vectors
-            - Enables intelligent content retrieval
-            
-            **6️⃣ Generate Content**
-            - **Flashcards**: Auto-generated Q/A pairs
-            - **Quizzes**: Adaptive practice tests
-            - **Planner**: Smart revision schedules
-            
-            **7️⃣ Chat & Learn**
-            - Ask questions about your materials
-            - Get answers with source citations
-            - Understand concepts better
-            
-            ---
-            **Quick Start:**
-            1. Upload → 2. Save → 3. Process → 4. Generate/Ask
-            """)
-        
-        st.divider()
+        st.image("https://pngimg.com/uploads/deadpool/deadpool_PNG43.png", width=150)
+        st.markdown("<p style='text-align:center; font-style:italic; color:#666;'>- Maximum Effort! -</p>", unsafe_allow_html=True)
     
-    # Upload Section in Main Dashboard - Moved Above Navigation
-    st.markdown("### 📤 Upload Your Study Materials")
+    # Hero / Banner Logic Refined
+    st.markdown("## 📤 ARSENAL UPLOAD")
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 20px; margin: 1rem 0; text-align: center; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);">
-        <h2 style="color: white; margin: 0 0 1rem 0; font-size: 2rem;">📤 Upload Your Study Materials</h2>
-        <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 1.1rem;">Upload PDF, DOCX, or TXT files to get started</p>
+    <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2rem; text-align: center;">
+        <h2 style="color: var(--deadpool-red); border: none; margin:0;">📤 LOAD YOUR INTEL</h2>
+        <p style="font-family: 'Oswald', sans-serif; font-size: 1.2rem; color: #fff;">Feed me your PDFs, DOCX, or Text notes!</p>
     </div>
     """, unsafe_allow_html=True)
     
-    # Upload area in main section - Synced with sidebar
-    if 'uploaded_files_shared' not in st.session_state:
-        st.session_state.uploaded_files_shared = None
-    
-    col1, col2 = st.columns([2, 1])
-    with col1:
+    col_up, col_img = st.columns([3, 1])
+    with col_up:
         uploaded_files_main = st.file_uploader(
-            "📎 Choose files to upload",
+            "📎 Choose intel files",
             type=['pdf', 'docx', 'doc', 'txt'],
             accept_multiple_files=True,
             key="main_uploader",
-            help="Select one or more study material files (PDF, DOCX, TXT)"
+            label_visibility="collapsed"
         )
-        # Sync with sidebar
         if uploaded_files_main:
             st.session_state.uploaded_files_shared = uploaded_files_main
-    with col2:
-        st.markdown("<br>", unsafe_allow_html=True)
-        if uploaded_files_main:
-            st.success(f"✅ {len(uploaded_files_main)} file(s) selected")
-        elif st.session_state.uploaded_files_shared:
-            st.info(f"📁 {len(st.session_state.uploaded_files_shared)} file(s) from sidebar")
     
-    # Use shared uploaded files if main uploader is empty but sidebar has files
-    files_to_process = uploaded_files_main if uploaded_files_main else st.session_state.uploaded_files_shared
+    with col_img:
+        st.image("https://pngimg.com/uploads/deadpool/deadpool_PNG10.png", width=120)
+
+    files_to_process = uploaded_files_main if uploaded_files_main else st.session_state.get('uploaded_files_shared')
     
-    # Save and Process buttons
     if files_to_process:
-        col1, col2, col3 = st.columns([1, 1, 2])
-        with col1:
-            if st.button("💾 Save Files", use_container_width=True, type="primary", key="save_main_files"):
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("💾 LOCK INTEL", use_container_width=True, key="save_main_files"):
                 docs_dir = ensure_documents_directory()
                 saved = 0
-                saved_files = []
-                for uploaded_file in files_to_process:
-                    file_path = docs_dir / uploaded_file.name
-                    if not file_path.exists():
-                        with open(file_path, "wb") as f:
-                            f.write(uploaded_file.getbuffer())
+                for f in files_to_process:
+                    p = docs_dir / f.name
+                    if not p.exists():
+                        with open(p, "wb") as file: file.write(f.getbuffer())
                         saved += 1
-                        saved_files.append(uploaded_file.name)
-                        # Track upload order
-                        if uploaded_file.name not in st.session_state.document_upload_order:
-                            st.session_state.document_upload_order.append(uploaded_file.name)
-                        else:
-                            # Move to end if already exists (re-upload)
-                            st.session_state.document_upload_order.remove(uploaded_file.name)
-                            st.session_state.document_upload_order.append(uploaded_file.name)
-                
                 if saved > 0:
-                    # Update latest document
-                    if saved_files:
-                        st.session_state.latest_document = saved_files[-1]  # Most recently saved
-                    st.success(f"✅ Saved {saved} document(s)!")
+                    st.success(f"✅ {saved} intel locked!")
                     st.session_state.documents_processed = False
-                    st.session_state.uploaded_files_shared = None  # Clear after saving
                     st.rerun()
-                else:
-                    st.info("Files already exist or no new files to save.")
-        
-        with col2:
-            if st.button("🔄 Process & Index", use_container_width=True, type="primary", key="process_main_files"):
-                # First save files if not saved
-                docs_dir = ensure_documents_directory()
-                saved_files = []
-                for uploaded_file in files_to_process:
-                    file_path = docs_dir / uploaded_file.name
-                    if not file_path.exists():
-                        with open(file_path, "wb") as f:
-                            f.write(uploaded_file.getbuffer())
-                        saved_files.append(uploaded_file.name)
-                        # Track upload order
-                        if uploaded_file.name not in st.session_state.document_upload_order:
-                            st.session_state.document_upload_order.append(uploaded_file.name)
-                        else:
-                            # Move to end if already exists (re-upload)
-                            st.session_state.document_upload_order.remove(uploaded_file.name)
-                            st.session_state.document_upload_order.append(uploaded_file.name)
-                
-                # Update latest document before processing
-                if saved_files:
-                    st.session_state.latest_document = saved_files[-1]
-                
-                # Then process
+        with c2:
+            if st.button("🔄 WEAPONIZE NOW", use_container_width=True, type="primary", key="process_main_files"):
                 if process_documents():
-                    st.session_state.uploaded_files_shared = None  # Clear after processing
+                    st.balloons()
                     st.rerun()
     
-    # Show existing documents
+    # Show existing arsenal
     doc_files = get_document_files()
     if doc_files:
-        st.markdown("### 📁 Your Documents")
-        with st.expander(f"View {len(doc_files)} uploaded document(s)", expanded=False):
+        st.markdown("### 📁 CURRENT ARSENAL")
+        with st.expander(f"Inspect {len(doc_files)} intel files", expanded=False):
             for doc in doc_files:
                 doc_name = Path(doc).name
-                col1, col2 = st.columns([3, 1])
-                with col1:
-                    st.markdown(f"📄 **{doc_name}**")
-                with col2:
-                    if st.button("🗑️", key=f"delete_{doc_name}", help=f"Delete {doc_name}"):
-                        try:
-                            Path(doc).unlink()
-                            st.success(f"Deleted {doc_name}")
-                            st.rerun()
-                        except Exception as e:
-                            st.error(f"Error: {e}")
+                c1, c2 = st.columns([4, 1])
+                c1.markdown(f"🗡️ **{doc_name}**")
+                if c2.button("🗑️", key=f"delete_{doc_name}"):
+                    Path(doc).unlink()
+                    st.rerun()
     
-    st.markdown("---")
+    st.divider()
     
-    # Navigation Buttons - Below Upload Section
-    st.markdown("### 🎯 Navigation")
-    nav_options = {
-        "Home": "🏠",
-        "Flashcards": "📇",
-        "Quizzes": "📝",
-        "Revision Planner": "📅",
-        "Chat Assistant": "💬",
-        "Analytics": "📊"
-    }
-    
-    # Create navigation buttons in a grid - Always visible
+    # Navigation GRID
+    st.markdown("## 🎯 MISSION OBJECTIVES")
     nav_cols = st.columns(6)
-    for idx, (page_name, icon) in enumerate(nav_options.items()):
-        with nav_cols[idx]:
-            button_type = "primary" if st.session_state.current_page == page_name else "secondary"
-            nav_button = st.button(f"{icon}\n{page_name}", use_container_width=True, key=f"main_nav_{page_name}", type=button_type)
-            if nav_button:
-                st.session_state.current_page = page_name
+    pages = list(nav_options.keys())
+    for i in range(6):
+        with nav_cols[i]:
+            p_name = pages[i]
+            is_active = st.session_state.current_page == p_name
+            if st.button(f"{nav_options[p_name]}\n{p_name.upper()}", key=f"main_nav_{p_name}", use_container_width=True, type="primary" if is_active else "secondary"):
+                st.session_state.current_page = p_name
                 st.rerun()
     
     st.markdown("<br>", unsafe_allow_html=True)
@@ -1099,10 +1016,12 @@ def main():
     elif st.session_state.current_page == "Analytics":
         show_analytics_page()
 
-    # Footer
+    # Footer with Sticker
     st.markdown("""
     <div style="text-align: center; margin-top: 5rem; padding: 2rem; border-top: 4px solid var(--deadpool-red); background: #000;">
+        <img src="https://pngimg.com/uploads/deadpool/deadpool_PNG43.png" width="200" style="margin-bottom: 1rem;">
         <p style="color: #fff; font-family: 'Oswald', sans-serif; font-size: 0.9rem; margin: 0;">© 2025 Deadpool's Study Hub. No regenerating degenerates allowed.</p>
+        <h3 style="color: var(--deadpool-red); margin-top: 1rem;">💀 MAXIMUM EFFORT! ⚔️</h3>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1129,10 +1048,12 @@ def show_home_page():
         with col1:
             st.markdown("""
             <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(-1deg);">
+                <img src="https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-1.png" width="80" style="float: right;">
                 <h3 style="font-size: 2.2rem;">1️⃣ LOAD UP</h3>
                 <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Drop your PDFs, DOCX, or Text notes into the feed. Don't worry, I won't bite... much.</p>
             </div>
             <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(1deg);">
+                <img src="https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-3.png" width="80" style="float: right;">
                 <h3 style="font-size: 2.2rem;">3️⃣ EXTRACT</h3>
                 <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'Process'</b>. My agents will slice and dice your text into pure semantic gold.</p>
             </div>
@@ -1140,10 +1061,12 @@ def show_home_page():
         with col2:
             st.markdown("""
             <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(1deg);">
+                <img src="https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-2.png" width="80" style="float: right;">
                 <h3 style="font-size: 2.2rem;">2️⃣ LOCK & LOAD</h3>
                 <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'Save'</b> to commit those files to my infinite memory banks.</p>
             </div>
             <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(-1deg);">
+                <img src="https://clipart-library.com/images_k/deadpool-transparent-background/deadpool-transparent-background-4.png" width="80" style="float: right;">
                 <h3 style="font-size: 2.2rem;">4️⃣ DOMINATE</h3>
                 <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now ready for total destruction.</p>
             </div>
