@@ -940,48 +940,6 @@ def main():
 
 def show_home_page():
     """Home page with overview"""
-    st.markdown("### 🏠 Welcome to Your Study Assistant")
-    
-    # Workflow Guide Section on Main Page
-    with st.expander("📖 How It Works - Complete Workflow", expanded=True):
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 2rem; border-radius: 15px; border: 1px solid rgba(102, 126, 234, 0.3);">
-            <h3 style="color: #667eea; margin-top: 0;">🔄 AI Study Assistant Workflow</h3>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Visual workflow steps
-        workflow_steps = [
-            ("📤 Upload", "PDF/Image/Text Upload", "Upload your study materials (PDF, DOCX, TXT)"),
-            ("📄 Extract", "Text Extraction", "System extracts text from PDFs or uses OCR for images"),
-            ("✂️ Chunk", "Text Chunking", "Text is divided into manageable pieces while preserving context"),
-            ("🏷️ Classify", "Topic Classification", "AI identifies topics and subtopics using LLM"),
-            ("🔍 Embed", "Create Embeddings", "Generates semantic search vectors for intelligent retrieval"),
-            ("✨ Generate", "Flashcards, Quiz, Planner", "Auto-generate study materials based on your content"),
-            ("💬 Chat", "Ask Questions", "Get answers with source citations for better understanding")
-        ]
-        
-        for i, (icon, title, desc) in enumerate(workflow_steps, 1):
-            col1, col2 = st.columns([1, 10])
-            with col1:
-                st.markdown(f"### {icon}")
-            with col2:
-                st.markdown(f"**{i}. {title}** - {desc}")
-                if i < len(workflow_steps):
-                    st.markdown("⬇️")
-        
-        st.markdown("---")
-        st.markdown("""
-        ### 🚀 Quick Start Guide
-        
-        1. **Upload** your study materials (PDF, DOCX, or TXT files)
-        2. **Save** the files to your document library
-        3. **Process** to extract, chunk, and index the content
-        4. **Generate** flashcards, quizzes, or create a revision plan
-        5. **Chat** to ask questions and get instant answers
-        
-        **💡 Pro Tip:** The most recently uploaded document gets priority in searches!
-        """)
     
     # Show processing results if available
     if st.session_state.documents_processed and 'processing_results' in st.session_state:
@@ -1049,6 +1007,48 @@ def show_home_page():
         st.markdown("---")
     
     if not st.session_state.documents_processed:
+        # Show Welcome & Workflow Guide at the top ONLY if nothing is processed yet
+        st.markdown("### 🏠 Welcome to Your Study Assistant")
+        with st.expander("📖 How It Works - Complete Workflow", expanded=True):
+            st.markdown("""
+            <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 2rem; border-radius: 15px; border: 1px solid rgba(102, 126, 234, 0.3);">
+                <h3 style="color: #667eea; margin-top: 0;">🔄 AI Study Assistant Workflow</h3>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Visual workflow steps
+            workflow_steps = [
+                ("📤 Upload", "PDF/Image/Text Upload", "Upload your study materials (PDF, DOCX, TXT)"),
+                ("📄 Extract", "Text Extraction", "System extracts text from PDFs or uses OCR for images"),
+                ("✂️ Chunk", "Text Chunking", "Text is divided into manageable pieces while preserving context"),
+                ("🏷️ Classify", "Topic Classification", "AI identifies topics and subtopics using LLM"),
+                ("🔍 Embed", "Create Embeddings", "Generates semantic search vectors for intelligent retrieval"),
+                ("✨ Generate", "Flashcards, Quiz, Planner", "Auto-generate study materials based on your content"),
+                ("💬 Chat", "Ask Questions", "Get answers with source citations for better understanding")
+            ]
+            
+            for i, (icon, title, desc) in enumerate(workflow_steps, 1):
+                col1, col2 = st.columns([1, 10])
+                with col1:
+                    st.markdown(f"### {icon}")
+                with col2:
+                    st.markdown(f"**{i}. {title}** - {desc}")
+                    if i < len(workflow_steps):
+                        st.markdown("⬇️")
+            
+            st.markdown("---")
+            st.markdown("""
+            ### 🚀 Quick Start Guide
+            
+            1. **Upload** your study materials (PDF, DOCX, or TXT files)
+            2. **Save** the files to your document library
+            3. **Process** to extract, chunk, and index the content
+            4. **Generate** flashcards, quizzes, or create a revision plan
+            5. **Chat** to ask questions and get instant answers
+            
+            **💡 Pro Tip:** The most recently uploaded document gets priority in searches!
+            """)
+
         if not st.session_state.get('uploaded_files_shared'):
             st.info("👆 Upload your study materials above to get started!")
         return
@@ -1120,6 +1120,49 @@ def show_home_page():
             st.metric("Quizzes", stats['total_quizzes'])
         with col4:
             st.metric("Completion", f"{stats['revision_stats']['completion_rate']:.1f}%")
+
+    # MOVE WELCOME & GUIDE TO THE END if documents are already processed
+    st.divider()
+    st.markdown("### 🏠 Welcome to Your Study Assistant")
+    with st.expander("📖 How It Works - Complete Workflow", expanded=False):
+        st.markdown("""
+        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 2rem; border-radius: 15px; border: 1px solid rgba(102, 126, 234, 0.3);">
+            <h3 style="color: #667eea; margin-top: 0;">🔄 AI Study Assistant Workflow</h3>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Visual workflow steps
+        workflow_steps = [
+            ("📤 Upload", "PDF/Image/Text Upload", "Upload your study materials (PDF, DOCX, TXT)"),
+            ("📄 Extract", "Text Extraction", "System extracts text from PDFs or uses OCR for images"),
+            ("✂️ Chunk", "Text Chunking", "Text is divided into manageable pieces while preserving context"),
+            ("🏷️ Classify", "Topic Classification", "AI identifies topics and subtopics using LLM"),
+            ("🔍 Embed", "Create Embeddings", "Generates semantic search vectors for intelligent retrieval"),
+            ("✨ Generate", "Flashcards, Quiz, Planner", "Auto-generate study materials based on your content"),
+            ("💬 Chat", "Ask Questions", "Get answers with source citations for better understanding")
+        ]
+        
+        for i, (icon, title, desc) in enumerate(workflow_steps, 1):
+            col1, col2 = st.columns([1, 10])
+            with col1:
+                st.markdown(f"### {icon}")
+            with col2:
+                st.markdown(f"**{i}. {title}** - {desc}")
+                if i < len(workflow_steps):
+                    st.markdown("⬇️")
+        
+        st.markdown("---")
+        st.markdown("""
+        ### 🚀 Quick Start Guide
+        
+        1. **Upload** your study materials (PDF, DOCX, or TXT files)
+        2. **Save** the files to your document library
+        3. **Process** to extract, chunk, and index the content
+        4. **Generate** flashcards, quizzes, or create a revision plan
+        5. **Chat** to ask questions and get instant answers
+        
+        **💡 Pro Tip:** The most recently uploaded document gets priority in searches!
+        """)
 
 def show_flashcards_page():
     """Flashcards page"""
