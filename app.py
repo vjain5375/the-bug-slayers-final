@@ -143,206 +143,178 @@ if 'num_questions' not in st.session_state:
 if 'last_processed_signature' not in st.session_state:
     st.session_state.last_processed_signature = None
 
-# Load CSS (Deadpool Theme)
+# Load CSS (Premium Deadpool Comic Theme)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@400;700&display=swap');
 
     :root {
-        --deadpool-red: #e62429;
-        --deadpool-black: #111111;
-        --deadpool-dark-red: #8b0000;
-        --comic-white: #ffffff;
+        --deadpool-red: #E62429;
+        --deadpool-black: #000000;
+        --deadpool-dark-red: #8B0000;
+        --comic-white: #FFFFFF;
+        --comic-border: 4px solid #000000;
     }
 
+    /* Global Overrides */
     .stApp {
         background-color: var(--deadpool-black);
         color: var(--comic-white);
         font-family: 'Oswald', sans-serif;
     }
 
-    /* Comic Book Background Pattern */
+    /* Comic Grid Background */
     .stApp::before {
         content: "";
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        top: 0; left: 0; width: 100%; height: 100%;
         background-image: 
-            radial-gradient(circle, rgba(230, 36, 41, 0.05) 1px, transparent 1px);
-        background-size: 20px 20px;
+            linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
+            url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+        background-attachment: fixed;
         z-index: -1;
     }
 
-    /* Custom Header Styling */
+    /* Header Styling */
     header[data-testid="stHeader"] {
         background-color: var(--deadpool-red) !important;
-        border-bottom: 4px solid var(--deadpool-black);
+        border-bottom: 5px solid #000 !important;
     }
 
-    /* Navigation Bar Emulation */
-    .nav-container {
-        background: var(--deadpool-red);
-        padding: 0.5rem 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 4px solid #000;
-        position: sticky;
-        top: 0;
-        z-index: 999;
+    /* Sidebar Styling */
+    [data-testid="stSidebar"] {
+        background-color: #111 !important;
+        border-right: 5px solid var(--deadpool-red) !important;
     }
 
-    /* Hero Section */
-    .hero-banner {
-        background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover;
-        padding: 5rem 2rem;
-        border-radius: 0 0 50px 50px;
-        text-align: center;
-        border: 8px solid #000;
-        margin-bottom: 2rem;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .hero-banner::after {
-        content: "";
-        position: absolute;
-        top: 0; left: 0; right: 0; bottom: 0;
-        background: rgba(0,0,0,0.6);
-        z-index: 1;
-    }
-
-    .hero-content {
-        position: relative;
-        z-index: 2;
-    }
-
-    .hero-title {
-        font-family: 'Bangers', cursive;
-        font-size: 5rem !important;
-        color: var(--deadpool-red) !important;
-        text-shadow: 4px 4px 0px #000, -2px -2px 0px #fff;
-        margin-bottom: 0.5rem;
-        letter-spacing: 2px;
-    }
-
-    .hero-subtitle {
-        font-size: 1.8rem !important;
-        color: #fff !important;
-        font-weight: 700;
-        text-transform: uppercase;
-        background: rgba(0,0,0,0.8);
-        display: inline-block;
-        padding: 0.5rem 2rem;
-        transform: skew(-10deg);
-        border: 3px solid var(--deadpool-red);
-    }
-
-    /* Cards and Containers */
-    .css-1r6slb0, .stVerticalBlock > div > div {
-        background: #1a1a1a;
-        border: 3px solid #000;
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 8px 8px 0px #000;
-    }
-
-    /* Buttons */
+    /* Uniform Comic Buttons */
     .stButton > button {
         font-family: 'Bangers', cursive !important;
         background-color: var(--deadpool-red) !important;
         color: white !important;
-        font-size: 1.5rem !important;
-        border: 3px solid #000 !important;
+        font-size: 1.4rem !important;
+        border: 4px solid #000 !important;
         border-radius: 0px !important;
-        padding: 0.5rem 2rem !important;
-        box-shadow: 4px 4px 0px #000 !important;
+        padding: 0.8rem 1.5rem !important;
+        box-shadow: 6px 6px 0px #000 !important;
         text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        width: 100% !important;
+        min-height: 70px !important;
+        height: auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        white-space: normal !important;
+        word-wrap: break-word !important;
+        line-height: 1.2 !important;
+        margin-bottom: 10px !important;
+    }
+
+    /* Navigation Buttons Specific Style - Fix for uniformity */
+    [data-testid="stHorizontalBlock"] div div div .stButton > button {
+        height: 100px !important; 
+        font-size: 1.2rem !important;
     }
 
     .stButton > button:hover {
-        background-color: #ff3e43 !important;
-        transform: translate(-2px, -2px);
-        box-shadow: 6px 6px 0px #000 !important;
+        background-color: #FF3B3F !important;
+        transform: translate(-3px, -3px) !important;
+        box-shadow: 9px 9px 0px #000 !important;
+        border-color: #000 !important;
     }
 
     .stButton > button:active {
-        transform: translate(2px, 2px);
+        transform: translate(3px, 3px) !important;
         box-shadow: 2px 2px 0px #000 !important;
     }
 
     /* Primary Actions */
     .stButton > button[kind="primary"] {
-        background-color: #000 !important;
+        background-color: var(--deadpool-black) !important;
         border-color: var(--deadpool-red) !important;
+        color: var(--deadpool-red) !important;
+    }
+    
+    .stButton > button[kind="primary"]:hover {
+        background-color: var(--deadpool-red) !important;
+        color: white !important;
     }
 
-    /* Inputs */
-    .stTextInput input, .stTextArea textarea {
-        background-color: #222 !important;
-        border: 3px solid #000 !important;
-        color: #fff !important;
+    /* Comic Panels (Cards) */
+    .stVerticalBlock > div > div {
+        background: #1A1A1A !important;
+        border: 5px solid #000 !important;
         border-radius: 0px !important;
+        padding: 2rem !important;
+        box-shadow: 12px 12px 0px var(--deadpool-red) !important;
+        margin-bottom: 2.5rem !important;
     }
 
     /* Metrics */
     [data-testid="stMetric"] {
-        background: var(--deadpool-red);
-        border: 3px solid #000;
-        padding: 1rem;
-        border-radius: 10px;
-        text-align: center;
+        background: #000 !important;
+        border: 4px solid var(--deadpool-red) !important;
+        padding: 1.5rem !important;
+        box-shadow: 8px 8px 0px #000 !important;
     }
 
     [data-testid="stMetricLabel"] {
-        color: #000 !important;
-        font-weight: 900 !important;
-        text-transform: uppercase;
+        color: var(--deadpool-red) !important;
+        font-family: 'Bangers', cursive !important;
+        font-size: 1.5rem !important;
     }
 
     [data-testid="stMetricValue"] {
         color: #fff !important;
-        font-family: 'Bangers', cursive;
-        font-size: 2.5rem !important;
+        font-family: 'Bangers', cursive !important;
+        font-size: 3rem !important;
     }
 
-    /* Sidebar */
-    [data-testid="stSidebar"] {
-        background-color: #000 !important;
-        border-right: 5px solid var(--deadpool-red);
+    /* Inputs */
+    .stTextInput input, .stTextArea textarea, .stFileUploader {
+        background-color: #222 !important;
+        border: 4px solid #000 !important;
+        color: #fff !important;
+        font-size: 1.1rem !important;
+        border-radius: 0px !important;
     }
 
-    .sidebar-title {
-        font-family: 'Bangers', cursive;
-        font-size: 2rem;
-        color: var(--deadpool-red);
-        text-align: center;
-        margin-bottom: 2rem;
+    /* Expanders */
+    .streamlit-expanderHeader {
+        font-family: 'Bangers', cursive !important;
+        font-size: 1.4rem !important;
+        background: #000 !important;
+        color: var(--deadpool-red) !important;
+        border: 3px solid #000 !important;
     }
 
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-        width: 12px;
-    }
-    ::-webkit-scrollbar-track {
-        background: #000;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: var(--deadpool-red);
-        border: 3px solid #000;
+    /* Markdown Text */
+    h1, h2, h3 {
+        font-family: 'Bangers', cursive !important;
+        text-transform: uppercase !important;
+        letter-spacing: 2px !important;
     }
 
-    /* Animated Halftone Overlay */
+    h1 { color: var(--deadpool-red) !important; font-size: 4rem !important; text-shadow: 4px 4px 0px #000 !important; }
+    h2 { color: #fff !important; font-size: 2.5rem !important; border-bottom: 5px solid var(--deadpool-red); display: inline-block; margin-bottom: 1.5rem !important; }
+    h3 { color: var(--deadpool-red) !important; }
+
+    /* Custom Halftone Overlay */
     .halftone {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
-        background-image: radial-gradient(#000 1px, transparent 0);
-        background-size: 4px 4px;
-        opacity: 0.1;
+        background-image: radial-gradient(circle, #000 1px, transparent 1px);
+        background-size: 6px 6px;
+        opacity: 0.15;
         pointer-events: none;
         z-index: 1000;
+    }
+    
+    /* Better spacing for main content */
+    .main .block-container {
+        padding-top: 3rem !important;
+        max-width: 1200px !important;
     }
 </style>
 <div class="halftone"></div>
@@ -777,10 +749,10 @@ def main():
     
     # Deadpool Branding Header
     st.markdown("""
-    <div style="text-align: center; margin-bottom: 3rem;">
-        <h1 class="hero-title">⚡ DEADPOOL'S STUDY HUB</h1>
-        <div style="background: var(--deadpool-red); height: 8px; width: 200px; margin: 0 auto 1rem auto; border: 3px solid #000;"></div>
-        <p style="font-size: 1.5rem; color: #fff; font-weight: 700; text-transform: uppercase;">Weaponizing your documents for maximum learning effort!</p>
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-family: 'Bangers', cursive; font-size: 5rem; color: var(--deadpool-red); text-shadow: 6px 6px 0px #000; margin: 0;">⚡ DEADPOOL'S STUDY HUB</h1>
+        <div style="background: var(--deadpool-red); height: 10px; width: 300px; margin: 1rem auto; border: 4px solid #000; box-shadow: 4px 4px 0px #000;"></div>
+        <p style="font-family: 'Bangers', cursive; font-size: 1.8rem; color: #fff; letter-spacing: 1px;">WEAPONIZING YOUR DOCUMENTS FOR MAXIMUM LEARNING EFFORT!</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -1137,66 +1109,68 @@ def main():
 def show_home_page():
     """Deadpool-themed Home page with high-impact visuals"""
     
-    # Hero Section with Deadpool Action
+    # Hero Section with Deadpool Action Grid Style
     st.markdown("""
-    <div class="hero-banner">
-        <div class="hero-content">
-            <h1 class="hero-title">Turn Your Docs into Weaponized Knowledge!</h1>
-            <p class="hero-subtitle">Upload, Analyze, Conquer with Flashcards, Quizzes & Smart Planners.</p>
+    <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 6rem 2rem; border: 8px solid #000; box-shadow: 15px 15px 0px var(--deadpool-red); text-align: center; margin-bottom: 4rem; position: relative;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5);"></div>
+        <div style="position: relative; z-index: 2;">
+            <h1 style="font-family: 'Bangers', cursive; color: var(--deadpool-red); font-size: 4rem; text-shadow: 6px 6px 0px #000; margin: 0;">Turn Your Docs into Weaponized Knowledge!</h1>
+            <p style="font-family: 'Bangers', cursive; color: #fff; font-size: 1.8rem; background: #000; display: inline-block; padding: 0.5rem 2rem; transform: skew(-10deg); margin-top: 1.5rem; border: 3px solid var(--deadpool-red);">Upload, Analyze, Conquer with Flashcards, Quizzes & Smart Planners.</p>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
     # CASE 1: NEW USER EXPERIENCE (High-Impact Onboarding)
     if not st.session_state.documents_processed:
-        st.markdown("<h2 style='font-family: Bangers; font-size: 3rem; color: var(--deadpool-red); text-align: center;'>⚔️ YOUR MISSION OBJECTIVES</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center;'>⚔️ YOUR MISSION OBJECTIVES</h2>", unsafe_allow_html=True)
         
         # Journey Cards with Comic Borders
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("""
-            <div style="background: #111; padding: 1.5rem; border: 4px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2rem; transform: rotate(-1deg);">
-                <h3 style="font-family: Bangers; color: var(--deadpool-red); font-size: 2rem;">1️⃣ LOAD UP</h3>
-                <p style="color: #fff; font-size: 1.1rem; font-weight: 600;">Drop your PDFs, DOCX, or Text notes into the feed. Don't worry, I won't bite... much.</p>
+            <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(-1deg);">
+                <h3 style="font-size: 2.2rem;">1️⃣ LOAD UP</h3>
+                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Drop your PDFs, DOCX, or Text notes into the feed. Don't worry, I won't bite... much.</p>
             </div>
-            <div style="background: #111; padding: 1.5rem; border: 4px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2rem; transform: rotate(1deg);">
-                <h3 style="font-family: Bangers; color: var(--deadpool-red); font-size: 2rem;">3️⃣ EXTRACT</h3>
-                <p style="color: #fff; font-size: 1.1rem; font-weight: 600;">Hit <b>'Process'</b>. My agents will slice and dice your text into pure semantic gold.</p>
+            <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(1deg);">
+                <h3 style="font-size: 2.2rem;">3️⃣ EXTRACT</h3>
+                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'Process'</b>. My agents will slice and dice your text into pure semantic gold.</p>
             </div>
             """, unsafe_allow_html=True)
         with col2:
             st.markdown("""
-            <div style="background: #111; padding: 1.5rem; border: 4px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2rem; transform: rotate(1deg);">
-                <h3 style="font-family: Bangers; color: var(--deadpool-red); font-size: 2rem;">2️⃣ LOCK & LOAD</h3>
-                <p style="color: #fff; font-size: 1.1rem; font-weight: 600;">Hit <b>'Save'</b> to commit those files to my infinite memory banks.</p>
+            <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(1deg);">
+                <h3 style="font-size: 2.2rem;">2️⃣ LOCK & LOAD</h3>
+                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'Save'</b> to commit those files to my infinite memory banks.</p>
             </div>
-            <div style="background: #111; padding: 1.5rem; border: 4px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2rem; transform: rotate(-1deg);">
-                <h3 style="font-family: Bangers; color: var(--deadpool-red); font-size: 2rem;">4️⃣ DOMINATE</h3>
-                <p style="color: #fff; font-size: 1.1rem; font-weight: 600;">Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now ready for total destruction.</p>
+            <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(-1deg);">
+                <h3 style="font-size: 2.2rem;">4️⃣ DOMINATE</h3>
+                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now ready for total destruction.</p>
             </div>
             """, unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
-        st.image("https://media.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDI0LTA4L3Jhd3BpeGVsX29mZmljZV8zMl9kZWFkcG9vbF9jb21pY19zdHlsZV9pbGx1c3RyYXRpb25fXzU4OWQwMzc0LWIzZTUtNDQzOS1iZmUwLTNhYTIxNGFjYzRiOV8xLmpwZw.jpg", use_container_width=True)
+        # Add the thumbs up Deadpool image
+        st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", use_container_width=True)
         
         return
 
     # CASE 2: RETURNING USER (Pro Dashboard)
-    st.markdown("<h2 style='font-family: Bangers; font-size: 3rem; color: var(--deadpool-red);'>⚡ COMMAND CENTER</h2>", unsafe_allow_html=True)
+    st.markdown("<h2>⚡ COMMAND CENTER</h2>", unsafe_allow_html=True)
     
     # 1. High-Impact Quick Access
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        if st.button("📇 **CARDS**\n\nMAX EFFORT", use_container_width=True, type="primary", key="dash_flash"):
+        if st.button("📇 **CARDS**\n\nMAX EFFORT", use_container_width=True, key="dash_flash"):
             st.session_state.current_page = "Flashcards"; st.rerun()
     with col2:
-        if st.button("📝 **QUIZ**\n\nNO MERCY", use_container_width=True, type="primary", key="dash_quiz"):
+        if st.button("📝 **QUIZ**\n\nNO MERCY", use_container_width=True, key="dash_quiz"):
             st.session_state.current_page = "Quizzes"; st.rerun()
     with col3:
-        if st.button("📅 **PLAN**\n\nTACTICAL", use_container_width=True, type="primary", key="dash_plan"):
+        if st.button("📅 **PLAN**\n\nTACTICAL", use_container_width=True, key="dash_plan"):
             st.session_state.current_page = "Revision Planner"; st.rerun()
     with col4:
-        if st.button("💬 **CHAT**\n\nINTEL", use_container_width=True, type="primary", key="dash_chat"):
+        if st.button("💬 **CHAT**\n\nINTEL", use_container_width=True, key="dash_chat"):
             st.session_state.current_page = "Chat Assistant"; st.rerun()
     
     st.markdown("<br>", unsafe_allow_html=True)
@@ -1204,7 +1178,7 @@ def show_home_page():
     # 2. Performance Stats
     if st.session_state.agent_controller:
         stats = st.session_state.agent_controller.get_statistics()
-        st.markdown("<h3 style='font-family: Bangers; color: #fff;'>📊 MISSION INTEL</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 style='color: #fff;'>📊 MISSION INTEL</h3>", unsafe_allow_html=True)
         c1, c2, c3, c4 = st.columns(4)
         with c1: st.metric("TOPICS", stats['total_topics'])
         with c2: st.metric("FLASHCARDS", stats['total_flashcards'])
@@ -1220,34 +1194,38 @@ def show_home_page():
         
         with col_topics:
             if result.get('topics'):
-                st.markdown("<h3 style='font-family: Bangers; color: var(--deadpool-red);'>📚 WEAPONIZED TOPICS</h3>", unsafe_allow_html=True)
+                st.markdown("<h3>📚 WEAPONIZED TOPICS</h3>", unsafe_allow_html=True)
                 for idx, topic_data in enumerate(result['topics'][:5], 1):
                     with st.expander(f"🔴 {topic_data.get('topic', 'Topic').upper()}", expanded=(idx == 1)):
                         if topic_data.get('key_points'):
                             for p in topic_data['key_points'][:3]: st.markdown(f"⚔️ {p}")
         
         with col_samples:
-            st.markdown("<h3 style='font-family: Bangers; color: #fff;'>📄 INTEL SNAPS</h3>", unsafe_allow_html=True)
+            st.markdown("<h3 style='color: #fff;'>📄 INTEL SNAPS</h3>", unsafe_allow_html=True)
             if result.get('chunks'):
                 for chunk in result['chunks'][:2]:
                     st.markdown(f"""
-                    <div style="background: #222; padding: 1rem; border: 2px solid var(--deadpool-red); border-radius: 5px; font-size: 0.9rem; margin-bottom: 0.5rem; color: #eee; font-style: italic;">
+                    <div style="background: #222; padding: 1.5rem; border: 3px solid var(--deadpool-red); border-radius: 0px; font-size: 1rem; margin-bottom: 1rem; color: #eee; font-style: italic; box-shadow: 5px 5px 0px #000;">
                         "{chunk['text'][:150]}..."
                     </div>
                     """, unsafe_allow_html=True)
+
+    # Thumbs up Deadpool at the bottom for returning users too
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=300)
 
     # 4. Deadpool Footer EXPANDER
     st.markdown("<br><br>", unsafe_allow_html=True)
     with st.expander("💀 THE CHIMICHANGA MANUAL (HELP)", expanded=False):
         st.markdown("""
-        <div style="padding: 1.5rem; background: #111; border: 3px solid var(--deadpool-red); border-radius: 10px;">
-            <h4 style="font-family: Bangers; color: var(--deadpool-red); font-size: 1.8rem;">DON'T BE A DEGENERATE:</h4>
-            <ul style="color: #fff; font-size: 1.1rem;">
+        <div style="padding: 2rem; background: #111; border: 5px solid var(--deadpool-red); border-radius: 0px; box-shadow: 10px 10px 0px #000;">
+            <h4 style="font-family: 'Bangers', cursive; color: var(--deadpool-red); font-size: 2.5rem; margin-top: 0;">DON'T BE A DEGENERATE:</h4>
+            <ul style="color: #fff; font-size: 1.3rem; font-family: 'Oswald', sans-serif;">
                 <li><b>RELOAD:</b> Put new files in the side-slot and hit 'Process' to reload your arsenal.</li>
                 <li><b>EXTRACT:</b> Anki and CSV buttons are in the Cards/Quiz zones. Use 'em.</li>
                 <li><b>EFFORT:</b> If the AI is slow, it's probably thinking about tacos. Give it a sec.</li>
             </ul>
-            <p style="text-align: right; font-style: italic; color: var(--deadpool-red);">- Deadpool Out.</p>
+            <p style="text-align: right; font-style: italic; color: var(--deadpool-red); font-family: 'Bangers', cursive; font-size: 1.5rem;">- Deadpool Out.</p>
         </div>
         """, unsafe_allow_html=True)
 
