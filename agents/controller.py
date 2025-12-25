@@ -60,32 +60,6 @@ class KnowledgeMemory:
                 # This would need topic info from questions
                 pass
     
-    def get_topic_chunks(self, topic: str) -> List[Dict]:
-        """Get all chunks for a specific topic, fallback to vector store if memory empty"""
-        # Try memory first
-        chunks = [
-            chunk for chunk in self.chunks
-            if chunk.get('metadata', {}).get('topic', '').lower() == topic.lower()
-        ]
-        
-        # If no chunks in memory but we have a vector store, try to fetch from there
-        if not chunks and hasattr(self, 'vector_store') and self.vector_store:
-            try:
-                # Search for chunks related to this topic
-                results = self.vector_store.collection.get(
-                    where={"topic": topic}
-                )
-                if results and results['documents']:
-                    for i in range(len(results['documents'])):
-                        chunks.append({
-                            'text': results['documents'][i],
-                            'metadata': results['metadatas'][i]
-                        })
-            except Exception as e:
-                print(f"Error fetching topic chunks from vector store: {e}")
-                
-        return chunks
-    
     def get_all_topics(self) -> List[str]:
         """Get list of all unique topics"""
         topics = set()
@@ -112,6 +86,46 @@ class AgentController:
         
         # Vector store for semantic search
         self.vector_store = vector_store
+    
+    def get_topic_chunks(self, topic: str) -> List[Dict]:
+        """Get all chunks for a specific topic, with robust fallback to semantic search"""
+        # 1. Try memory first (exact match)
+        chunks = [
+            chunk for chunk in self.memory.chunks
+            if chunk.get('metadata', {}).get('topic', '').lower() == topic.lower()
+        ]
+        
+        # 2. If memory is empty, try exact metadata match in Vector Store
+        if not chunks and self.vector_store:
+            try:
+                results = self.vector_store.collection.get(
+                    where={"topic": topic}
+                )
+                if results and results['documents']:
+                    for i in range(len(results['documents'])):
+                        chunks.append({
+                            'text': results['documents'][i],
+                            'metadata': results['metadatas'][i]
+                        })
+            except Exception as e:
+                print(f"Error fetching exact topic chunks: {e}")
+
+        # 3. ROBUST FALLBACK: If still no chunks, perform a SEMANTIC SEARCH for the topic name
+        # This handles cases where the topic name in the plan differs slightly from metadata
+        if not chunks and self.vector_store:
+            try:
+                print(f"  → Falling back to semantic search for topic: {topic}")
+                search_results = self.vector_store.search(topic, n_results=8)
+                if search_results:
+                    for res in search_results:
+                        chunks.append({
+                            'text': res['text'],
+                            'metadata': res['metadata']
+                        })
+            except Exception as e:
+                print(f"Error in semantic topic fallback: {e}")
+                
+        return chunks
     
     def process_study_materials(self, directory_path: str) -> Dict:
         """
@@ -166,7 +180,7 @@ class AgentController:
         chunks = self.memory.chunks
         
         if topic:
-            chunks = self.memory.get_topic_chunks(topic)
+            chunks = self.get_topic_chunks(topic)
         
         flashcards = self.flashcard_agent.generate_flashcards(
             chunks,
