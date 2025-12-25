@@ -1383,10 +1383,6 @@ def show_planner_page():
             st.info("Click 'Create Revision Plan' to generate your schedule!")
     except Exception as e:
         st.info("Create a revision plan to get started!")
-        else:
-            st.info("Click 'Create Revision Plan' to generate your schedule!")
-    except Exception as e:
-        st.info("Create a revision plan to get started!")
 
 def show_chat_page():
     """Chat assistant page"""
