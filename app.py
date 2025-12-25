@@ -939,163 +939,113 @@ def main():
         show_analytics_page()
 
 def show_home_page():
-    """Home page with overview"""
+    """Home page with overview and instructions"""
     
-    # 1. If NO documents are processed, show the Welcome Guide at the TOP
+    # CASE 1: NEW USER (No documents processed yet)
     if not st.session_state.documents_processed:
-        st.markdown("### 🏠 Welcome to Your Study Assistant")
-        with st.expander("📖 How It Works - Complete Workflow", expanded=True):
+        st.markdown("""
+        <div style="background: rgba(102, 126, 234, 0.1); padding: 2rem; border-radius: 20px; border: 2px dashed rgba(102, 126, 234, 0.3); text-align: center; margin-bottom: 2rem;">
+            <h2 style="color: #667eea; margin-top: 0;">👋 Welcome! Let's Get Started</h2>
+            <p style="color: #e0e0e0; font-size: 1.1rem;">Follow the guide below to transform your study materials into interactive learning tools.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("### 📖 How to Use the AI Study Assistant")
+        with st.container():
+            # Detailed Instruction Guide for New Users
             st.markdown("""
             <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 2rem; border-radius: 15px; border: 1px solid rgba(102, 126, 234, 0.3);">
-                <h3 style="color: #667eea; margin-top: 0;">🔄 AI Study Assistant Workflow</h3>
+                <h3 style="color: #667eea; margin-top: 0;">🚀 4-Step Quick Start</h3>
+                <ol style="color: #e0e0e0; font-size: 1.1rem; line-height: 1.8;">
+                    <li><strong>Upload</strong>: Use the sidebar or the area above to select your PDF, DOCX, or TXT files.</li>
+                    <li><strong>Save</strong>: Click the <strong>"💾 Save"</strong> button to add them to your library.</li>
+                    <li><strong>Process</strong>: Click <strong>"🔄 Process & Index"</strong>. Our AI agents will read, chunk, and analyze your content.</li>
+                    <li><strong>Learn</strong>: Once processed, use the <strong>Dashboard</strong> to generate flashcards, take quizzes, or chat with your documents!</li>
+                </ol>
+                <hr style="border-color: rgba(102, 126, 234, 0.2);">
+                <p style="color: #b0b0b0; font-style: italic;">💡 <strong>Pro Tip:</strong> You can upload multiple files at once. The most recent upload gets priority in the Chat Assistant!</p>
             </div>
             """, unsafe_allow_html=True)
             
-            # Visual workflow steps
-            workflow_steps = [
-                ("📤 Upload", "PDF/Image/Text Upload", "Upload your study materials (PDF, DOCX, TXT)"),
-                ("📄 Extract", "Text Extraction", "System extracts text from PDFs or uses OCR for images"),
-                ("✂️ Chunk", "Text Chunking", "Text is divided into manageable pieces while preserving context"),
-                ("🏷️ Classify", "Topic Classification", "AI identifies topics and subtopics using LLM"),
-                ("🔍 Embed", "Create Embeddings", "Generates semantic search vectors for intelligent retrieval"),
-                ("✨ Generate", "Flashcards, Quiz, Planner", "Auto-generate study materials based on your content"),
-                ("💬 Chat", "Ask Questions", "Get answers with source citations for better understanding")
-            ]
-            
-            for i, (icon, title, desc) in enumerate(workflow_steps, 1):
-                col1, col2 = st.columns([1, 10])
-                with col1:
-                    st.markdown(f"### {icon}")
-                with col2:
-                    st.markdown(f"**{i}. {title}** - {desc}")
-                    if i < len(workflow_steps):
-                        st.markdown("⬇️")
-            
-            st.markdown("---")
-            st.markdown("""
-            ### 🚀 Quick Start Guide
-            
-            1. **Upload** your study materials (PDF, DOCX, or TXT files)
-            2. **Save** the files to your document library
-            3. **Process** to extract, chunk, and index the content
-            4. **Generate** flashcards, quizzes, or create a revision plan
-            5. **Chat** to ask questions and get instant answers
-            
-            **💡 Pro Tip:** The most recently uploaded document gets priority in searches!
-            """)
+            with st.expander("🔍 View Detailed AI Workflow", expanded=False):
+                workflow_steps = [
+                    ("📤 Upload", "PDF/Image/Text Ingestion", "Securely upload your study materials."),
+                    ("📄 Extract", "Smart Text Extraction", "Agents extract clean text, even from scanned PDFs using OCR."),
+                    ("✂️ Chunk", "Semantic Chunking", "Text is broken into logical pieces to preserve context for the AI."),
+                    ("🏷️ Classify", "Topic Discovery", "AI automatically identifies main topics and key points."),
+                    ("🔍 Embed", "Vector Indexing", "Content is indexed for fast, intelligent searching."),
+                    ("✨ Generate", "Learning Artefacts", "Auto-generate flashcards, quizzes, and revision plans."),
+                    ("💬 Chat", "Contextual Assistant", "Ask any question and get answers grounded in your specific documents.")
+                ]
+                for i, (icon, title, desc) in enumerate(workflow_steps, 1):
+                    st.markdown(f"**{i}. {icon} {title}** - {desc}")
+                    if i < len(workflow_steps): st.markdown("↓")
 
         if not st.session_state.get('uploaded_files_shared'):
-            st.info("👆 Upload your study materials above to get started!")
+            st.info("👆 **Start by uploading your files above!**")
         return
 
-    # 2. If documents ARE processed, show the DASHBOARD at the TOP
-    st.markdown("### 🚀 Quick Access Dashboard")
+    # CASE 2: RETURNING USER (Documents already processed)
+    st.markdown("### 🚀 Your Study Dashboard")
+    
+    # 1. Quick Access Grid
     col1, col2, col3, col4 = st.columns(4)
-    
     with col1:
-        if st.button("📇 **Flashcards**\n\nGenerate Q/A Cards", use_container_width=True, type="primary", key="quick_flashcards_home"):
-            st.session_state.current_page = "Flashcards"
-            st.rerun()
-    
+        if st.button("📇 **Flashcards**\n\nReview Concepts", use_container_width=True, type="primary", key="dash_flash"):
+            st.session_state.current_page = "Flashcards"; st.rerun()
     with col2:
-        if st.button("📝 **Quizzes**\n\nTake Practice Tests", use_container_width=True, type="primary", key="quick_quizzes_home"):
-            st.session_state.current_page = "Quizzes"
-            st.rerun()
-    
+        if st.button("📝 **Quizzes**\n\nTest Knowledge", use_container_width=True, type="primary", key="dash_quiz"):
+            st.session_state.current_page = "Quizzes"; st.rerun()
     with col3:
-        if st.button("📅 **Planner**\n\nRevision Schedule", use_container_width=True, type="primary", key="quick_planner_home"):
-            st.session_state.current_page = "Revision Planner"
-            st.rerun()
-    
+        if st.button("📅 **Planner**\n\nView Schedule", use_container_width=True, type="primary", key="dash_plan"):
+            st.session_state.current_page = "Revision Planner"; st.rerun()
     with col4:
-        if st.button("💬 **Chat**\n\nAsk Questions", use_container_width=True, type="primary", key="quick_chat_home"):
-            st.session_state.current_page = "Chat Assistant"
-            st.rerun()
+        if st.button("💬 **Chat**\n\nAsk Questions", use_container_width=True, type="primary", key="dash_chat"):
+            st.session_state.current_page = "Chat Assistant"; st.rerun()
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Show Statistics
+    # 2. Statistics
     if st.session_state.agent_controller:
         stats = st.session_state.agent_controller.get_statistics()
-        st.markdown("### 📊 Your Progress")
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("Topics", stats['total_topics'])
-        with col2:
-            st.metric("Flashcards", stats['total_flashcards'])
-        with col3:
-            st.metric("Quizzes", stats['total_quizzes'])
-        with col4:
-            st.metric("Completion", f"{stats['revision_stats']['completion_rate']:.1f}%")
+        st.markdown("#### 📊 Current Progress")
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Topics", stats['total_topics'])
+        c2.metric("Flashcards", stats['total_flashcards'])
+        c3.metric("Quizzes", stats['total_quizzes'])
+        c4.metric("Completion", f"{stats['revision_stats']['completion_rate']:.1f}%")
 
     st.divider()
 
-    # Show processing results (Topics & Chunks)
+    # 3. Content Overview (Topics & Key Points)
     if 'processing_results' in st.session_state:
         result = st.session_state.processing_results
-        
-        # Display Topics with Key Points
         if result.get('topics'):
-            st.markdown("### 📚 Extracted Topics & Key Points")
-            topics = result['topics']
-            
-            for idx, topic_data in enumerate(topics[:10], 1):
-                topic_name = topic_data.get('topic', f'Topic {idx}')
-                subtopics = topic_data.get('subtopics', [])
-                key_points = topic_data.get('key_points', [])
-                
-                with st.expander(f"📖 {idx}. {topic_name}", expanded=(idx == 1)):
-                    if subtopics:
-                        st.markdown("**Subtopics:**")
-                        for subtopic in subtopics[:5]:
-                            st.markdown(f"  • {subtopic}")
-                    
-                    if key_points:
+            st.markdown("### 📚 Study Material Overview")
+            for idx, topic_data in enumerate(result['topics'][:10], 1):
+                with st.expander(f"📖 {idx}. {topic_data.get('topic', 'Topic')}", expanded=(idx == 1)):
+                    if topic_data.get('subtopics'):
+                        st.markdown("**Subtopics:** " + ", ".join(topic_data['subtopics'][:5]))
+                    if topic_data.get('key_points'):
                         st.markdown("**Key Points:**")
-                        for point in key_points[:5]:
-                            st.markdown(f"  ✓ {point}")
-                    else:
-                        topic_chunks = [
-                            chunk for chunk in result.get('chunks', [])
-                            if chunk.get('metadata', {}).get('topic', '') == topic_name
-                        ]
-                        if topic_chunks:
-                            st.markdown("**Sample Content:**")
-                            for chunk in topic_chunks[:2]:
-                                chunk_text = chunk.get('text', '')[:200]
-                                if chunk_text:
-                                    st.markdown(f"  • {chunk_text}...")
+                        for p in topic_data['key_points'][:3]: st.markdown(f"- {p}")
         
-        # Display Sample Extracted Text/Chunks
         if result.get('chunks'):
-            with st.expander("📄 View Sample Extracted Chunks", expanded=False):
-                chunks_by_topic = {}
-                for chunk in result['chunks'][:20]:
-                    topic = chunk.get('metadata', {}).get('topic', 'General')
-                    if topic not in chunks_by_topic:
-                        chunks_by_topic[topic] = []
-                    chunks_by_topic[topic].append(chunk)
-                
-                for topic_name, topic_chunks in list(chunks_by_topic.items())[:5]:
-                    st.markdown(f"**📌 Topic: {topic_name}** ({len(topic_chunks)} chunks)")
-                    for i, chunk in enumerate(topic_chunks[:3], 1):
-                        chunk_text = chunk.get('text', '')
-                        source = chunk.get('metadata', {}).get('source', 'Unknown')
-                        st.markdown(f"  **Chunk {i}** (from {source}):")
-                        st.text(chunk_text[:300] + "..." if len(chunk_text) > 300 else chunk_text)
-                        st.markdown("---")
+            with st.expander("📄 View Text Samples", expanded=False):
+                st.info("Showing a few snippets from your documents.")
+                for chunk in result['chunks'][:3]:
+                    st.text(chunk['text'][:200] + "...")
 
-    # Finally, show the Workflow Guide at the BOTTOM as a reference
+    # 4. MOVE GUIDE TO THE BOTTOM for returning users
+    st.markdown("<br><br>", unsafe_allow_html=True)
     st.divider()
-    with st.expander("📖 Need Help? View Complete Workflow", expanded=False):
+    with st.expander("❓ Need a refresher on how to use the app?", expanded=False):
         st.markdown("""
-        <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 2rem; border-radius: 15px; border: 1px solid rgba(102, 126, 234, 0.3);">
-            <h3 style="color: #667eea; margin-top: 0;">🔄 AI Study Assistant Workflow</h3>
-        </div>
-        """, unsafe_allow_html=True)
-        # (Content remains the same but title is more descriptive for bottom placement)
-        st.markdown("""
-        1. **Upload** → 2. **Save** → 3. **Process** → 4. **Generate**
+        ### Quick Instructions:
+        1. **Upload & Save**: Add more files using the top section or sidebar.
+        2. **Process**: Always click 'Process' after adding new files.
+        3. **Navigate**: Use the dashboard buttons or sidebar to switch tools.
+        4. **Export**: Look for the 'Export' buttons in Flashcards and Quizzes to save your data!
         """)
 
 def show_flashcards_page():
