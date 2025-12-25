@@ -143,20 +143,209 @@ if 'num_questions' not in st.session_state:
 if 'last_processed_signature' not in st.session_state:
     st.session_state.last_processed_signature = None
 
-# Load CSS (simplified version - can be expanded)
+# Load CSS (Deadpool Theme)
 st.markdown("""
 <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@400;700&display=swap');
+
+    :root {
+        --deadpool-red: #e62429;
+        --deadpool-black: #111111;
+        --deadpool-dark-red: #8b0000;
+        --comic-white: #ffffff;
+    }
+
     .stApp {
-        background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+        background-color: var(--deadpool-black);
+        color: var(--comic-white);
+        font-family: 'Oswald', sans-serif;
     }
-    .main .block-container {
-        background: transparent;
-        padding-top: 2rem;
+
+    /* Comic Book Background Pattern */
+    .stApp::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+            radial-gradient(circle, rgba(230, 36, 41, 0.05) 1px, transparent 1px);
+        background-size: 20px 20px;
+        z-index: -1;
     }
-    h1, h2, h3 {
-        color: #e0e0e0 !important;
+
+    /* Custom Header Styling */
+    header[data-testid="stHeader"] {
+        background-color: var(--deadpool-red) !important;
+        border-bottom: 4px solid var(--deadpool-black);
+    }
+
+    /* Navigation Bar Emulation */
+    .nav-container {
+        background: var(--deadpool-red);
+        padding: 0.5rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 4px solid #000;
+        position: sticky;
+        top: 0;
+        z-index: 999;
+    }
+
+    /* Hero Section */
+    .hero-banner {
+        background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover;
+        padding: 5rem 2rem;
+        border-radius: 0 0 50px 50px;
+        text-align: center;
+        border: 8px solid #000;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-banner::after {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(0,0,0,0.6);
+        z-index: 1;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .hero-title {
+        font-family: 'Bangers', cursive;
+        font-size: 5rem !important;
+        color: var(--deadpool-red) !important;
+        text-shadow: 4px 4px 0px #000, -2px -2px 0px #fff;
+        margin-bottom: 0.5rem;
+        letter-spacing: 2px;
+    }
+
+    .hero-subtitle {
+        font-size: 1.8rem !important;
+        color: #fff !important;
+        font-weight: 700;
+        text-transform: uppercase;
+        background: rgba(0,0,0,0.8);
+        display: inline-block;
+        padding: 0.5rem 2rem;
+        transform: skew(-10deg);
+        border: 3px solid var(--deadpool-red);
+    }
+
+    /* Cards and Containers */
+    .css-1r6slb0, .stVerticalBlock > div > div {
+        background: #1a1a1a;
+        border: 3px solid #000;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 8px 8px 0px #000;
+    }
+
+    /* Buttons */
+    .stButton > button {
+        font-family: 'Bangers', cursive !important;
+        background-color: var(--deadpool-red) !important;
+        color: white !important;
+        font-size: 1.5rem !important;
+        border: 3px solid #000 !important;
+        border-radius: 0px !important;
+        padding: 0.5rem 2rem !important;
+        box-shadow: 4px 4px 0px #000 !important;
+        text-transform: uppercase !important;
+    }
+
+    .stButton > button:hover {
+        background-color: #ff3e43 !important;
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0px #000 !important;
+    }
+
+    .stButton > button:active {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0px #000 !important;
+    }
+
+    /* Primary Actions */
+    .stButton > button[kind="primary"] {
+        background-color: #000 !important;
+        border-color: var(--deadpool-red) !important;
+    }
+
+    /* Inputs */
+    .stTextInput input, .stTextArea textarea {
+        background-color: #222 !important;
+        border: 3px solid #000 !important;
+        color: #fff !important;
+        border-radius: 0px !important;
+    }
+
+    /* Metrics */
+    [data-testid="stMetric"] {
+        background: var(--deadpool-red);
+        border: 3px solid #000;
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    [data-testid="stMetricLabel"] {
+        color: #000 !important;
+        font-weight: 900 !important;
+        text-transform: uppercase;
+    }
+
+    [data-testid="stMetricValue"] {
+        color: #fff !important;
+        font-family: 'Bangers', cursive;
+        font-size: 2.5rem !important;
+    }
+
+    /* Sidebar */
+    [data-testid="stSidebar"] {
+        background-color: #000 !important;
+        border-right: 5px solid var(--deadpool-red);
+    }
+
+    .sidebar-title {
+        font-family: 'Bangers', cursive;
+        font-size: 2rem;
+        color: var(--deadpool-red);
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 12px;
+    }
+    ::-webkit-scrollbar-track {
+        background: #000;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: var(--deadpool-red);
+        border: 3px solid #000;
+    }
+
+    /* Animated Halftone Overlay */
+    .halftone {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-image: radial-gradient(#000 1px, transparent 0);
+        background-size: 4px 4px;
+        opacity: 0.1;
+        pointer-events: none;
+        z-index: 1000;
     }
 </style>
+<div class="halftone"></div>
 """, unsafe_allow_html=True)
 
 def initialize_components():
@@ -586,12 +775,12 @@ def main():
     </script>
     """, unsafe_allow_html=True)
     
-    # Header
+    # Deadpool Branding Header
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem 2rem; border-radius: 20px; margin-bottom: 2rem; text-align: center; box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4);">
-        <h1 style="color: white; font-size: 4rem; margin: 0; font-weight: 900;">📚 AI Study Assistant</h1>
-        <p style="color: rgba(255,255,255,0.95); font-size: 1.8rem; margin-top: 0.5rem;">Your Personalized Multi-Agent Learning Companion</p>
-        <p style="color: rgba(255,255,255,0.9); font-size: 1.2rem; margin-top: 1rem;">✨ Upload study materials, generate flashcards, take quizzes, and plan your revision</p>
+    <div style="text-align: center; margin-bottom: 3rem;">
+        <h1 class="hero-title">⚡ DEADPOOL'S STUDY HUB</h1>
+        <div style="background: var(--deadpool-red); height: 8px; width: 200px; margin: 0 auto 1rem auto; border: 3px solid #000;"></div>
+        <p style="font-size: 1.5rem; color: #fff; font-weight: 700; text-transform: uppercase;">Weaponizing your documents for maximum learning effort!</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -938,77 +1127,76 @@ def main():
     elif st.session_state.current_page == "Analytics":
         show_analytics_page()
 
+    # Footer
+    st.markdown("""
+    <div style="text-align: center; margin-top: 5rem; padding: 2rem; border-top: 4px solid var(--deadpool-red); background: #000;">
+        <p style="color: #fff; font-family: 'Oswald', sans-serif; font-size: 0.9rem; margin: 0;">© 2025 Deadpool's Study Hub. No regenerating degenerates allowed.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
 def show_home_page():
-    """Premium Home page with interactive onboarding and dashboard"""
+    """Deadpool-themed Home page with high-impact visuals"""
     
+    # Hero Section with Deadpool Action
+    st.markdown("""
+    <div class="hero-banner">
+        <div class="hero-content">
+            <h1 class="hero-title">Turn Your Docs into Weaponized Knowledge!</h1>
+            <p class="hero-subtitle">Upload, Analyze, Conquer with Flashcards, Quizzes & Smart Planners.</p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
     # CASE 1: NEW USER EXPERIENCE (High-Impact Onboarding)
     if not st.session_state.documents_processed:
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem 2rem; border-radius: 25px; margin-bottom: 2rem; text-align: center; box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);">
-            <h1 style="color: white; margin: 0; font-size: 3rem; font-weight: 800;">🚀 Let's Get Started!</h1>
-            <p style="color: rgba(255,255,255,0.9); font-size: 1.2rem; margin-top: 1rem;">Transform your study materials into an interactive AI-powered learning environment.</p>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("<h2 style='font-family: Bangers; font-size: 3rem; color: var(--deadpool-red); text-align: center;'>⚔️ YOUR MISSION OBJECTIVES</h2>", unsafe_allow_html=True)
         
-        st.markdown("### 🛠️ Your 4-Step Onboarding Journey")
-        
-        # Journey Cards
+        # Journey Cards with Comic Borders
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("""
-            <div style="background: rgba(102, 126, 234, 0.1); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(102, 126, 234, 0.2); height: 180px; margin-bottom: 1rem;">
-                <h3 style="color: #667eea; margin-top: 0;">1️⃣ Upload</h3>
-                <p style="color: #b0b0b0;">Drag and drop your PDFs, DOCX, or Text notes into the sidebar or the upload zone above.</p>
+            <div style="background: #111; padding: 1.5rem; border: 4px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2rem; transform: rotate(-1deg);">
+                <h3 style="font-family: Bangers; color: var(--deadpool-red); font-size: 2rem;">1️⃣ LOAD UP</h3>
+                <p style="color: #fff; font-size: 1.1rem; font-weight: 600;">Drop your PDFs, DOCX, or Text notes into the feed. Don't worry, I won't bite... much.</p>
             </div>
-            <div style="background: rgba(102, 126, 234, 0.1); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(102, 126, 234, 0.2); height: 180px; margin-bottom: 1rem;">
-                <h3 style="color: #667eea; margin-top: 0;">3️⃣ Process</h3>
-                <p style="color: #b0b0b0;">Click <b>'Process & Index'</b>. Our agents will perform semantic chunking and topic extraction.</p>
+            <div style="background: #111; padding: 1.5rem; border: 4px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2rem; transform: rotate(1deg);">
+                <h3 style="font-family: Bangers; color: var(--deadpool-red); font-size: 2rem;">3️⃣ EXTRACT</h3>
+                <p style="color: #fff; font-size: 1.1rem; font-weight: 600;">Hit <b>'Process'</b>. My agents will slice and dice your text into pure semantic gold.</p>
             </div>
             """, unsafe_allow_html=True)
         with col2:
             st.markdown("""
-            <div style="background: rgba(102, 126, 234, 0.1); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(102, 126, 234, 0.2); height: 180px; margin-bottom: 1rem;">
-                <h3 style="color: #667eea; margin-top: 0;">2️⃣ Save</h3>
-                <p style="color: #b0b0b0;">Hit the <b>'Save'</b> button to commit your files to the system's local memory.</p>
+            <div style="background: #111; padding: 1.5rem; border: 4px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2rem; transform: rotate(1deg);">
+                <h3 style="font-family: Bangers; color: var(--deadpool-red); font-size: 2rem;">2️⃣ LOCK & LOAD</h3>
+                <p style="color: #fff; font-size: 1.1rem; font-weight: 600;">Hit <b>'Save'</b> to commit those files to my infinite memory banks.</p>
             </div>
-            <div style="background: rgba(102, 126, 234, 0.1); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(102, 126, 234, 0.2); height: 180px; margin-bottom: 1rem;">
-                <h3 style="color: #667eea; margin-top: 0;">4️⃣ Learn</h3>
-                <p style="color: #b0b0b0;">Boom! 💥 Access Flashcards, Quizzes, and Chat directly from your new dashboard.</p>
-            </div>
-            """, unsafe_allow_html=True)
-
-        with st.expander("🧠 Why this works (The Tech Behind the Magic)", expanded=False):
-            st.markdown("""
-            <div style="background: #1a1a2e; padding: 1.5rem; border-radius: 15px;">
-                <p style="color: #667eea; font-weight: 600;">Multi-Agent Orchestration:</p>
-                <ul style="color: #b0b0b0;">
-                    <li><b>Reader Agent</b>: Handles OCR and clean text extraction.</li>
-                    <li><b>Vector Store</b>: Creates a semantic map of your knowledge.</li>
-                    <li><b>Gemini 2.5 Flash</b>: Powers the high-speed reasoning for Q&A.</li>
-                </ul>
+            <div style="background: #111; padding: 1.5rem; border: 4px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2rem; transform: rotate(-1deg);">
+                <h3 style="font-family: Bangers; color: var(--deadpool-red); font-size: 2rem;">4️⃣ DOMINATE</h3>
+                <p style="color: #fff; font-size: 1.1rem; font-weight: 600;">Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now ready for total destruction.</p>
             </div>
             """, unsafe_allow_html=True)
 
-        if not st.session_state.get('uploaded_files_shared'):
-            st.info("💡 **Ready?** Upload your files above to unlock the dashboard!")
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.image("https://media.rawpixel.com/image_800/cHJpdmF0ZS9sci9pbWFnZXMvd2Vic2l0ZS8yMDI0LTA4L3Jhd3BpeGVsX29mZmljZV8zMl9kZWFkcG9vbF9jb21pY19zdHlsZV9pbGx1c3RyYXRpb25fXzU4OWQwMzc0LWIzZTUtNDQzOS1iZmUwLTNhYTIxNGFjYzRiOV8xLmpwZw.jpg", use_container_width=True)
+        
         return
 
     # CASE 2: RETURNING USER (Pro Dashboard)
-    st.markdown("### 🎯 Your Learning Hub")
+    st.markdown("<h2 style='font-family: Bangers; font-size: 3rem; color: var(--deadpool-red);'>⚡ COMMAND CENTER</h2>", unsafe_allow_html=True)
     
     # 1. High-Impact Quick Access
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        if st.button("📇 **Flashcards**\n\nLevel Up", use_container_width=True, type="primary", key="dash_flash"):
+        if st.button("📇 **CARDS**\n\nMAX EFFORT", use_container_width=True, type="primary", key="dash_flash"):
             st.session_state.current_page = "Flashcards"; st.rerun()
     with col2:
-        if st.button("📝 **Quizzes**\n\nTest Yourself", use_container_width=True, type="primary", key="dash_quiz"):
+        if st.button("📝 **QUIZ**\n\nNO MERCY", use_container_width=True, type="primary", key="dash_quiz"):
             st.session_state.current_page = "Quizzes"; st.rerun()
     with col3:
-        if st.button("📅 **Planner**\n\nStay on Track", use_container_width=True, type="primary", key="dash_plan"):
+        if st.button("📅 **PLAN**\n\nTACTICAL", use_container_width=True, type="primary", key="dash_plan"):
             st.session_state.current_page = "Revision Planner"; st.rerun()
     with col4:
-        if st.button("💬 **Chat**\n\nSolve Doubts", use_container_width=True, type="primary", key="dash_chat"):
+        if st.button("💬 **CHAT**\n\nINTEL", use_container_width=True, type="primary", key="dash_chat"):
             st.session_state.current_page = "Chat Assistant"; st.rerun()
     
     st.markdown("<br>", unsafe_allow_html=True)
@@ -1016,12 +1204,12 @@ def show_home_page():
     # 2. Performance Stats
     if st.session_state.agent_controller:
         stats = st.session_state.agent_controller.get_statistics()
-        st.markdown("#### 📊 Real-time Analytics")
+        st.markdown("<h3 style='font-family: Bangers; color: #fff;'>📊 MISSION INTEL</h3>", unsafe_allow_html=True)
         c1, c2, c3, c4 = st.columns(4)
-        with c1: st.metric("Unique Topics", stats['total_topics'])
-        with c2: st.metric("Active Flashcards", stats['total_flashcards'])
-        with c3: st.metric("Quizzes Attempted", stats['total_quizzes'])
-        with c4: st.metric("Knowledge Goal", f"{stats['revision_stats']['completion_rate']:.1f}%")
+        with c1: st.metric("TOPICS", stats['total_topics'])
+        with c2: st.metric("FLASHCARDS", stats['total_flashcards'])
+        with c3: st.metric("QUIZZES", stats['total_quizzes'])
+        with c4: st.metric("CONQUERED", f"{stats['revision_stats']['completion_rate']:.1f}%")
 
     st.divider()
 
@@ -1032,42 +1220,34 @@ def show_home_page():
         
         with col_topics:
             if result.get('topics'):
-                st.markdown("### 📚 Topics Discovered")
+                st.markdown("<h3 style='font-family: Bangers; color: var(--deadpool-red);'>📚 WEAPONIZED TOPICS</h3>", unsafe_allow_html=True)
                 for idx, topic_data in enumerate(result['topics'][:5], 1):
-                    with st.expander(f"🔹 {topic_data.get('topic', 'Topic')}", expanded=(idx == 1)):
+                    with st.expander(f"🔴 {topic_data.get('topic', 'Topic').upper()}", expanded=(idx == 1)):
                         if topic_data.get('key_points'):
-                            for p in topic_data['key_points'][:3]: st.markdown(f"✅ {p}")
+                            for p in topic_data['key_points'][:3]: st.markdown(f"⚔️ {p}")
         
         with col_samples:
+            st.markdown("<h3 style='font-family: Bangers; color: #fff;'>📄 INTEL SNAPS</h3>", unsafe_allow_html=True)
             if result.get('chunks'):
-                st.markdown("### 📄 Snapshots")
                 for chunk in result['chunks'][:2]:
                     st.markdown(f"""
-                    <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 10px; font-size: 0.8rem; border-left: 3px solid #667eea; margin-bottom: 0.5rem;">
-                        {chunk['text'][:150]}...
+                    <div style="background: #222; padding: 1rem; border: 2px solid var(--deadpool-red); border-radius: 5px; font-size: 0.9rem; margin-bottom: 0.5rem; color: #eee; font-style: italic;">
+                        "{chunk['text'][:150]}..."
                     </div>
                     """, unsafe_allow_html=True)
 
-    # 4. MOVE REFINED GUIDE TO THE BOTTOM
+    # 4. Deadpool Footer EXPANDER
     st.markdown("<br><br>", unsafe_allow_html=True)
-    st.markdown("""
-    <div style="background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent); height: 2px; margin: 2rem 0;"></div>
-    """, unsafe_allow_html=True)
-    
-    with st.expander("🆘 Help Center & App Navigation Guide", expanded=False):
+    with st.expander("💀 THE CHIMICHANGA MANUAL (HELP)", expanded=False):
         st.markdown("""
-        <div style="padding: 1.5rem; background: rgba(102, 126, 234, 0.05); border-radius: 15px;">
-            <h4 style="color: #667eea; margin-top: 0;">Quick Refresher:</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <div>
-                    <p style="margin-bottom: 0.5rem;"><b>📤 Updating Content:</b></p>
-                    <p style="color: #b0b0b0; font-size: 0.9rem;">Upload new files in the sidebar and hit 'Process' to refresh the dashboard.</p>
-                </div>
-                <div>
-                    <p style="margin-bottom: 0.5rem;"><b>📥 Exporting Data:</b></p>
-                    <p style="color: #b0b0b0; font-size: 0.9rem;">Go to Flashcards or Quizzes to find the Anki/CSV download buttons.</p>
-                </div>
-            </div>
+        <div style="padding: 1.5rem; background: #111; border: 3px solid var(--deadpool-red); border-radius: 10px;">
+            <h4 style="font-family: Bangers; color: var(--deadpool-red); font-size: 1.8rem;">DON'T BE A DEGENERATE:</h4>
+            <ul style="color: #fff; font-size: 1.1rem;">
+                <li><b>RELOAD:</b> Put new files in the side-slot and hit 'Process' to reload your arsenal.</li>
+                <li><b>EXTRACT:</b> Anki and CSV buttons are in the Cards/Quiz zones. Use 'em.</li>
+                <li><b>EFFORT:</b> If the AI is slow, it's probably thinking about tacos. Give it a sec.</li>
+            </ul>
+            <p style="text-align: right; font-style: italic; color: var(--deadpool-red);">- Deadpool Out.</p>
         </div>
         """, unsafe_allow_html=True)
 
