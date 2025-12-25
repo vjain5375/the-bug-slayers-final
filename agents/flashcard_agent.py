@@ -22,7 +22,7 @@ class FlashcardAgent:
         api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")
         if api_key:
             self.llm = ChatGoogleGenerativeAI(
-                model="gemini-2.0-flash",
+                model="gemini-1.5-pro",
                 temperature=0.3,
                 google_api_key=api_key
             )
