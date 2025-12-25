@@ -61,11 +61,30 @@ class KnowledgeMemory:
                 pass
     
     def get_topic_chunks(self, topic: str) -> List[Dict]:
-        """Get all chunks for a specific topic"""
-        return [
+        """Get all chunks for a specific topic, fallback to vector store if memory empty"""
+        # Try memory first
+        chunks = [
             chunk for chunk in self.chunks
             if chunk.get('metadata', {}).get('topic', '').lower() == topic.lower()
         ]
+        
+        # If no chunks in memory but we have a vector store, try to fetch from there
+        if not chunks and hasattr(self, 'vector_store') and self.vector_store:
+            try:
+                # Search for chunks related to this topic
+                results = self.vector_store.collection.get(
+                    where={"topic": topic}
+                )
+                if results and results['documents']:
+                    for i in range(len(results['documents'])):
+                        chunks.append({
+                            'text': results['documents'][i],
+                            'metadata': results['metadatas'][i]
+                        })
+            except Exception as e:
+                print(f"Error fetching topic chunks from vector store: {e}")
+                
+        return chunks
     
     def get_all_topics(self) -> List[str]:
         """Get list of all unique topics"""
@@ -163,7 +182,13 @@ class AgentController:
         
         return flashcards
     
-    def generate_quiz(self, difficulty: str = "medium", num_questions: int = 5, adaptive: bool = True) -> List[Dict]:
+    def generate_quiz(
+        self, 
+        difficulty: str = "medium", 
+        num_questions: int = 5, 
+        adaptive: bool = True,
+        topic: Optional[str] = None
+    ) -> List[Dict]:
         """
         Generate quiz from processed materials
         
@@ -171,16 +196,21 @@ class AgentController:
             difficulty: "easy", "medium", or "hard"
             num_questions: Number of questions
             adaptive: Whether to adapt based on user performance
+            topic: Optional specific topic to focus on
             
         Returns:
             List of quiz questions
         """
         chunks = self.memory.chunks
-        if not chunks:
+        
+        if topic:
+            chunks = self.get_topic_chunks(topic)
+        elif not chunks:
+            # If no topic and no chunks in memory, nothing to do
             return []
         
-        if adaptive and self.memory.user_performance.get('quiz_scores'):
-            # Use adaptive quiz generation
+        if adaptive and not topic and self.memory.user_performance.get('quiz_scores'):
+            # Use adaptive quiz generation (only if no specific topic requested)
             user_perf = {
                 'accuracy': sum(self.memory.user_performance['quiz_scores']) / len(self.memory.user_performance['quiz_scores']),
                 'weak_topics': self.memory.user_performance.get('weak_topics', [])

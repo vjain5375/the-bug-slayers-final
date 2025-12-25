@@ -1332,18 +1332,20 @@ def show_planner_page():
                             if st.button("📇 Flashcards", key=f"fbtn_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.planner_study_topic = item_topic
                                 st.session_state.planner_study_mode = 'flashcards'
-                                # Generate if needed
-                                with st.spinner("Generating..."):
+                                with st.spinner(f"Generating flashcards for {item_topic}..."):
                                     st.session_state.planner_temp_data = st.session_state.agent_controller.generate_flashcards(num_flashcards=5, topic=item_topic)
+                                    if not st.session_state.planner_temp_data:
+                                        st.error("Could not find content for this topic. Please try processing documents again.")
                                 st.rerun()
                         with cc2:
                             if st.button("📝 Quiz", key=f"qbtn_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.planner_study_topic = item_topic
                                 st.session_state.planner_study_mode = 'quiz'
-                                with st.spinner("Generating..."):
-                                    topic_chunks = st.session_state.agent_controller.memory.get_topic_chunks(item_topic)
-                                    st.session_state.planner_temp_data = st.session_state.agent_controller.quiz_agent.generate_quiz(topic_chunks, difficulty="medium", num_questions=3)
+                                with st.spinner(f"Generating quiz for {item_topic}..."):
+                                    st.session_state.planner_temp_data = st.session_state.agent_controller.generate_quiz(difficulty="medium", num_questions=3, topic=item_topic)
                                     st.session_state.planner_quiz_answers = {}
+                                    if not st.session_state.planner_temp_data:
+                                        st.error("Could not find content for this topic. Please try processing documents again.")
                                 st.rerun()
 
                     # SHOW STUDY CONTENT RIGHT HERE
@@ -1351,29 +1353,42 @@ def show_planner_page():
                         st.markdown(f"<div style='background: rgba(102, 126, 234, 0.1); padding: 1.5rem; border-radius: 15px; border: 1px solid #667eea; margin: 1rem 0;'>", unsafe_allow_html=True)
                         st.markdown(f"#### 🎓 Studying: {item_topic}")
                         
-                        if st.session_state.planner_study_mode == 'flashcards':
-                            for i, card in enumerate(st.session_state.get('planner_temp_data', [])):
-                                with st.expander(f"Card {i+1}: {card['question'][:60]}..."):
-                                    st.markdown(f"**Q:** {card['question']}")
-                                    st.markdown(f"**A:** {card['answer']}")
+                        study_data = st.session_state.get('planner_temp_data', [])
                         
-                        elif st.session_state.planner_study_mode == 'quiz':
-                            questions = st.session_state.get('planner_temp_data', [])
-                            for i, q in enumerate(questions):
-                                st.markdown(f"**Q{i+1}:** {q['question']}")
-                                selected = st.radio("Options:", q['options'], key=f"pquiz_q{i}_{item_topic}", label_visibility="collapsed")
-                                st.session_state.planner_quiz_answers[i] = q['options'].index(selected)
+                        if not study_data:
+                            st.warning("⚠️ No study material found for this specific topic in the documents. Try another topic or check your documents.")
+                        else:
+                            if st.session_state.planner_study_mode == 'flashcards':
+                                for i, card in enumerate(study_data):
+                                    with st.expander(f"📇 Card {i+1}: {card.get('question', 'Q')[:60]}..."):
+                                        st.markdown(f"**Q:** {card.get('question', 'No question')}")
+                                        st.markdown(f"**A:** {card.get('answer', 'No answer')}")
                             
-                            if st.button("Submit Mini-Quiz", key=f"sub_mini_{item_topic}", type="primary"):
-                                res = st.session_state.agent_controller.evaluate_quiz(questions, st.session_state.planner_quiz_answers)
-                                st.success(f"Score: {res['score']}/{res['total']} ({res['accuracy']*100:.1f}%)")
-                                # Also update progress if they did well
-                                if res['accuracy'] >= 0.7:
-                                    st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'completed')
-                                    st.balloons()
+                            elif st.session_state.planner_study_mode == 'quiz':
+                                questions = study_data
+                                for i, q in enumerate(questions):
+                                    st.markdown(f"**Q{i+1}:** {q.get('question', 'Question')}")
+                                    options = q.get('options', ["Option A", "Option B", "Option C", "Option D"])
+                                    # Use a safer key and ensure unique
+                                    selected = st.radio(f"Select answer for Q{i+1}:", options, key=f"pquiz_q{i}_{item_topic[:10]}_{item_date}", label_visibility="collapsed")
+                                    if i not in st.session_state.planner_quiz_answers:
+                                        st.session_state.planner_quiz_answers[i] = options.index(selected)
+                                    else:
+                                        st.session_state.planner_quiz_answers[i] = options.index(selected)
+                                
+                                if st.button("Submit Mini-Quiz", key=f"sub_mini_{item_topic[:10]}_{item_date}", type="primary", use_container_width=True):
+                                    res = st.session_state.agent_controller.evaluate_quiz(questions, st.session_state.planner_quiz_answers)
+                                    st.success(f"🎯 Score: {res['score']}/{res['total']} ({res['accuracy']*100:.1f}%)")
+                                    # Also update progress if they did well
+                                    if res['accuracy'] >= 0.7:
+                                        st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'completed')
+                                        st.balloons()
+                                        st.info("Great job! This topic has been marked as completed.")
                         
-                        if st.button("Close Study Area", key=f"close_{item_topic}"):
+                        if st.button("Close Study Area", key=f"close_{item_topic[:10]}_{item_date}", use_container_width=True):
                             st.session_state.planner_study_mode = None
+                            st.session_state.planner_study_topic = None
+                            st.session_state.planner_temp_data = []
                             st.rerun()
                         
                         st.markdown("</div>", unsafe_allow_html=True)
