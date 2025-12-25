@@ -1235,6 +1235,12 @@ def show_planner_page():
         st.warning("Please process documents first!")
         return
     
+    # Initialize planner-specific study state
+    if 'planner_study_mode' not in st.session_state:
+        st.session_state.planner_study_mode = None  # None, 'flashcards', 'quiz'
+    if 'planner_study_topic' not in st.session_state:
+        st.session_state.planner_study_topic = None
+    
     col1, col2 = st.columns(2)
     with col1:
         exam_date = st.date_input("Exam Date", value=None)
@@ -1274,67 +1280,109 @@ def show_planner_page():
             # Upcoming revisions
             upcoming = st.session_state.agent_controller.planner_agent.get_upcoming_revisions(14)
             if upcoming:
-                st.markdown("### 📅 Your Detailed Revision Plan")
+                st.markdown("---")
+                st.markdown("### 🗓️ Daily Focus Areas")
                 
                 for item in upcoming:
-                    with st.container():
-                        # Determine color based on status
-                        status = item['status']
-                        status_color = "#28a745" if status == 'completed' else "#ffc107" if status == 'in_progress' else "#667eea"
-                        status_icon = "✅" if status == 'completed' else "⏳" if status == 'in_progress' else "📅"
-                        
-                        st.markdown(f"""
-                        <div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 15px; border-left: 5px solid {status_color}; margin-bottom: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <h4 style="margin: 0; color: white;">{status_icon} {item['date']} — {item['topic']}</h4>
-                                <span style="background: {status_color}; color: white; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">{status.upper().replace('_', ' ')}</span>
-                            </div>
+                    item_topic = item['topic']
+                    item_date = item['date']
+                    
+                    # Study Area Logic - If this topic is being studied, show it here
+                    is_studying = (st.session_state.planner_study_topic == item_topic and 
+                                  st.session_state.planner_study_mode is not None)
+                    
+                    # Card Header
+                    status = item['status']
+                    status_color = "#28a745" if status == 'completed' else "#ffc107" if status == 'in_progress' else "#667eea"
+                    status_icon = "✅" if status == 'completed' else "⏳" if status == 'in_progress' else "📅"
+                    
+                    st.markdown(f"""
+                    <div style="background: rgba(255,255,255,0.05); padding: 1.2rem; border-radius: 15px; border-left: 5px solid {status_color}; margin-top: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h4 style="margin: 0; color: white;">{status_icon} {item_date} — {item_topic}</h4>
+                            <span style="background: {status_color}; color: white; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700;">{status.upper()}</span>
                         </div>
-                        """, unsafe_allow_html=True)
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    col_info, col_actions = st.columns([3, 2])
+                    
+                    with col_info:
+                        if item.get('subtopics'):
+                            st.markdown(f"<p style='margin-top:10px;'><b>Focus:</b> {', '.join(item['subtopics'])}</p>", unsafe_allow_html=True)
+                        with st.expander("📝 Study Points"):
+                            for point in item.get('key_points', []):
+                                st.markdown(f"- {point}")
+                    
+                    with col_actions:
+                        st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
+                        c1, c2 = st.columns(2)
+                        with c1:
+                            if st.button("🚧 Active", key=f"prog_{item_date}_{item_topic}", use_container_width=True):
+                                st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'in_progress')
+                                st.rerun()
+                        with c2:
+                            if st.button("✅ Done", key=f"comp_{item_date}_{item_topic}", use_container_width=True):
+                                st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'completed')
+                                st.rerun()
                         
-                        col_info, col_actions = st.columns([2, 1])
+                        # In-place study trigger buttons
+                        cc1, cc2 = st.columns(2)
+                        with cc1:
+                            if st.button("📇 Flashcards", key=f"fbtn_{item_date}_{item_topic}", use_container_width=True):
+                                st.session_state.planner_study_topic = item_topic
+                                st.session_state.planner_study_mode = 'flashcards'
+                                # Generate if needed
+                                with st.spinner("Generating..."):
+                                    st.session_state.planner_temp_data = st.session_state.agent_controller.generate_flashcards(num_flashcards=5, topic=item_topic)
+                                st.rerun()
+                        with cc2:
+                            if st.button("📝 Quiz", key=f"qbtn_{item_date}_{item_topic}", use_container_width=True):
+                                st.session_state.planner_study_topic = item_topic
+                                st.session_state.planner_study_mode = 'quiz'
+                                with st.spinner("Generating..."):
+                                    topic_chunks = st.session_state.agent_controller.memory.get_topic_chunks(item_topic)
+                                    st.session_state.planner_temp_data = st.session_state.agent_controller.quiz_agent.generate_quiz(topic_chunks, difficulty="medium", num_questions=3)
+                                    st.session_state.planner_quiz_answers = {}
+                                st.rerun()
+
+                    # SHOW STUDY CONTENT RIGHT HERE
+                    if is_studying:
+                        st.markdown(f"<div style='background: rgba(102, 126, 234, 0.1); padding: 1.5rem; border-radius: 15px; border: 1px solid #667eea; margin: 1rem 0;'>", unsafe_allow_html=True)
+                        st.markdown(f"#### 🎓 Studying: {item_topic}")
                         
-                        with col_info:
-                            if item.get('subtopics'):
-                                st.markdown(f"**Focus Areas:** {', '.join(item['subtopics'])}")
-                            if item.get('key_points'):
-                                with st.expander("📝 View Key Revision Points"):
-                                    for point in item['key_points']:
-                                        st.markdown(f"- {point}")
+                        if st.session_state.planner_study_mode == 'flashcards':
+                            for i, card in enumerate(st.session_state.get('planner_temp_data', [])):
+                                with st.expander(f"Card {i+1}: {card['question'][:60]}..."):
+                                    st.markdown(f"**Q:** {card['question']}")
+                                    st.markdown(f"**A:** {card['answer']}")
                         
-                        with col_actions:
-                            # Status Buttons
-                            c1, c2 = st.columns(2)
-                            with c1:
-                                if st.button("🚧 In Progress", key=f"prog_{item['date']}_{item['topic']}", use_container_width=True):
-                                    st.session_state.agent_controller.planner_agent.mark_status(item['date'], item['topic'], 'in_progress')
-                                    st.rerun()
-                            with c2:
-                                if st.button("✅ Done", key=f"comp_{item['date']}_{item['topic']}", use_container_width=True):
-                                    st.session_state.agent_controller.planner_agent.mark_status(item['date'], item['topic'], 'completed')
-                                    st.rerun()
+                        elif st.session_state.planner_study_mode == 'quiz':
+                            questions = st.session_state.get('planner_temp_data', [])
+                            for i, q in enumerate(questions):
+                                st.markdown(f"**Q{i+1}:** {q['question']}")
+                                selected = st.radio("Options:", q['options'], key=f"pquiz_q{i}_{item_topic}", label_visibility="collapsed")
+                                st.session_state.planner_quiz_answers[i] = q['options'].index(selected)
                             
-                            # Learning Tool Buttons for the specific topic
-                            st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
-                            if st.button(f"📇 Generate {item['topic']} Flashcards", key=f"flash_{item['date']}_{item['topic']}", use_container_width=True):
-                                # Logic to generate specific topic flashcards
-                                st.info(f"Generating flashcards for {item['topic']}...")
-                                flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards=5, topic=item['topic'])
-                                st.session_state.flashcards = flashcards
-                                st.session_state.current_page = "Flashcards"
-                                st.rerun()
-                                
-                            if st.button(f"📝 Take {item['topic']} Quiz", key=f"quiz_{item['date']}_{item['topic']}", use_container_width=True):
-                                # Logic to generate specific topic quiz
-                                st.info(f"Generating quiz for {item['topic']}...")
-                                # We need to filter chunks for this topic
-                                topic_chunks = st.session_state.agent_controller.memory.get_topic_chunks(item['topic'])
-                                questions = st.session_state.agent_controller.quiz_agent.generate_quiz(topic_chunks, difficulty="medium", num_questions=5)
-                                st.session_state.quizzes = questions
-                                st.session_state.current_page = "Quizzes"
-                                st.rerun()
+                            if st.button("Submit Mini-Quiz", key=f"sub_mini_{item_topic}", type="primary"):
+                                res = st.session_state.agent_controller.evaluate_quiz(questions, st.session_state.planner_quiz_answers)
+                                st.success(f"Score: {res['score']}/{res['total']} ({res['accuracy']*100:.1f}%)")
+                                # Also update progress if they did well
+                                if res['accuracy'] >= 0.7:
+                                    st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'completed')
+                                    st.balloons()
                         
-                        st.markdown("---")
+                        if st.button("Close Study Area", key=f"close_{item_topic}"):
+                            st.session_state.planner_study_mode = None
+                            st.rerun()
+                        
+                        st.markdown("</div>", unsafe_allow_html=True)
+
+                    st.markdown("---")
+        else:
+            st.info("Click 'Create Revision Plan' to generate your schedule!")
+    except Exception as e:
+        st.info("Create a revision plan to get started!")
         else:
             st.info("Click 'Create Revision Plan' to generate your schedule!")
     except Exception as e:

@@ -158,6 +158,8 @@ class PlannerAgent:
             if item['date'] == date and item['topic'] == topic:
                 item['status'] = status
                 self.update_progress(topic, status)
+                # Auto-save after status change
+                self.save_plan()
                 break
     
     def get_statistics(self) -> Dict:
