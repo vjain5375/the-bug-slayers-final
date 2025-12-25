@@ -1442,7 +1442,7 @@ def show_analytics_page():
         st.metric("Total Topics", stats['total_topics'])
         st.metric("Total Chunks", stats['total_chunks'])
         st.metric("Flashcards Created", stats['total_flashcards'])
-        st.metric("Quizzes Taken", stats['total_quizzes'])
+        st.metric("Quizzes Generated", stats['total_quizzes'])
     
     with col2:
         st.markdown("### 🎯 Performance")
