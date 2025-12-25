@@ -939,114 +939,137 @@ def main():
         show_analytics_page()
 
 def show_home_page():
-    """Home page with overview and instructions"""
+    """Premium Home page with interactive onboarding and dashboard"""
     
-    # CASE 1: NEW USER (No documents processed yet)
+    # CASE 1: NEW USER EXPERIENCE (High-Impact Onboarding)
     if not st.session_state.documents_processed:
         st.markdown("""
-        <div style="background: rgba(102, 126, 234, 0.1); padding: 2rem; border-radius: 20px; border: 2px dashed rgba(102, 126, 234, 0.3); text-align: center; margin-bottom: 2rem;">
-            <h2 style="color: #667eea; margin-top: 0;">👋 Welcome! Let's Get Started</h2>
-            <p style="color: #e0e0e0; font-size: 1.1rem;">Follow the guide below to transform your study materials into interactive learning tools.</p>
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 3rem 2rem; border-radius: 25px; margin-bottom: 2rem; text-align: center; box-shadow: 0 20px 50px rgba(102, 126, 234, 0.3);">
+            <h1 style="color: white; margin: 0; font-size: 3rem; font-weight: 800;">🚀 Let's Get Started!</h1>
+            <p style="color: rgba(255,255,255,0.9); font-size: 1.2rem; margin-top: 1rem;">Transform your study materials into an interactive AI-powered learning environment.</p>
         </div>
         """, unsafe_allow_html=True)
         
-        st.markdown("### 📖 How to Use the AI Study Assistant")
-        with st.container():
-            # Detailed Instruction Guide for New Users
+        st.markdown("### 🛠️ Your 4-Step Onboarding Journey")
+        
+        # Journey Cards
+        col1, col2 = st.columns(2)
+        with col1:
             st.markdown("""
-            <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 2rem; border-radius: 15px; border: 1px solid rgba(102, 126, 234, 0.3);">
-                <h3 style="color: #667eea; margin-top: 0;">🚀 4-Step Quick Start</h3>
-                <ol style="color: #e0e0e0; font-size: 1.1rem; line-height: 1.8;">
-                    <li><strong>Upload</strong>: Use the sidebar or the area above to select your PDF, DOCX, or TXT files.</li>
-                    <li><strong>Save</strong>: Click the <strong>"💾 Save"</strong> button to add them to your library.</li>
-                    <li><strong>Process</strong>: Click <strong>"🔄 Process & Index"</strong>. Our AI agents will read, chunk, and analyze your content.</li>
-                    <li><strong>Learn</strong>: Once processed, use the <strong>Dashboard</strong> to generate flashcards, take quizzes, or chat with your documents!</li>
-                </ol>
-                <hr style="border-color: rgba(102, 126, 234, 0.2);">
-                <p style="color: #b0b0b0; font-style: italic;">💡 <strong>Pro Tip:</strong> You can upload multiple files at once. The most recent upload gets priority in the Chat Assistant!</p>
+            <div style="background: rgba(102, 126, 234, 0.1); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(102, 126, 234, 0.2); height: 180px; margin-bottom: 1rem;">
+                <h3 style="color: #667eea; margin-top: 0;">1️⃣ Upload</h3>
+                <p style="color: #b0b0b0;">Drag and drop your PDFs, DOCX, or Text notes into the sidebar or the upload zone above.</p>
+            </div>
+            <div style="background: rgba(102, 126, 234, 0.1); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(102, 126, 234, 0.2); height: 180px; margin-bottom: 1rem;">
+                <h3 style="color: #667eea; margin-top: 0;">3️⃣ Process</h3>
+                <p style="color: #b0b0b0;">Click <b>'Process & Index'</b>. Our agents will perform semantic chunking and topic extraction.</p>
             </div>
             """, unsafe_allow_html=True)
-            
-            with st.expander("🔍 View Detailed AI Workflow", expanded=False):
-                workflow_steps = [
-                    ("📤 Upload", "PDF/Image/Text Ingestion", "Securely upload your study materials."),
-                    ("📄 Extract", "Smart Text Extraction", "Agents extract clean text, even from scanned PDFs using OCR."),
-                    ("✂️ Chunk", "Semantic Chunking", "Text is broken into logical pieces to preserve context for the AI."),
-                    ("🏷️ Classify", "Topic Discovery", "AI automatically identifies main topics and key points."),
-                    ("🔍 Embed", "Vector Indexing", "Content is indexed for fast, intelligent searching."),
-                    ("✨ Generate", "Learning Artefacts", "Auto-generate flashcards, quizzes, and revision plans."),
-                    ("💬 Chat", "Contextual Assistant", "Ask any question and get answers grounded in your specific documents.")
-                ]
-                for i, (icon, title, desc) in enumerate(workflow_steps, 1):
-                    st.markdown(f"**{i}. {icon} {title}** - {desc}")
-                    if i < len(workflow_steps): st.markdown("↓")
+        with col2:
+            st.markdown("""
+            <div style="background: rgba(102, 126, 234, 0.1); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(102, 126, 234, 0.2); height: 180px; margin-bottom: 1rem;">
+                <h3 style="color: #667eea; margin-top: 0;">2️⃣ Save</h3>
+                <p style="color: #b0b0b0;">Hit the <b>'Save'</b> button to commit your files to the system's local memory.</p>
+            </div>
+            <div style="background: rgba(102, 126, 234, 0.1); padding: 1.5rem; border-radius: 20px; border: 1px solid rgba(102, 126, 234, 0.2); height: 180px; margin-bottom: 1rem;">
+                <h3 style="color: #667eea; margin-top: 0;">4️⃣ Learn</h3>
+                <p style="color: #b0b0b0;">Boom! 💥 Access Flashcards, Quizzes, and Chat directly from your new dashboard.</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+        with st.expander("🧠 Why this works (The Tech Behind the Magic)", expanded=False):
+            st.markdown("""
+            <div style="background: #1a1a2e; padding: 1.5rem; border-radius: 15px;">
+                <p style="color: #667eea; font-weight: 600;">Multi-Agent Orchestration:</p>
+                <ul style="color: #b0b0b0;">
+                    <li><b>Reader Agent</b>: Handles OCR and clean text extraction.</li>
+                    <li><b>Vector Store</b>: Creates a semantic map of your knowledge.</li>
+                    <li><b>Gemini 2.5 Flash</b>: Powers the high-speed reasoning for Q&A.</li>
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
 
         if not st.session_state.get('uploaded_files_shared'):
-            st.info("👆 **Start by uploading your files above!**")
+            st.info("💡 **Ready?** Upload your files above to unlock the dashboard!")
         return
 
-    # CASE 2: RETURNING USER (Documents already processed)
-    st.markdown("### 🚀 Your Study Dashboard")
+    # CASE 2: RETURNING USER (Pro Dashboard)
+    st.markdown("### 🎯 Your Learning Hub")
     
-    # 1. Quick Access Grid
+    # 1. High-Impact Quick Access
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        if st.button("📇 **Flashcards**\n\nReview Concepts", use_container_width=True, type="primary", key="dash_flash"):
+        if st.button("📇 **Flashcards**\n\nLevel Up", use_container_width=True, type="primary", key="dash_flash"):
             st.session_state.current_page = "Flashcards"; st.rerun()
     with col2:
-        if st.button("📝 **Quizzes**\n\nTest Knowledge", use_container_width=True, type="primary", key="dash_quiz"):
+        if st.button("📝 **Quizzes**\n\nTest Yourself", use_container_width=True, type="primary", key="dash_quiz"):
             st.session_state.current_page = "Quizzes"; st.rerun()
     with col3:
-        if st.button("📅 **Planner**\n\nView Schedule", use_container_width=True, type="primary", key="dash_plan"):
+        if st.button("📅 **Planner**\n\nStay on Track", use_container_width=True, type="primary", key="dash_plan"):
             st.session_state.current_page = "Revision Planner"; st.rerun()
     with col4:
-        if st.button("💬 **Chat**\n\nAsk Questions", use_container_width=True, type="primary", key="dash_chat"):
+        if st.button("💬 **Chat**\n\nSolve Doubts", use_container_width=True, type="primary", key="dash_chat"):
             st.session_state.current_page = "Chat Assistant"; st.rerun()
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # 2. Statistics
+    # 2. Performance Stats
     if st.session_state.agent_controller:
         stats = st.session_state.agent_controller.get_statistics()
-        st.markdown("#### 📊 Current Progress")
+        st.markdown("#### 📊 Real-time Analytics")
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Topics", stats['total_topics'])
-        c2.metric("Flashcards", stats['total_flashcards'])
-        c3.metric("Quizzes", stats['total_quizzes'])
-        c4.metric("Completion", f"{stats['revision_stats']['completion_rate']:.1f}%")
+        with c1: st.metric("Unique Topics", stats['total_topics'])
+        with c2: st.metric("Active Flashcards", stats['total_flashcards'])
+        with c3: st.metric("Quizzes Attempted", stats['total_quizzes'])
+        with c4: st.metric("Knowledge Goal", f"{stats['revision_stats']['completion_rate']:.1f}%")
 
     st.divider()
 
-    # 3. Content Overview (Topics & Key Points)
+    # 3. Content Intelligence
     if 'processing_results' in st.session_state:
         result = st.session_state.processing_results
-        if result.get('topics'):
-            st.markdown("### 📚 Study Material Overview")
-            for idx, topic_data in enumerate(result['topics'][:10], 1):
-                with st.expander(f"📖 {idx}. {topic_data.get('topic', 'Topic')}", expanded=(idx == 1)):
-                    if topic_data.get('subtopics'):
-                        st.markdown("**Subtopics:** " + ", ".join(topic_data['subtopics'][:5]))
-                    if topic_data.get('key_points'):
-                        st.markdown("**Key Points:**")
-                        for p in topic_data['key_points'][:3]: st.markdown(f"- {p}")
+        col_topics, col_samples = st.columns([2, 1])
         
-        if result.get('chunks'):
-            with st.expander("📄 View Text Samples", expanded=False):
-                st.info("Showing a few snippets from your documents.")
-                for chunk in result['chunks'][:3]:
-                    st.text(chunk['text'][:200] + "...")
+        with col_topics:
+            if result.get('topics'):
+                st.markdown("### 📚 Topics Discovered")
+                for idx, topic_data in enumerate(result['topics'][:5], 1):
+                    with st.expander(f"🔹 {topic_data.get('topic', 'Topic')}", expanded=(idx == 1)):
+                        if topic_data.get('key_points'):
+                            for p in topic_data['key_points'][:3]: st.markdown(f"✅ {p}")
+        
+        with col_samples:
+            if result.get('chunks'):
+                st.markdown("### 📄 Snapshots")
+                for chunk in result['chunks'][:2]:
+                    st.markdown(f"""
+                    <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 10px; font-size: 0.8rem; border-left: 3px solid #667eea; margin-bottom: 0.5rem;">
+                        {chunk['text'][:150]}...
+                    </div>
+                    """, unsafe_allow_html=True)
 
-    # 4. MOVE GUIDE TO THE BOTTOM for returning users
+    # 4. MOVE REFINED GUIDE TO THE BOTTOM
     st.markdown("<br><br>", unsafe_allow_html=True)
-    st.divider()
-    with st.expander("❓ Need a refresher on how to use the app?", expanded=False):
+    st.markdown("""
+    <div style="background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent); height: 2px; margin: 2rem 0;"></div>
+    """, unsafe_allow_html=True)
+    
+    with st.expander("🆘 Help Center & App Navigation Guide", expanded=False):
         st.markdown("""
-        ### Quick Instructions:
-        1. **Upload & Save**: Add more files using the top section or sidebar.
-        2. **Process**: Always click 'Process' after adding new files.
-        3. **Navigate**: Use the dashboard buttons or sidebar to switch tools.
-        4. **Export**: Look for the 'Export' buttons in Flashcards and Quizzes to save your data!
-        """)
+        <div style="padding: 1.5rem; background: rgba(102, 126, 234, 0.05); border-radius: 15px;">
+            <h4 style="color: #667eea; margin-top: 0;">Quick Refresher:</h4>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <p style="margin-bottom: 0.5rem;"><b>📤 Updating Content:</b></p>
+                    <p style="color: #b0b0b0; font-size: 0.9rem;">Upload new files in the sidebar and hit 'Process' to refresh the dashboard.</p>
+                </div>
+                <div>
+                    <p style="margin-bottom: 0.5rem;"><b>📥 Exporting Data:</b></p>
+                    <p style="color: #b0b0b0; font-size: 0.9rem;">Go to Flashcards or Quizzes to find the Anki/CSV download buttons.</p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
 def show_flashcards_page():
     """Flashcards page"""
