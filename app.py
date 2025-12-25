@@ -1272,17 +1272,69 @@ def show_planner_page():
                 st.metric("Progress", f"{stats['completion_rate']:.1f}%")
             
             # Upcoming revisions
-            upcoming = st.session_state.agent_controller.planner_agent.get_upcoming_revisions(7)
+            upcoming = st.session_state.agent_controller.planner_agent.get_upcoming_revisions(14)
             if upcoming:
-                st.markdown("### 🔜 Upcoming (Next 7 Days)")
-                for item in upcoming[:10]:
-                    status_icon = "✅" if item['status'] == 'completed' else "⏳"
-                    st.markdown(f"{status_icon} **{item['date']}** - {item['topic']}")
-                    if st.button(f"Mark Complete", key=f"complete_{item['date']}_{item['topic']}"):
-                        st.session_state.agent_controller.planner_agent.mark_completed(
-                            item['date'], item['topic']
-                        )
-                        st.rerun()
+                st.markdown("### 📅 Your Detailed Revision Plan")
+                
+                for item in upcoming:
+                    with st.container():
+                        # Determine color based on status
+                        status = item['status']
+                        status_color = "#28a745" if status == 'completed' else "#ffc107" if status == 'in_progress' else "#667eea"
+                        status_icon = "✅" if status == 'completed' else "⏳" if status == 'in_progress' else "📅"
+                        
+                        st.markdown(f"""
+                        <div style="background: rgba(255,255,255,0.05); padding: 1.5rem; border-radius: 15px; border-left: 5px solid {status_color}; margin-bottom: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h4 style="margin: 0; color: white;">{status_icon} {item['date']} — {item['topic']}</h4>
+                                <span style="background: {status_color}; color: white; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">{status.upper().replace('_', ' ')}</span>
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        col_info, col_actions = st.columns([2, 1])
+                        
+                        with col_info:
+                            if item.get('subtopics'):
+                                st.markdown(f"**Focus Areas:** {', '.join(item['subtopics'])}")
+                            if item.get('key_points'):
+                                with st.expander("📝 View Key Revision Points"):
+                                    for point in item['key_points']:
+                                        st.markdown(f"- {point}")
+                        
+                        with col_actions:
+                            # Status Buttons
+                            c1, c2 = st.columns(2)
+                            with c1:
+                                if st.button("🚧 In Progress", key=f"prog_{item['date']}_{item['topic']}", use_container_width=True):
+                                    st.session_state.agent_controller.planner_agent.mark_status(item['date'], item['topic'], 'in_progress')
+                                    st.rerun()
+                            with c2:
+                                if st.button("✅ Done", key=f"comp_{item['date']}_{item['topic']}", use_container_width=True):
+                                    st.session_state.agent_controller.planner_agent.mark_status(item['date'], item['topic'], 'completed')
+                                    st.rerun()
+                            
+                            # Learning Tool Buttons for the specific topic
+                            st.markdown("<div style='margin-top: 5px;'></div>", unsafe_allow_html=True)
+                            if st.button(f"📇 Generate {item['topic']} Flashcards", key=f"flash_{item['date']}_{item['topic']}", use_container_width=True):
+                                # Logic to generate specific topic flashcards
+                                st.info(f"Generating flashcards for {item['topic']}...")
+                                flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards=5, topic=item['topic'])
+                                st.session_state.flashcards = flashcards
+                                st.session_state.current_page = "Flashcards"
+                                st.rerun()
+                                
+                            if st.button(f"📝 Take {item['topic']} Quiz", key=f"quiz_{item['date']}_{item['topic']}", use_container_width=True):
+                                # Logic to generate specific topic quiz
+                                st.info(f"Generating quiz for {item['topic']}...")
+                                # We need to filter chunks for this topic
+                                topic_chunks = st.session_state.agent_controller.memory.get_topic_chunks(item['topic'])
+                                questions = st.session_state.agent_controller.quiz_agent.generate_quiz(topic_chunks, difficulty="medium", num_questions=5)
+                                st.session_state.quizzes = questions
+                                st.session_state.current_page = "Quizzes"
+                                st.rerun()
+                        
+                        st.markdown("---")
         else:
             st.info("Click 'Create Revision Plan' to generate your schedule!")
     except Exception as e:

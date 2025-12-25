@@ -152,12 +152,12 @@ class PlannerAgent:
         
         return sorted(upcoming, key=lambda x: x['date'])
     
-    def mark_completed(self, date: str, topic: str):
-        """Mark a revision item as completed"""
+    def mark_status(self, date: str, topic: str, status: str):
+        """Mark a revision item with a specific status ('completed', 'in_progress', 'pending')"""
         for item in self.revision_plan:
             if item['date'] == date and item['topic'] == topic:
-                item['status'] = 'completed'
-                self.update_progress(topic, 'completed')
+                item['status'] = status
+                self.update_progress(topic, status)
                 break
     
     def get_statistics(self) -> Dict:
