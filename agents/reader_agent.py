@@ -4,6 +4,8 @@ Extracts and structures study material from PDFs, slides, and notes
 """
 
 import re
+import base64
+import io
 from typing import List, Dict, Optional
 from pathlib import Path
 import PyPDF2
@@ -43,66 +45,99 @@ class ReaderAgent:
         else:
             self.llm = None
 
+    def _extract_text_using_gemini_vision(self, images: List) -> str:
+        """Use Gemini Vision to transcribe handwritten or difficult text from images."""
+        if not self.llm:
+            return ""
+        
+        transcribed_text = ""
+        try:
+            for i, img in enumerate(images):
+                # Convert PIL image to base64
+                buffered = io.BytesIO()
+                img.save(buffered, format="JPEG")
+                img_str = base64.b64encode(buffered.getvalue()).decode()
+                
+                prompt = "Please transcribe the text from this image exactly. If it is handwritten, do your best to read it accurately. Return only the transcribed text."
+                
+                message = HumanMessage(
+                    content=[
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": f"data:image/jpeg;base64,{img_str}",
+                        },
+                    ]
+                )
+                
+                print(f"  → Sending page {i+1} to Gemini Vision...")
+                response = self.llm.invoke([message])
+                transcribed_text += response.content + "\n\n"
+        except Exception as e:
+            print(f"Gemini Vision extraction failed: {e}")
+        
+        return transcribed_text
+
     def _extract_text_from_pdf_ocr(self, file_path: str) -> str:
         """
         Fallback OCR-based text extraction for image-only / scanned PDFs.
-
-        This requires:
-          - Tesseract installed on the system
-          - pytesseract, pdf2image, Pillow installed in the environment
         """
-        if not OCR_AVAILABLE:
+        # On Windows, pdf2image needs poppler. Allow configuring its path via POPPLER_PATH env var.
+        poppler_path = os.getenv("POPPLER_PATH") or None
+        # Use a slightly lower DPI for faster conversion; allow override via OCR_DPI env var.
+        dpi = int(os.getenv("OCR_DPI", "150"))
+        
+        try:
+            if poppler_path:
+                images = convert_from_path(file_path, poppler_path=poppler_path, dpi=dpi)
+            else:
+                images = convert_from_path(file_path, dpi=dpi)
+        except Exception as e:
+            print(f"Failed to convert PDF to images: {e}")
             return ""
 
+        ocr_mode = os.getenv("OCR_MODE", "printed").lower()
+        
+        # PRO SOLUTION: Fallback to Gemini Vision for handwriting or if OCR mode is set to handwritten
+        if ocr_mode == "handwritten":
+            print("  → Handwritten mode detected. Using Gemini Vision for superior extraction...")
+            return self._extract_text_using_gemini_vision(images)
+
+        if not OCR_AVAILABLE:
+            print("  → Tesseract not found. Falling back to Gemini Vision...")
+            return self._extract_text_using_gemini_vision(images)
+
+        # Try Tesseract first for printed text
+        ocr_text = ""
         # Optional: allow user to specify tesseract path via env var (especially useful on Windows)
         tess_cmd = os.getenv("TESSERACT_CMD")
         if tess_cmd:
             pytesseract.pytesseract.tesseract_cmd = tess_cmd
 
-        ocr_text = ""
-        try:
-            # On Windows, pdf2image needs poppler. Allow configuring its path via POPPLER_PATH env var.
-            poppler_path = os.getenv("POPPLER_PATH") or None
-            # Use a slightly lower DPI for faster conversion; allow override via OCR_DPI env var.
-            dpi = int(os.getenv("OCR_DPI", "150"))
-            if poppler_path:
-                images = convert_from_path(file_path, poppler_path=poppler_path, dpi=dpi)
-            else:
-                images = convert_from_path(file_path, dpi=dpi)
+        custom_config = os.getenv("OCR_CONFIG")
+        if not custom_config:
+            custom_config = "--oem 3 --psm 3"
 
-            # Configure Tesseract for printed vs. handwritten text
-            ocr_mode = os.getenv("OCR_MODE", "printed").lower()
-            # Allow full override if user wants to experiment
-            custom_config = os.getenv("OCR_CONFIG")
-            if not custom_config:
-                if ocr_mode == "handwritten":
-                    # PSM 3 is better for full pages of handwriting
-                    # OEM 1 uses the LSTM engine which is best for handwriting
-                    custom_config = "--oem 1 --psm 3"
-                else:
-                    # Default for printed text
-                    custom_config = "--oem 3 --psm 6"
+        for img in images:
+            # ENHANCED PRE-PROCESSING
+            try:
+                pil_img = img.convert("L")
+                from PIL import ImageEnhance
+                enhancer = ImageEnhance.Contrast(pil_img)
+                pil_img = enhancer.enhance(2.0) 
+                pil_img = ImageOps.autocontrast(pil_img)
+                threshold = int(os.getenv("OCR_THRESHOLD", "128"))
+                pil_img = pil_img.point(lambda x: 255 if x > threshold else 0, mode="1")
+            except Exception:
+                pil_img = img
 
-            for img in images:
-                # ENHANCED PRE-PROCESSING for handwriting
-                try:
-                    # Convert to grayscale
-                    pil_img = img.convert("L")
-                    # Increase contrast aggressively to make handwriting clearer
-                    from PIL import ImageEnhance
-                    enhancer = ImageEnhance.Contrast(pil_img)
-                    pil_img = enhancer.enhance(2.0) 
-                    
-                    # Adaptive thresholding logic
-                    pil_img = ImageOps.autocontrast(pil_img)
-                    threshold = int(os.getenv("OCR_THRESHOLD", "128"))
-                    pil_img = pil_img.point(lambda x: 255 if x > threshold else 0, mode="1")
-                except Exception:
-                    pil_img = img
-
-                ocr_text += pytesseract.image_to_string(pil_img, config=custom_config) + "\n"
-        except Exception as e:
-            print(f"OCR fallback failed for {file_path}: {e}")
+            ocr_text += pytesseract.image_to_string(pil_img, config=custom_config) + "\n"
+        
+        # If Tesseract produced very little or low-quality text, fallback to Gemini Vision
+        if len(ocr_text.strip()) < 50:
+            print("  → Tesseract output too short. Retrying with Gemini Vision...")
+            return self._extract_text_using_gemini_vision(images)
+            
         return ocr_text
 
     def extract_text_from_pdf(self, file_path: str) -> str:
