@@ -458,7 +458,9 @@ def main():
     }
     </script>
     """, unsafe_allow_html=True)
-        
+
+    st.markdown("""
+    <style>
         /* Primary Buttons */
         .stButton > button[kind="primary"] {
             background-color: var(--deadpool-black) !important;
@@ -582,6 +584,7 @@ def main():
             display: none !important;
             visibility: hidden !important;
             opacity: 0 !important;
+            background: none !important;
         }
         
         /* Hide any pseudo-elements */
@@ -642,6 +645,9 @@ def main():
             animation: none !important;
         }
     </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
     <script>
         // Disable all animations and transitions
         function disableAllAnimations() {
