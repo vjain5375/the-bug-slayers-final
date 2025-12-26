@@ -370,29 +370,32 @@ st.markdown("""
     
     /* Global spacing reduction */
     [data-testid="stVerticalBlock"] {
-        gap: 0.5rem !important;
+        gap: 0.2rem !important;
     }
 
     /* Remove streamlit default top padding */
-    .st-emotion-cache-1y4p8pa { padding-top: 0px !important; }
-    .st-emotion-cache-z5fcl4 { padding-top: 0px !important; }
+    .st-emotion-cache-1y4p8pa, .st-emotion-cache-z5fcl4, .st-emotion-cache-uf99v8 { 
+        padding-top: 0px !important; 
+        padding-bottom: 0px !important;
+    }
     
     /* Remove gaps from columns */
     [data-testid="stHorizontalBlock"] {
-        gap: 0.5rem !important;
+        gap: 0.3rem !important;
     }
 
     /* Surgical spacing for cards */
     .comic-card {
         margin-top: 0px !important;
-        margin-bottom: 0.5rem !important;
+        margin-bottom: 0.3rem !important;
+        padding: 1rem !important;
     }
     /* Compact Success/Info/Error Messages */
     .stSuccess, .stInfo, .stError, .stWarning {
         padding: 0.5rem 1rem !important;
         border-radius: 0px !important;
         font-size: 0.9rem !important;
-        margin-bottom: 0.5rem !important;
+        margin-bottom: 0.3rem !important;
     }
 </style>
 <div class="halftone"></div>
@@ -822,7 +825,7 @@ def main():
                             st.error(f"Error: {e}")
     
     # Navigation Buttons - Below Upload Section
-    st.markdown("<p style='font-family: \"Bangers\"; font-size: 1.4rem; color: var(--deadpool-red); margin-bottom: 0.5rem; text-shadow: 2px 2px 0px #000;'>🎯 NAVIGATION</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-family: \"Bangers\"; font-size: 1.4rem; color: var(--deadpool-red); margin-bottom: 0.2rem; text-shadow: 2px 2px 0px #000;'>🎯 NAVIGATION</p>", unsafe_allow_html=True)
     nav_options = {
         "Home": "🏠",
         "Flashcards": "📇",
