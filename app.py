@@ -453,12 +453,68 @@ def main():
     
     # Sidebar - Navigation and Document Management
     with st.sidebar:
-        # Navigation Section (Moved to top of sidebar)
+        # MISSION PROTOCOL FLOWCHART - Top of Sidebar
         st.markdown("""
-        <div style="background: #000; padding: 1rem; border: 3px solid var(--deadpool-red); margin-bottom: 1rem; text-align: center; box-shadow: 4px 4px 0px #000;">
-            <h2 style="color: white; margin: 0; font-size: 1.5rem; border: none;">🎯 MENU</h2>
+        <div style="background: #000; padding: 1rem; border: 3px solid var(--deadpool-red); margin-bottom: 1.5rem; box-shadow: 6px 6px 0px #000; border-radius: 0px;">
+            <h2 style="color: var(--deadpool-red); margin: 0 0 1rem 0; font-size: 1.6rem; border: none; text-align: center; font-family: 'Bangers'; text-shadow: 2px 2px 0px #000;">⚔️ MISSION FLOW</h2>
+            <div style="padding-left: 5px;">
+                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                    <div style="background: var(--deadpool-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #000; font-family: 'Bangers';">1</div>
+                    <div style="margin-left: 12px; font-size: 1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">📤 UPLOAD DOCS</div>
+                </div>
+                <div style="border-left: 3px solid var(--deadpool-red); height: 15px; margin-left: 12px; margin-top: -5px; margin-bottom: -5px;"></div>
+                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                    <div style="background: var(--deadpool-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #000; font-family: 'Bangers';">2</div>
+                    <div style="margin-left: 12px; font-size: 1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">💾 HIT SAVE</div>
+                </div>
+                <div style="border-left: 3px solid var(--deadpool-red); height: 15px; margin-left: 12px; margin-top: -5px; margin-bottom: -5px;"></div>
+                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+                    <div style="background: var(--deadpool-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #000; font-family: 'Bangers';">3</div>
+                    <div style="margin-left: 12px; font-size: 1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">🔄 PROCESS NOW</div>
+                </div>
+                <div style="border-left: 3px solid var(--deadpool-red); height: 15px; margin-left: 12px; margin-top: -5px; margin-bottom: -5px;"></div>
+                <div style="display: flex; align-items: center;">
+                    <div style="background: var(--deadpool-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #000; font-family: 'Bangers';">4</div>
+                    <div style="margin-left: 12px; font-size: 1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">🛡️ DOMINATE</div>
+                </div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
+        
+        # NAVIGATION SECTION
+        st.markdown("""
+        <div style="background: #000; padding: 0.5rem; border: 2px solid var(--deadpool-red); margin-bottom: 0.5rem; text-align: center; box-shadow: 3px 3px 0px #000;">
+            <p style="color: white; margin: 0; font-size: 1.1rem; font-family: 'Bangers'; letter-spacing: 1px;">🎯 DESTINATIONS</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        nav_options = {
+            "Home": "🏠",
+            "Flashcards": "📇",
+            "Quizzes": "📝",
+            "Revision Planner": "📅",
+            "Chat Assistant": "💬",
+            "Analytics": "📊"
+        }
+        
+        current_index = 0
+        if st.session_state.current_page in nav_options:
+            current_index = list(nav_options.keys()).index(st.session_state.current_page)
+        
+        page = st.radio(
+            "Select Page",
+            list(nav_options.keys()),
+            format_func=lambda x: f"{nav_options[x]} {x}",
+            index=current_index,
+            label_visibility="collapsed",
+            key="sidebar_nav_radio"
+        )
+        
+        if page != st.session_state.current_page:
+            st.session_state.current_page = page
+            st.rerun()
+
+        st.divider()
         
         uploaded_files = st.file_uploader(
             "📎 Upload Study Materials",
@@ -554,88 +610,6 @@ def main():
         if st.session_state.vector_store:
             count = st.session_state.vector_store.get_collection_count()
             st.metric("Indexed Chunks", count)
-        
-        st.divider()
-        
-        # Navigation Section (Moved to top of sidebar)
-        st.markdown("""
-        <div style="background: #000; padding: 0.8rem; border: 3px solid var(--deadpool-red); margin-bottom: 0.5rem; text-align: center; box-shadow: 4px 4px 0px #000;">
-            <h2 style="color: white; margin: 0; font-size: 1.5rem; border: none;">🎯 MENU</h2>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Make navigation buttons more visible
-        nav_options = {
-            "Home": "🏠",
-            "Flashcards": "📇",
-            "Quizzes": "📝",
-            "Revision Planner": "📅",
-            "Chat Assistant": "💬",
-            "Analytics": "📊"
-        }
-        
-        # Get current index for radio button
-        current_index = 0
-        if st.session_state.current_page in nav_options:
-            current_index = list(nav_options.keys()).index(st.session_state.current_page)
-        
-        page = st.radio(
-            "Select Page",
-            list(nav_options.keys()),
-            format_func=lambda x: f"{nav_options[x]} {x}",
-            index=current_index,
-            label_visibility="collapsed"
-        )
-        
-        # Sync with main page navigation
-        if page != st.session_state.current_page:
-            st.session_state.current_page = page
-            st.rerun()
-        
-        st.divider()
-
-        # Document Management - Upload Section
-        st.markdown("### 📚 UPLOAD")
-        
-        # Workflow Guide
-        with st.expander("📖 How It Works - Step by Step", expanded=False):
-            st.markdown("""
-            ### 🔄 AI Study Assistant Workflow
-            
-            **1️⃣ Upload Documents**
-            - Upload PDF, DOCX, or TXT files
-            - Multiple files can be uploaded at once
-            
-            **2️⃣ Text Extraction**
-            - System extracts text from PDFs
-            - Supports OCR for image-based documents
-            
-            **3️⃣ Chunking**
-            - Text is divided into manageable pieces
-            - Maintains context across chunks
-            
-            **4️⃣ Topic Classification**
-            - AI identifies topics and subtopics
-            - Organizes content for better learning
-            
-            **5️⃣ Embeddings**
-            - Creates semantic search vectors
-            - Enables intelligent content retrieval
-            
-            **6️⃣ Generate Content**
-            - **Flashcards**: Auto-generated Q/A pairs
-            - **Quizzes**: Adaptive practice tests
-            - **Planner**: Smart revision schedules
-            
-            **7️⃣ Chat & Learn**
-            - Ask questions about your materials
-            - Get answers with source citations
-            - Understand concepts better
-            
-            ---
-            **Quick Start:**
-            1. Upload → 2. Save → 3. Process → 4. Generate/Ask
-            """)
         
         st.divider()
     
