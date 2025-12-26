@@ -1025,6 +1025,7 @@ def show_flashcards_page():
             processing_msg.empty()
             st.session_state.flashcards = flashcards
             st.session_state.num_flashcards = 10  # Reset to default
+            trigger_deadpool_balloons()
             st.success(f"✅ Generated {len(flashcards)} flashcards!")
             st.rerun()
     
@@ -1130,6 +1131,11 @@ def show_quizzes_page():
             st.metric("Score", f"{result['score']}/{result['total']}")
             st.metric("Accuracy", f"{result['accuracy']*100:.1f}%")
             
+            # Achievement! Trigger balloons if > 50%
+            if result['accuracy'] > 0.5:
+                trigger_deadpool_balloons()
+                st.success("🔥 MAXIMUM EFFORT! You're crushing it!")
+            
             with st.expander("View Details"):
                 for detail in result['details']:
                     is_correct = detail['is_correct']
@@ -1170,6 +1176,7 @@ def show_planner_page():
             study_days
         )
         processing_msg.empty()
+        trigger_deadpool_balloons()
         st.success(f"✅ Created revision plan with {len(plan)} items!")
     
     # Load and display plan
@@ -1239,6 +1246,7 @@ def show_planner_page():
                         with c2:
                             if st.button("✅ Done", key=f"comp_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'completed')
+                                trigger_deadpool_balloons()
                                 st.rerun()
                         
                         # In-place study trigger buttons
@@ -1295,10 +1303,10 @@ def show_planner_page():
                                     res = st.session_state.agent_controller.evaluate_quiz(questions, st.session_state.planner_quiz_answers)
                                     st.success(f"🎯 Score: {res['score']}/{res['total']} ({res['accuracy']*100:.1f}%)")
                                     # Also update progress if they did well
-                                    if res['accuracy'] >= 0.7:
+                                    if res['accuracy'] > 0.5:
                                         st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'completed')
                                         trigger_deadpool_balloons()
-                                        st.info("Great job! This topic has been marked as completed.")
+                                        st.info("🔥 Achievement Unlocked! Topic marked as completed.")
                         
                         if st.button("Close Study Area", key=f"close_{item_topic[:10]}_{item_date}", use_container_width=True):
                             st.session_state.planner_study_mode = None
