@@ -349,6 +349,35 @@ st.markdown("""
         padding-bottom: 0rem !important;
         max-width: 1200px !important;
     }
+
+    /* Designer Comic Card with Flair */
+    .designer-card {
+        background: #000 !important;
+        border: 4px solid var(--deadpool-red) !important;
+        padding: 1.5rem !important;
+        box-shadow: 10px 10px 0px #000 !important;
+        margin-bottom: 1.5rem !important;
+        position: relative;
+        overflow: hidden;
+    }
+    .designer-card::before {
+        content: "";
+        position: absolute;
+        top: -50%; left: -50%; width: 200%; height: 200%;
+        background-image: radial-gradient(circle, rgba(168,0,0,0.1) 1px, transparent 1px);
+        background-size: 15px 15px;
+        z-index: 0;
+        pointer-events: none;
+    }
+    .designer-header {
+        font-family: 'Bangers', cursive !important;
+        color: var(--deadpool-red) !important;
+        text-shadow: 2px 2px 0px #000;
+        text-transform: uppercase;
+        transform: rotate(-1deg);
+        display: inline-block;
+        margin-bottom: 1rem !important;
+    }
     
     /* Custom Deadpool Balloons */
     @keyframes floatUp {
@@ -869,58 +898,58 @@ def main():
     """, unsafe_allow_html=True)
 
 def show_home_page():
-    """Deadpool-themed Home page with high-impact visuals"""
+    """Deadpool-themed Home page with Designer Visuals"""
     
     # Hero Section with Deadpool Action Grid Style - RED/BLACK/WHITE
     st.markdown("""
-    <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 4rem 1rem; border: 6px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); text-align: center; margin-bottom: 2rem; position: relative;">
+    <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 4rem 1rem; border: 6px solid #000; box-shadow: 12px 12px 0px var(--deadpool-red); text-align: center; margin-bottom: 2rem; position: relative;">
         <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.65);"></div>
         <div style="position: relative; z-index: 2;">
-            <h1 style="font-family: 'Bangers', cursive; color: var(--deadpool-red); font-size: 3rem; text-shadow: 4px 4px 0px #000; margin: 0;">Turn Your Docs into Weaponized Knowledge!</h1>
-            <p style="font-family: 'Bangers', cursive; color: #fff; font-size: 1.4rem; background: #000; display: inline-block; padding: 0.3rem 1.5rem; transform: skew(-10deg); margin-top: 1rem; border: 2px solid var(--deadpool-red);">Upload, Analyze, Conquer with Flashcards, Quizzes & Smart Planners.</p>
+            <h1 class="designer-header" style="font-size: 3.5rem; text-shadow: 4px 4px 0px #000; margin: 0;">Turn Your Docs into Weaponized Knowledge!</h1>
+            <p style="font-family: 'Bangers', cursive; color: #fff; font-size: 1.6rem; background: #000; display: inline-block; padding: 0.5rem 2rem; transform: skew(-10deg); margin-top: 1.5rem; border: 3px solid var(--deadpool-red); box-shadow: 5px 5px 0px #000;">Upload, Analyze, Conquer with AI-Powered Intelligence.</p>
         </div>
     </div>
     """, unsafe_allow_html=True)
-
+        
     # CASE 1: NEW USER EXPERIENCE (High-Impact Onboarding)
     if not st.session_state.documents_processed:
-        st.markdown("<h2 style='text-align: center;'>⚔️ MISSION OBJECTIVES</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 class='designer-header' style='text-align: center; display: block; font-size: 2.5rem;'>⚔️ MISSION OBJECTIVES</h2>", unsafe_allow_html=True)
         
-        # Journey Cards with Comic Borders
+        # Journey Cards with Designer Style
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("""
-            <div class="comic-card">
-                <h3 style="font-size: 1.8rem; border: none;">1️⃣ LOAD UP</h3>
-                <p style="color: #fff; font-size: 1.1rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Drop your PDFs, DOCX, or Text notes into the feed.</p>
+            <div class="designer-card" style="transform: rotate(-0.5deg);">
+                <h3 class="designer-header" style="font-size: 2rem;">1️⃣ LOAD UP</h3>
+                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Drop your PDFs, DOCX, or Text notes into the side-feed.</p>
             </div>
-            <div class="comic-card">
-                <h3 style="font-size: 1.8rem; border: none;">3️⃣ EXTRACT</h3>
-                <p style="color: #fff; font-size: 1.1rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'PROCESS'</b>. My agents will slice and dice your text into pure semantic gold.</p>
+            <div class="designer-card" style="transform: rotate(0.5deg);">
+                <h3 class="designer-header" style="font-size: 2rem;">3️⃣ EXTRACT</h3>
+                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'PROCESS'</b>. My agents will slice and dice your text into pure semantic gold.</p>
             </div>
             """, unsafe_allow_html=True)
         with col2:
             st.markdown("""
-            <div class="comic-card">
-                <h3 style="font-size: 1.8rem; border: none;">2️⃣ LOCK & LOAD</h3>
-                <p style="color: #fff; font-size: 1.1rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'SAVE'</b> to commit those files to my infinite memory banks.</p>
+            <div class="designer-card" style="transform: rotate(0.5deg);">
+                <h3 class="designer-header" style="font-size: 2rem;">2️⃣ LOCK & LOAD</h3>
+                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'SAVE'</b> to commit those files to my infinite memory banks.</p>
             </div>
-            <div class="comic-card">
-                <h3 style="font-size: 1.8rem; border: none;">4️⃣ DOMINATE</h3>
-                <p style="color: #fff; font-size: 1.1rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now ready.</p>
+            <div class="designer-card" style="transform: rotate(-0.5deg);">
+                <h3 class="designer-header" style="font-size: 2rem;">4️⃣ DOMINATE</h3>
+                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now operational.</p>
             </div>
             """, unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
         # Add the thumbs up Deadpool image
-        st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=300)
+        st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=350)
         
         return
-
-    # CASE 2: RETURNING USER (Pro Dashboard)
-    st.markdown("<h2>⚡ COMMAND CENTER</h2>", unsafe_allow_html=True)
     
-    # 1. High-Impact Quick Access - ALREADY UNIFORM VIA CSS
+    # CASE 2: RETURNING USER (Pro Dashboard)
+    st.markdown("<h2 class='designer-header' style='font-size: 2.5rem;'>⚡ COMMAND CENTER</h2>", unsafe_allow_html=True)
+    
+    # 1. High-Impact Quick Access
     col1, col2, col3, col4 = st.columns(4)
     with col1:
         if st.button("📇 CARDS", use_container_width=True, key="dash_flash"):
@@ -940,12 +969,16 @@ def show_home_page():
     # 2. Performance Stats
     if st.session_state.agent_controller:
         stats = st.session_state.agent_controller.get_statistics()
-        st.markdown("<h3 style='color: #fff;'>📊 MISSION INTEL</h3>", unsafe_allow_html=True)
+        st.markdown("<h3 class='designer-header'>📊 MISSION INTEL</h3>", unsafe_allow_html=True)
         c1, c2, c3, c4 = st.columns(4)
-        with c1: st.metric("TOPICS", stats['total_topics'])
-        with c2: st.metric("FLASHCARDS", stats['total_flashcards'])
-        with c3: st.metric("QUIZZES", stats['total_quizzes'])
-        with c4: st.metric("CONQUERED", f"{stats['revision_stats']['completion_rate']:.1f}%")
+        with c1: 
+            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1rem !important;"><h4 class="designer-header" style="font-size: 1rem;">TOPICS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0;">{stats["total_topics"]}</p></div>', unsafe_allow_html=True)
+        with c2: 
+            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1rem !important;"><h4 class="designer-header" style="font-size: 1rem;">CARDS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0;">{stats["total_flashcards"]}</p></div>', unsafe_allow_html=True)
+        with c3: 
+            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1rem !important;"><h4 class="designer-header" style="font-size: 1rem;">QUIZZES</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0;">{stats["total_quizzes"]}</p></div>', unsafe_allow_html=True)
+        with c4: 
+            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1rem !important;"><h4 class="designer-header" style="font-size: 1rem;">WIN RATE</h4><p style="font-size: 2rem; font-family: Bangers; color: #28a745; margin: 0;">{stats["revision_stats"]["completion_rate"]:.1f}%</p></div>', unsafe_allow_html=True)
 
     st.divider()
 
@@ -956,231 +989,262 @@ def show_home_page():
         
         with col_topics:
             if result.get('topics'):
-                st.markdown("<h3>📚 WEAPONIZED TOPICS</h3>", unsafe_allow_html=True)
+                st.markdown("<h3 class='designer-header'>📚 WEAPONIZED TOPICS</h3>", unsafe_allow_html=True)
                 for idx, topic_data in enumerate(result['topics'][:5], 1):
                     with st.expander(f"🔴 {topic_data.get('topic', 'Topic').upper()}", expanded=(idx == 1)):
                         if topic_data.get('key_points'):
                             for p in topic_data['key_points'][:3]: st.markdown(f"⚔️ {p}")
         
         with col_samples:
-            st.markdown("<h3 style='color: #fff;'>📄 INTEL SNAPS</h3>", unsafe_allow_html=True)
+            st.markdown("<h3 class='designer-header'>📄 INTEL SNAPS</h3>", unsafe_allow_html=True)
             if result.get('chunks'):
                 for chunk in result['chunks'][:2]:
                     st.markdown(f"""
-                    <div class="comic-card" style="padding: 1rem; border-width: 2px; font-size: 0.9rem; margin-bottom: 0.5rem; color: #eee; font-style: italic;">
-                        "{chunk['text'][:120]}..."
+                    <div class="designer-card" style="padding: 1rem !important; border-width: 2px;">
+                        <p style="color: #eee; font-style: italic; font-size: 0.95rem; margin: 0;">"{chunk['text'][:150]}..."</p>
                     </div>
                     """, unsafe_allow_html=True)
 
     # Thumbs up Deadpool at the bottom for returning users too
-    st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=250)
+    st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=300)
 
     # 4. Deadpool Footer EXPANDER
     with st.expander("💀 THE CHIMICHANGA MANUAL (HELP)", expanded=False):
         st.markdown("""
-        <div class="comic-card" style="padding: 1.5rem;">
-            <h4 style="font-family: 'Bangers', cursive; color: var(--deadpool-red); font-size: 2rem; margin-top: 0;">DON'T BE A DEGENERATE:</h4>
-            <ul style="color: #fff; font-size: 1.1rem; font-family: 'Oswald', sans-serif;">
+        <div class="designer-card" style="padding: 2rem !important; border-style: dashed;">
+            <h4 class="designer-header" style="font-size: 2.5rem; margin-top: 0;">DON'T BE A DEGENERATE:</h4>
+            <ul style="color: #fff; font-size: 1.2rem; font-family: 'Oswald', sans-serif; line-height: 1.6;">
                 <li><b>RELOAD:</b> Put new files in the side-slot and hit 'Process' to reload your arsenal.</li>
                 <li><b>EXTRACT:</b> Anki and CSV buttons are in the Cards/Quiz zones. Use 'em.</li>
                 <li><b>EFFORT:</b> If the AI is slow, it's probably thinking about tacos. Give it a sec.</li>
             </ul>
-            <p style="text-align: right; font-style: italic; color: var(--deadpool-red); font-family: 'Bangers', cursive; font-size: 1.2rem;">- Deadpool Out.</p>
+            <p style="text-align: right; font-style: italic; color: var(--deadpool-red); font-family: 'Bangers', cursive; font-size: 1.5rem; margin-top: 20px;">- Deadpool Out.</p>
         </div>
         """, unsafe_allow_html=True)
 
 def show_flashcards_page():
-    """Flashcards page"""
-    st.markdown("### 📇 Flashcards")
+    """Flashcards page with Designer Comic Style"""
+    st.markdown('<h1 class="designer-header" style="font-size: 3.5rem;">📇 WEAPONIZED FLASHCARDS</h1>', unsafe_allow_html=True)
     
     if not st.session_state.documents_processed:
-        st.warning("Please process documents first!")
+        st.markdown("""
+        <div class="designer-card">
+            <h2 class="designer-header">⚠️ NO INTEL FOUND</h2>
+            <p style="font-size: 1.2rem; color: #fff;">Upload some documents and hit 'PROCESS' first, rookie! I can't pull knowledge out of thin air... yet.</p>
+        </div>
+        """, unsafe_allow_html=True)
         return
     
-    col1, col2, col3 = st.columns([2, 2, 1])
-    with col1:
-        num_flashcards = st.slider("Number of flashcards", 5, 30, value=st.session_state.num_flashcards, key="flashcard_slider")
-    with col2:
-        difficulty_mix_label = st.selectbox(
-            "Difficulty mix",
-            [
-                "Easy + Medium",
-                "Medium + Hard",
-                "Easy + Medium + Hard"
-            ],
-            index=2,
-            help="Choose how difficulties are distributed across the generated flashcards."
-        )
-        mix_map = {
-            "Easy + Medium": "easy_medium",
-            "Medium + Hard": "medium_hard",
-            "Easy + Medium + Hard": "easy_medium_hard",
-        }
-        difficulty_mix = mix_map.get(difficulty_mix_label, "easy_medium_hard")
-    with col3:
-        if st.button("🔄 Generate Flashcards", use_container_width=True, type="primary"):
-            # Show static processing message
-            processing_msg = st.info("Processing... Generating flashcards...")
-            flashcards = st.session_state.agent_controller.generate_flashcards(
-                num_flashcards,
-                difficulty_mix=difficulty_mix
+    with st.container():
+        st.markdown('<div class="designer-card">', unsafe_allow_html=True)
+        st.markdown('<h3 class="designer-header">ARSENAL CONFIGURATION</h3>', unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([2, 2, 1])
+        with col1:
+            num_flashcards = st.slider("CARD QUANTITY", 5, 30, value=st.session_state.num_flashcards, key="flashcard_slider")
+        with col2:
+            difficulty_mix_label = st.selectbox(
+                "DIFFICULTY MIX",
+                ["Easy + Medium", "Medium + Hard", "Easy + Medium + Hard"],
+                index=2
             )
-            processing_msg.empty()
-            st.session_state.flashcards = flashcards
-            st.session_state.num_flashcards = 10  # Reset to default
-            trigger_deadpool_balloons()
-            st.success(f"✅ Generated {len(flashcards)} flashcards!")
-            st.rerun()
+            mix_map = {"Easy + Medium": "easy_medium", "Medium + Hard": "medium_hard", "Easy + Medium + Hard": "easy_medium_hard"}
+            difficulty_mix = mix_map.get(difficulty_mix_label, "easy_medium_hard")
+        with col3:
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("🔄 GENERATE ARSENAL", use_container_width=True, type="primary"):
+                processing_msg = st.info("Deadpool is thinking (mostly about tacos and world peace... nah, just tacos)...")
+                flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards, difficulty_mix=difficulty_mix)
+                processing_msg.empty()
+                st.session_state.flashcards = flashcards
+                trigger_deadpool_balloons()
+                st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
     
     # Load existing flashcards
     if not st.session_state.flashcards:
         try:
             flashcards = st.session_state.agent_controller.flashcard_agent.load_flashcards()
             st.session_state.flashcards = flashcards
-        except:
-            pass
+        except: pass
     
     # Display flashcards
     if st.session_state.flashcards:
-        st.markdown(f"### 📚 {len(st.session_state.flashcards)} Flashcards")
+        st.markdown(f'<h3 class="designer-header">📚 {len(st.session_state.flashcards)} CARDS IN YOUR ARSENAL</h3>', unsafe_allow_html=True)
         
-        # Add Export Button
         csv_data = st.session_state.agent_controller.flashcard_agent.export_to_csv(st.session_state.flashcards)
         st.download_button(
-            label="📥 Export to Anki (CSV)",
+            label="📥 EXPORT TO ANKI (CSV)",
             data=csv_data,
             file_name="flashcards_anki.csv",
             mime="text/csv",
-            help="Download flashcards in a format compatible with Anki import"
+            use_container_width=True
         )
         
         for i, card in enumerate(st.session_state.flashcards):
-            with st.expander(f"Card {i+1}: {card.get('topic', 'General')} - {card.get('difficulty', 'medium').upper()}"):
-                st.markdown(f"**Q:** {card['question']}")
-                st.markdown(f"**A:** {card['answer']}")
+            with st.container():
+                st.markdown(f"""
+                <div class="designer-card" style="border-left: 12px solid var(--deadpool-red); transform: rotate({(i%2)*0.5 - 0.25}deg);">
+                    <div style="position: relative; z-index: 1;">
+                        <h4 class="designer-header" style="font-size: 1.5rem; margin: 0;">CARD #{i+1} — {card.get('difficulty', 'medium').upper()}</h4>
+                        <p style="font-size: 1.3rem; font-weight: bold; margin: 15px 0; color: #fff; line-height: 1.4;">Q: {card['question']}</p>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                with st.expander("👀 REVEAL CLASSIFIED INTEL (ANSWER)"):
+                    st.markdown(f"""
+                    <div style="padding: 1.5rem; background: #111; border: 3px dashed var(--deadpool-red); box-shadow: 5px 5px 0px #000;">
+                        <p style="font-size: 1.2rem; color: #fff; font-family: 'Oswald', sans-serif;">{card['answer']}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
     else:
-        st.info("Click 'Generate Flashcards' to create flashcards from your study materials!")
+        st.info("Click 'GENERATE' to create flashcards from your study materials!")
 
 def show_quizzes_page():
-    """Quizzes page"""
-    st.markdown("### 📝 Quizzes")
+    """Quizzes page with Designer Comic Style"""
+    st.markdown('<h1 class="designer-header" style="font-size: 3.5rem;">📝 MAXIMUM EFFORT QUIZ</h1>', unsafe_allow_html=True)
     
     if not st.session_state.documents_processed:
-        st.warning("Please process documents first!")
+        st.markdown("""
+        <div class="designer-card">
+            <h2 class="designer-header">⚠️ NO INTEL FOUND</h2>
+            <p style="font-size: 1.2rem; color: #fff;">Upload some documents and hit 'PROCESS' first, rookie! No documents = No questions = No glory.</p>
+        </div>
+        """, unsafe_allow_html=True)
         return
     
-    col1, col2, col3 = st.columns([2, 2, 1])
-    with col1:
-        difficulty = st.selectbox("Difficulty", ["easy", "medium", "hard"], index=1)
-    with col2:
-        # Allow a wider range of questions while still using session state default
-        num_questions = st.slider(
-            "Questions",
-            min_value=3,
-            max_value=30,
-            value=st.session_state.num_questions,
-            key="quiz_slider",
-        )
-    with col3:
-        adaptive = st.checkbox("Adaptive", value=True)
-        if st.button("🎯 Generate Quiz", use_container_width=True, type="primary"):
-            # Show static processing message
-            processing_msg = st.info("Processing... Generating quiz...")
-            questions = st.session_state.agent_controller.generate_quiz(
-                difficulty, num_questions, adaptive
-            )
-            processing_msg.empty()
-            if not questions:
-                st.error("No quiz could be generated. Please ensure documents are processed and contain enough text.")
-            else:
-                st.session_state.quizzes = questions
-                st.session_state.quiz_answers = {}
-                st.session_state.num_questions = 10  # Reset to default
-                st.success(f"✅ Generated {len(questions)} questions!")
-                st.rerun()
+    with st.container():
+        st.markdown('<div class="designer-card">', unsafe_allow_html=True)
+        st.markdown('<h3 class="designer-header">MISSION BRIEFING CONFIG</h3>', unsafe_allow_html=True)
+        col1, col2, col3 = st.columns([2, 2, 1])
+        with col1:
+            difficulty = st.selectbox("INTEL DIFFICULTY", ["easy", "medium", "hard"], index=1)
+        with col2:
+            num_questions = st.slider("TARGET QUESTIONS", 3, 30, value=st.session_state.num_questions, key="quiz_slider")
+        with col3:
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("🎯 INITIATE QUIZ", use_container_width=True, type="primary"):
+                processing_msg = st.info("Drafting questions... mostly about you failing... and maybe some tacos...")
+                questions = st.session_state.agent_controller.generate_quiz(difficulty, num_questions, True)
+                processing_msg.empty()
+                if questions:
+                    st.session_state.quizzes = questions
+                    st.session_state.quiz_answers = {}
+                    trigger_deadpool_balloons()
+                    st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
     
     # Display quiz
     if st.session_state.quizzes:
-        st.markdown(f"### 📋 Quiz ({len(st.session_state.quizzes)} questions)")
+        st.markdown(f'<h3 class="designer-header">📋 {len(st.session_state.quizzes)} CHALLENGES STANDING BETWEEN YOU AND VICTORY</h3>', unsafe_allow_html=True)
         
-        # Add Export Button
         csv_data = st.session_state.agent_controller.quiz_agent.export_to_csv(st.session_state.quizzes)
-        st.download_button(
-            label="📥 Export Quiz to CSV",
-            data=csv_data,
-            file_name="quiz_questions.csv",
-            mime="text/csv",
-            help="Download quiz questions and answers as a CSV file"
-        )
+        st.download_button(label="📥 DOWNLOAD MISSION DEBRIEF (CSV)", data=csv_data, file_name="quiz_questions.csv", mime="text/csv", use_container_width=True)
         
         for i, q in enumerate(st.session_state.quizzes):
-            st.markdown(f"**Q{i+1}:** {q['question']}")
+            st.markdown(f"""
+            <div class="designer-card" style="margin-bottom: 0px; border-bottom: none; transform: rotate({(i%2)*-0.3}deg);">
+                <h4 class="designer-header" style="font-size: 1.5rem; margin: 0;">QUESTION #{i+1}</h4>
+                <p style="font-size: 1.2rem; font-weight: bold; margin-top: 15px; color: #fff; line-height: 1.4;">{q['question']}</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Options in a sub-container
+            st.markdown('<div class="designer-card" style="margin-top: 0px; border-top: 2px dashed var(--deadpool-red); background: #080808 !important; padding: 1rem !important;">', unsafe_allow_html=True)
             selected = st.radio(
-                "Options:",
+                f"Options for Q{i+1}:",
                 q['options'],
                 key=f"quiz_q{i}",
                 label_visibility="collapsed"
             )
             st.session_state.quiz_answers[i] = q['options'].index(selected) if selected in q['options'] else -1
+            st.markdown('</div>', unsafe_allow_html=True)
         
-        if st.button("✅ Submit Quiz", type="primary", use_container_width=True):
-            result = st.session_state.agent_controller.evaluate_quiz(
-                st.session_state.quizzes,
-                st.session_state.quiz_answers
-            )
+        if st.button("✅ SUBMIT MISSION INTEL", type="primary", use_container_width=True):
+            result = st.session_state.agent_controller.evaluate_quiz(st.session_state.quizzes, st.session_state.quiz_answers)
             st.session_state.quiz_result = result
             
-            st.markdown("### 📊 Results")
-            st.metric("Score", f"{result['score']}/{result['total']}")
-            st.metric("Accuracy", f"{result['accuracy']*100:.1f}%")
+            st.markdown("""
+            <div class="designer-card" style="text-align: center; border-width: 6px;">
+                <h1 class="designer-header" style="font-size: 3rem; border: none; margin: 0;">📊 MISSION RESULTS</h1>
+            </div>
+            """, unsafe_allow_html=True)
             
-            # Achievement! Trigger balloons if > 50%
+            c1, c2 = st.columns(2)
+            with c1: 
+                st.markdown(f"""
+                <div class="designer-card" style="text-align: center;">
+                    <h3 class="designer-header" style="margin: 0;">FINAL SCORE</h3>
+                    <p style="font-size: 3.5rem; font-family: 'Bangers'; color: #fff; margin: 0;">{result['score']} / {result['total']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+            with c2:
+                st.markdown(f"""
+                <div class="designer-card" style="text-align: center;">
+                    <h3 class="designer-header" style="margin: 0;">ACCURACY</h3>
+                    <p style="font-size: 3.5rem; font-family: 'Bangers'; color: var(--deadpool-red); margin: 0;">{result['accuracy']*100:.1f}%</p>
+                </div>
+                """, unsafe_allow_html=True)
+            
             if result['accuracy'] > 0.5:
                 trigger_deadpool_balloons()
-                st.success("🔥 MAXIMUM EFFORT! You're crushing it!")
+                st.success("🔥 MAXIMUM EFFORT! You're crushing it like a chimichanga!")
+            else:
+                st.error("💀 Ouch. Maybe stick to watching movies? Try again, rookie!")
             
-            with st.expander("View Details"):
+            with st.expander("🔍 INTEL DEBRIEF (VIEW FULL DETAILS)"):
                 for detail in result['details']:
                     is_correct = detail['is_correct']
                     icon = "✅" if is_correct else "❌"
-                    st.markdown(f"{icon} **Q{detail['question_index']+1}**")
-                    st.markdown(f"Your answer: {detail.get('user_answer', 'Not answered')}")
-                    st.markdown(f"Correct answer: {detail.get('correct_answer', '')}")
-                    if detail.get('explanation'):
-                        st.info(detail['explanation'])
+                    color = "#28a745" if is_correct else "#dc3545"
+                    st.markdown(f"""
+                    <div style="padding: 1.5rem; border-left: 8px solid {color}; margin-bottom: 15px; background: #111; box-shadow: 4px 4px 0px #000;">
+                        <p style="font-size: 1.1rem; font-family: 'Bangers'; color: {color};"><strong>{icon} Q{detail['question_index']+1}</strong></p>
+                        <p style="color: #fff;"><strong>Your answer:</strong> <span style="color: {color};">{detail.get('user_answer', 'Not answered')}</span></p>
+                        <p style="color: #fff;"><strong>Correct answer:</strong> <span style="color: #28a745;">{detail.get('correct_answer', '')}</span></p>
+                        <p style="font-style: italic; font-size: 0.95rem; color: #aaa; margin-top: 10px;">{detail.get('explanation', '')}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
     else:
-        st.info("Click 'Generate Quiz' to create a quiz from your study materials!")
+        st.info("Click 'INITIATE QUIZ' to create a quiz from your arsenal!")
 
 def show_planner_page():
-    """Revision planner page"""
-    st.markdown("### 📅 Revision Planner")
+    """Revision planner page with Designer Comic Style"""
+    st.markdown('<h1 class="designer-header" style="font-size: 3.5rem;">📅 STRATEGIC BATTLE PLAN</h1>', unsafe_allow_html=True)
     
     if not st.session_state.documents_processed:
-        st.warning("Please process documents first!")
+        st.markdown("""
+        <div class="designer-card">
+            <h2 class="designer-header">⚠️ NO INTEL FOUND</h2>
+            <p style="font-size: 1.2rem; color: #fff;">Upload some documents and hit 'PROCESS' first, rookie! I can't plan your world domination without data.</p>
+        </div>
+        """, unsafe_allow_html=True)
         return
     
     # Initialize planner-specific study state
     if 'planner_study_mode' not in st.session_state:
-        st.session_state.planner_study_mode = None  # None, 'flashcards', 'quiz'
+        st.session_state.planner_study_mode = None
     if 'planner_study_topic' not in st.session_state:
         st.session_state.planner_study_topic = None
     
-    col1, col2 = st.columns(2)
-    with col1:
-        exam_date = st.date_input("Exam Date", value=None)
-    with col2:
-        study_days = st.slider("Study Days/Week", 3, 7, 5)
-    
-    if st.button("📅 Create Revision Plan", type="primary", use_container_width=True):
-        # Show static processing message
-        processing_msg = st.info("Processing... Creating revision plan...")
-        plan = st.session_state.agent_controller.create_revision_plan(
-            exam_date.strftime('%Y-%m-%d') if exam_date else None,
-            study_days
-        )
-        processing_msg.empty()
-        trigger_deadpool_balloons()
-        st.success(f"✅ Created revision plan with {len(plan)} items!")
+    with st.container():
+        st.markdown('<div class="designer-card">', unsafe_allow_html=True)
+        st.markdown('<h3 class="designer-header">MISSION TIMELINE CONFIG</h3>', unsafe_allow_html=True)
+        col1, col2 = st.columns(2)
+        with col1:
+            exam_date = st.date_input("MISSION DEADLINE (EXAM DATE)", value=None)
+        with col2:
+            study_days = st.slider("TRAINING INTENSITY (DAYS/WEEK)", 3, 7, 5)
+        
+        if st.button("📅 INITIATE STRATEGIC BATTLE PLAN", type="primary", use_container_width=True):
+            processing_msg = st.info("Calculating optimal learning trajectories... trying not to get distracted by tacos...")
+            plan = st.session_state.agent_controller.create_revision_plan(
+                exam_date.strftime('%Y-%m-%d') if exam_date else None,
+                study_days
+            )
+            processing_msg.empty()
+            trigger_deadpool_balloons()
+            st.success(f"✅ Strategic Battle Plan ready with {len(plan)} targets identified!")
+        st.markdown('</div>', unsafe_allow_html=True)
     
     # Load and display plan
     try:
@@ -1188,319 +1252,225 @@ def show_planner_page():
         plan = st.session_state.agent_controller.planner_agent.revision_plan
         
         if plan:
-            st.markdown(f"### 📋 Revision Schedule ({len(plan)} items)")
+            st.markdown(f'<h3 class="designer-header">📋 TARGET LIST ({len(plan)} MISSION ITEMS)</h3>', unsafe_allow_html=True)
             
-            # Statistics
             stats = st.session_state.agent_controller.planner_agent.get_statistics()
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("Total", stats['total_topics'])
-            with col2:
-                st.metric("Completed", stats['completed'])
-            with col3:
-                st.metric("Pending", stats['pending'])
-            with col4:
-                st.metric("Progress", f"{stats['completion_rate']:.1f}%")
+            c1, c2, c3, c4 = st.columns(4)
             
-            # Upcoming revisions
+            with c1: 
+                st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1rem !important;"><h4 class="designer-header" style="font-size: 1rem;">TOTAL</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff;">{stats["total_topics"]}</p></div>', unsafe_allow_html=True)
+            with c2: 
+                st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1rem !important;"><h4 class="designer-header" style="font-size: 1rem;">DONE</h4><p style="font-size: 2rem; font-family: Bangers; color: #28a745;">{stats["completed"]}</p></div>', unsafe_allow_html=True)
+            with c3: 
+                st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1rem !important;"><h4 class="designer-header" style="font-size: 1rem;">PENDING</h4><p style="font-size: 2rem; font-family: Bangers; color: var(--deadpool-red);">{stats["pending"]}</p></div>', unsafe_allow_html=True)
+            with c4: 
+                st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1rem !important;"><h4 class="designer-header" style="font-size: 1rem;">WIN RATE</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff;">{stats["completion_rate"]:.1f}%</p></div>', unsafe_allow_html=True)
+            
             upcoming = st.session_state.agent_controller.planner_agent.get_upcoming_revisions(14)
             if upcoming:
-                st.markdown("---")
-                st.markdown("### 🗓️ Daily Focus Areas")
-                
-                for item in upcoming:
+                st.markdown("<br>", unsafe_allow_html=True)
+                for i, item in enumerate(upcoming):
                     item_topic = item['topic']
                     item_date = item['date']
-                    
-                    # Study Area Logic - If this topic is being studied, show it here
-                    is_studying = (st.session_state.planner_study_topic == item_topic and 
-                                  st.session_state.planner_study_mode is not None)
-                    
-                    # Card Header
                     status = item['status']
+                    
                     status_color = "#28a745" if status == 'completed' else "#A80000" if status == 'in_progress' else "#333333"
                     status_icon = "✅" if status == 'completed' else "⚔️" if status == 'in_progress' else "📅"
                     
                     st.markdown(f"""
-                    <div style="background: #000; padding: 1.2rem; border: 3px solid var(--deadpool-red); border-left: 10px solid {status_color}; margin-top: 1rem; box-shadow: 4px 4px 0px #000;">
+                    <div style="background: #000; padding: 1.2rem; border: 4px solid var(--deadpool-red); border-left: 15px solid {status_color}; margin-top: 1.5rem; box-shadow: 8px 8px 0px #000; position: relative;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <h4 style="margin: 0; color: white;">{status_icon} {item_date} — {item_topic}</h4>
-                            <span style="background: {status_color}; color: white; padding: 0.2rem 0.8rem; border-radius: 0px; font-size: 0.7rem; font-weight: 700; border: 2px solid #000;">{status.upper()}</span>
+                            <h4 class="designer-header" style="margin: 0; color: white; font-size: 1.4rem;">{status_icon} {item_date} — {item_topic}</h4>
+                            <span style="background: {status_color}; color: white; padding: 0.3rem 1rem; border: 2px solid #000; font-family: 'Bangers'; font-size: 1rem;">{status.upper()}</span>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
                     
+                    st.markdown(f'<div class="designer-card" style="margin-top: 0px; border-top: none; padding-top: 10px; border-width: 4px; box-shadow: 8px 8px 0px #000;">', unsafe_allow_html=True)
                     col_info, col_actions = st.columns([3, 2])
                     
                     with col_info:
                         if item.get('subtopics'):
-                            st.markdown(f"<p style='margin-top:10px;'><b>Focus:</b> {', '.join(item['subtopics'])}</p>", unsafe_allow_html=True)
-                        with st.expander("📝 Study Points"):
+                            st.markdown(f"<p style='color: #fff; font-size: 1.1rem;'><strong>FOCUS SECTORS:</strong> {', '.join(item['subtopics'])}</p>", unsafe_allow_html=True)
+                        with st.expander("📝 VIEW MISSION INTEL POINTS"):
                             for point in item.get('key_points', []):
-                                st.markdown(f"- {point}")
+                                st.markdown(f"⚔️ <span style='color: #eee;'>{point}</span>", unsafe_allow_html=True)
                     
                     with col_actions:
-                        st.markdown("<div style='margin-top:10px;'></div>", unsafe_allow_html=True)
                         c1, c2 = st.columns(2)
                         with c1:
-                            if st.button("🚧 Active", key=f"prog_{item_date}_{item_topic}", use_container_width=True):
+                            if st.button("🚧 ENGAGE", key=f"prog_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'in_progress')
                                 st.rerun()
                         with c2:
-                            if st.button("✅ Done", key=f"comp_{item_date}_{item_topic}", use_container_width=True):
+                            if st.button("✅ NEUTRALIZE", key=f"comp_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'completed')
                                 trigger_deadpool_balloons()
                                 st.rerun()
                         
-                        # In-place study trigger buttons
                         cc1, cc2 = st.columns(2)
                         with cc1:
-                            if st.button("📇 Flashcards", key=f"fbtn_{item_date}_{item_topic}", use_container_width=True):
+                            if st.button("📇 CARDS", key=f"fbtn_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.planner_study_topic = item_topic
                                 st.session_state.planner_study_mode = 'flashcards'
-                                with st.spinner(f"Generating flashcards for {item_topic}..."):
-                                    st.session_state.planner_temp_data = st.session_state.agent_controller.generate_flashcards(num_flashcards=5, topic=item_topic)
-                                    if not st.session_state.planner_temp_data:
-                                        st.error("Could not find content for this topic. Please try processing documents again.")
+                                st.session_state.planner_temp_data = st.session_state.agent_controller.generate_flashcards(num_flashcards=5, topic=item_topic)
                                 st.rerun()
                         with cc2:
-                            if st.button("📝 Quiz", key=f"qbtn_{item_date}_{item_topic}", use_container_width=True):
+                            if st.button("📝 QUIZ", key=f"qbtn_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.planner_study_topic = item_topic
                                 st.session_state.planner_study_mode = 'quiz'
-                                with st.spinner(f"Generating quiz for {item_topic}..."):
-                                    st.session_state.planner_temp_data = st.session_state.agent_controller.generate_quiz(difficulty="medium", num_questions=3, topic=item_topic)
-                                    st.session_state.planner_quiz_answers = {}
-                                    if not st.session_state.planner_temp_data:
-                                        st.error("Could not find content for this topic. Please try processing documents again.")
+                                st.session_state.planner_temp_data = st.session_state.agent_controller.generate_quiz(difficulty="medium", num_questions=3, topic=item_topic)
+                                st.session_state.planner_quiz_answers = {}
                                 st.rerun()
-
-                    # SHOW STUDY CONTENT RIGHT HERE
-                    if is_studying:
-                        st.markdown(f"<div style='background: #000; padding: 1.5rem; border-radius: 0px; border: 3px solid var(--deadpool-red); margin: 1rem 0; box-shadow: 6px 6px 0px #000;'>", unsafe_allow_html=True)
-                        st.markdown(f"#### 🎓 Studying: {item_topic}")
+                    
+                    # Study Mode display inside card
+                    if st.session_state.planner_study_topic == item_topic and st.session_state.planner_study_mode:
+                        st.markdown('<div style="background: #080808; padding: 1.5rem; border: 3px dashed var(--deadpool-red); margin-top: 15px; box-shadow: inset 0 0 10px rgba(168,0,0,0.3);">', unsafe_allow_html=True)
+                        st.markdown(f'<h4 class="designer-header">TRAINING ZONE: {st.session_state.planner_study_mode.upper()}</h4>', unsafe_allow_html=True)
                         
-                        study_data = st.session_state.get('planner_temp_data', [])
+                        if st.session_state.planner_study_mode == 'flashcards':
+                            for j, card in enumerate(st.session_state.get('planner_temp_data', [])):
+                                with st.expander(f"📇 MISSION CARD {j+1}"):
+                                    st.markdown(f"<p style='color:#fff;'><strong>Q:</strong> {card['question']}</p><hr style='border-color:#444;'><p style='color:#fff;'><strong>A:</strong> {card['answer']}</p>", unsafe_allow_html=True)
+                        elif st.session_state.planner_study_mode == 'quiz':
+                            for j, q in enumerate(st.session_state.get('planner_temp_data', [])):
+                                st.markdown(f"<p style='color:#fff; font-weight:bold;'>Q{j+1}: {q['question']}</p>", unsafe_allow_html=True)
+                                opts = q.get('options', [])
+                                sel = st.radio("Options", opts, key=f"pquiz_q{j}_{item_date}_{i}", label_visibility="collapsed")
+                                st.session_state.planner_quiz_answers[j] = opts.index(sel) if sel in opts else -1
+                            if st.button("SUBMIT TRAINING QUIZ", key=f"sub_mini_{item_date}_{i}", type="primary", use_container_width=True):
+                                res = st.session_state.agent_controller.evaluate_quiz(st.session_state.planner_temp_data, st.session_state.planner_quiz_answers)
+                                st.markdown(f"""
+                                <div style="padding: 1rem; background: #111; border: 2px solid var(--deadpool-red); text-align: center; margin-top: 10px;">
+                                    <h3 class="designer-header" style="margin:0;">SCORE: {res['score']}/{res['total']}</h3>
+                                </div>
+                                """, unsafe_allow_html=True)
+                                if res['accuracy'] > 0.5: trigger_deadpool_balloons()
                         
-                        if not study_data:
-                            st.warning("⚠️ No study material found for this specific topic in the documents. Try another topic or check your documents.")
-                        else:
-                            if st.session_state.planner_study_mode == 'flashcards':
-                                for i, card in enumerate(study_data):
-                                    with st.expander(f"📇 Card {i+1}: {card.get('question', 'Q')[:60]}..."):
-                                        st.markdown(f"**Q:** {card.get('question', 'No question')}")
-                                        st.markdown(f"**A:** {card.get('answer', 'No answer')}")
-                            
-                            elif st.session_state.planner_study_mode == 'quiz':
-                                questions = study_data
-                                for i, q in enumerate(questions):
-                                    st.markdown(f"**Q{i+1}:** {q.get('question', 'Question')}")
-                                    options = q.get('options', ["Option A", "Option B", "Option C", "Option D"])
-                                    # Use a safer key and ensure unique
-                                    selected = st.radio(f"Select answer for Q{i+1}:", options, key=f"pquiz_q{i}_{item_topic[:10]}_{item_date}", label_visibility="collapsed")
-                                    if i not in st.session_state.planner_quiz_answers:
-                                        st.session_state.planner_quiz_answers[i] = options.index(selected)
-                                    else:
-                                        st.session_state.planner_quiz_answers[i] = options.index(selected)
-                                
-                                if st.button("Submit Mini-Quiz", key=f"sub_mini_{item_topic[:10]}_{item_date}", type="primary", use_container_width=True):
-                                    res = st.session_state.agent_controller.evaluate_quiz(questions, st.session_state.planner_quiz_answers)
-                                    st.success(f"🎯 Score: {res['score']}/{res['total']} ({res['accuracy']*100:.1f}%)")
-                                    # Also update progress if they did well
-                                    if res['accuracy'] > 0.5:
-                                        st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'completed')
-                                        trigger_deadpool_balloons()
-                                        st.info("🔥 Achievement Unlocked! Topic marked as completed.")
-                        
-                        if st.button("Close Study Area", key=f"close_{item_topic[:10]}_{item_date}", use_container_width=True):
+                        if st.button("EXIT TRAINING ZONE", key=f"close_{item_date}_{i}", use_container_width=True):
                             st.session_state.planner_study_mode = None
-                            st.session_state.planner_study_topic = None
-                            st.session_state.planner_temp_data = []
                             st.rerun()
-                        
-                        st.markdown("</div>", unsafe_allow_html=True)
-
-                    st.markdown("---")
+                        st.markdown('</div>', unsafe_allow_html=True)
+                    
+                    st.markdown('</div>', unsafe_allow_html=True)
+                    st.markdown("<br>", unsafe_allow_html=True)
         else:
-            st.info("Click 'Create Revision Plan' to generate your schedule!")
+            st.info("Click 'INITIATE STRATEGIC BATTLE PLAN' to generate your schedule!")
     except Exception as e:
         st.info("Create a revision plan to get started!")
 
 def show_chat_page():
-    """Chat assistant page - Real-time AI study help"""
-    st.markdown("### 💬 Chat Assistant")
-    st.markdown("Ask questions about your study materials and get instant answers with source citations.")
+    """Chat assistant page with Designer Comic Style"""
+    st.markdown('<h1 class="designer-header" style="font-size: 3.5rem;">💬 INTEL CHAT (AI ASSISTANT)</h1>', unsafe_allow_html=True)
     
-    # Check if documents are processed
     if not st.session_state.documents_processed:
-        st.warning("⚠️ Please upload and process documents first to use the chat assistant!")
+        st.markdown("""
+        <div class="designer-card">
+            <h2 class="designer-header">⚠️ NO INTEL FOUND</h2>
+            <p style="font-size: 1.2rem; color: #fff;">Upload some documents and hit 'PROCESS' first, rookie! I can't answer questions about things I haven't sliced and diced yet.</p>
+        </div>
+        """, unsafe_allow_html=True)
         return
     
-    # Check if vector store has content
-    try:
-        count = st.session_state.vector_store.get_collection_count()
-        # If index is empty but we have chunks in memory, reindex on the fly
-        if count == 0 and st.session_state.agent_controller and st.session_state.agent_controller.memory.chunks:
-            st.info("Re-indexing your processed content...")
-            st.session_state.vector_store.add_documents(st.session_state.agent_controller.memory.chunks)
-            count = st.session_state.vector_store.get_collection_count()
-        if count == 0:
-            st.warning("⚠️ No documents indexed yet. Please process your documents first!")
-            return
-    except Exception:
-        st.warning("⚠️ Vector store not initialized. Please process documents first!")
-        return
-    
-    # Show latest document info
     col1, col2 = st.columns([3, 1])
     with col1:
         if st.session_state.latest_document:
-            st.info(f"📄 **Prioritizing:** {st.session_state.latest_document} (most recently uploaded)")
+            st.markdown(f'<div style="background: rgba(168,0,0,0.1); padding: 0.5rem 1rem; border-left: 5px solid var(--deadpool-red); color: #fff;">📄 <strong>PRIORITY ARSENAL SOURCE:</strong> {st.session_state.latest_document}</div>', unsafe_allow_html=True)
     with col2:
-        if st.button("🗑️ Clear Chat", use_container_width=True):
+        if st.button("🗑️ WIPE CHAT HISTORY", use_container_width=True):
             st.session_state.chat_history = []
             st.rerun()
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Chat history with better formatting
-    if st.session_state.chat_history:
-        for i, chat_item in enumerate(st.session_state.chat_history):
-            # Chat item can be tuple (question, answer) or dict with more info
-            if isinstance(chat_item, tuple):
-                question, answer = chat_item
-                sources = []
-            else:
-                question = chat_item.get('question', '')
-                answer = chat_item.get('answer', '')
-                sources = chat_item.get('sources', [])
-            
-            # User question bubble
-            st.markdown(f"""
-            <div class="chat-message user-message">
-                <div class="chat-bubble user-bubble">
-                    <strong>You:</strong><br>{question}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Assistant answer bubble
-            st.markdown(f"""
-            <div class="chat-message assistant-message">
-                <div class="chat-bubble assistant-bubble">
-                    <strong>Assistant:</strong><br>{answer}
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Show sources if available
-            if sources:
-                with st.expander(f"📚 Sources ({len(sources)})", expanded=False):
-                    for source in sources:
-                        st.markdown(f"• {source}")
-            
-            if i < len(st.session_state.chat_history) - 1:
-                st.markdown("<hr style='margin: 20px 0; border: none; border-top: 1px solid #e0e0e0;'>", unsafe_allow_html=True)
-    else:
-        st.info("👋 Start a conversation! Ask a question about your study materials below.")
+    # History with Custom Bubbles
+    for chat in st.session_state.chat_history:
+        if isinstance(chat, tuple):
+            q, a = chat
+            s = []
+        else:
+            q = chat.get('question', '')
+            a = chat.get('answer', '')
+            s = chat.get('sources', [])
+        
+        st.markdown(f'<div class="chat-bubble user-bubble"><strong>YOU:</strong><br>{q}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="chat-bubble assistant-bubble"><strong>DEADPOOL:</strong><br>{a}</div>', unsafe_allow_html=True)
+        
+        if s:
+            with st.expander("📚 MISSION SOURCE CITATIONS"):
+                for src in s: st.markdown(f"• <span style='color:#aaa;'>{src}</span>", unsafe_allow_html=True)
     
     st.markdown("<br>", unsafe_allow_html=True)
     
-    # Question input with better UI
-    question = st.text_input(
-        "💭 Ask a question about your study materials:",
-        placeholder="e.g., What is machine learning? Explain the concept of recursion...",
-        key="chat_input"
-    )
-    
-    col1, col2 = st.columns([1, 4])
-    with col1:
-        ask_button = st.button("🔍 Ask", type="primary", use_container_width=True)
-    
-    # Check if question was already processed to prevent regeneration on scroll
-    if ask_button:
-        if question and question.strip():
-            question_stripped = question.strip()
-            # Check if this question was already answered
-            already_answered = False
-            for chat_item in st.session_state.chat_history:
-                if isinstance(chat_item, dict):
-                    if chat_item.get('question', '').strip() == question_stripped:
-                        already_answered = True
-                        break
-                elif isinstance(chat_item, tuple):
-                    if chat_item[0].strip() == question_stripped:
-                        already_answered = True
-                        break
-            
-            if not already_answered:
-                # Show static loading message
-                loading_placeholder = st.empty()
-                loading_placeholder.info("Loading... Searching through your study materials...")
-                
-                try:
-                    # Use latest document for prioritization
-                    latest_doc = st.session_state.latest_document if st.session_state.latest_document else None
-                    result = st.session_state.agent_controller.answer_question(
-                        question_stripped, 
-                        prioritize_source=latest_doc
-                    )
-                    
-                    # Store with sources for better display
-                    chat_item = {
-                        'question': question_stripped,
-                        'answer': result.get('answer', 'No answer generated.'),
-                        'sources': result.get('sources', [])
-                    }
-                    st.session_state.chat_history.append(chat_item)
-                    loading_placeholder.empty()
-                    st.success("✅ Answer generated!")
+    # Input area
+    with st.container():
+        st.markdown('<div class="designer-card" style="border-width: 6px;">', unsafe_allow_html=True)
+        q_input = st.text_input("💭 INTERROGATE THE SYSTEM (ASK ANYTHING):", placeholder="e.g., Explain the primary directives of the mission...")
+        if st.button("🔍 INITIATE INTERROGATION", type="primary", use_container_width=True):
+            if q_input:
+                with st.spinner("Searching through the sematic archives... stay frosty..."):
+                    res = st.session_state.agent_controller.answer_question(q_input, st.session_state.latest_document)
+                    st.session_state.chat_history.append({'question': q_input, 'answer': res['answer'], 'sources': res.get('sources', [])})
                     st.rerun()
-                except Exception as e:
-                    loading_placeholder.empty()
-                    st.error(f"❌ Error: {str(e)}. Please check your API key and try again.")
-            else:
-                st.info("This question was already answered. Scroll up to see the response.")
-        else:
-            st.warning("Please enter a question!")
+        st.markdown('</div>', unsafe_allow_html=True)
 
 def show_analytics_page():
-    """Analytics and progress tracking"""
-    st.markdown("### 📊 Analytics Dashboard")
+    """Analytics and progress tracking with Designer Comic Style"""
+    st.markdown('<h1 class="designer-header" style="font-size: 3.5rem;">📊 MISSION INTEL DASHBOARD</h1>', unsafe_allow_html=True)
     
     if not st.session_state.agent_controller:
-        st.info("Process documents to see analytics!")
+        st.markdown("""
+        <div class="designer-card">
+            <h2 class="designer-header">⚠️ NO INTEL DATA</h2>
+            <p style="font-size: 1.2rem; color: #fff;">Process some documents to see your mission progress, rookie!</p>
+        </div>
+        """, unsafe_allow_html=True)
         return
     
     stats = st.session_state.agent_controller.get_statistics()
     
+    st.markdown('<div class="designer-card" style="border-width: 6px;">', unsafe_allow_html=True)
+    st.markdown('<h2 class="designer-header">📈 STUDY PROGRESS METRICS</h2>', unsafe_allow_html=True)
+    c1, c2, c3, c4 = st.columns(4)
+    with c1: st.markdown(f'<div style="text-align:center;"><h4 class="designer-header" style="font-size:1rem;">TOPICS</h4><p style="font-size:2.5rem; font-family:Bangers; color:#fff; margin:0;">{stats["total_topics"]}</p></div>', unsafe_allow_html=True)
+    with c2: st.markdown(f'<div style="text-align:center;"><h4 class="designer-header" style="font-size:1rem;">CHUNKS</h4><p style="font-size:2.5rem; font-family:Bangers; color:#fff; margin:0;">{stats["total_chunks"]}</p></div>', unsafe_allow_html=True)
+    with c3: st.markdown(f'<div style="text-align:center;"><h4 class="designer-header" style="font-size:1rem;">FLASHCARDS</h4><p style="font-size:2.5rem; font-family:Bangers; color:#fff; margin:0;">{stats["total_flashcards"]}</p></div>', unsafe_allow_html=True)
+    with c4: st.markdown(f'<div style="text-align:center;"><h4 class="designer-header" style="font-size:1rem;">QUIZZES</h4><p style="font-size:2.5rem; font-family:Bangers; color:#fff; margin:0;">{stats["total_quizzes"]}</p></div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+    
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown("### 📈 Study Progress")
-        st.metric("Total Topics", stats['total_topics'])
-        st.metric("Total Chunks", stats['total_chunks'])
-        st.metric("Flashcards Created", stats['total_flashcards'])
-        st.metric("Quizzes Generated", stats['total_quizzes'])
+        st.markdown('<div class="designer-card" style="height: 100%;">', unsafe_allow_html=True)
+        st.markdown('<h3 class="designer-header">🎯 PERFORMANCE INTEL</h3>', unsafe_allow_html=True)
+        if stats['performance']['total_quizzes_taken'] > 0:
+            st.markdown(f"""
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 150px;">
+                <h1 style="font-size: 4rem; font-family: 'Bangers'; color: #28a745; margin: 0;">{stats['performance']['average_score']*100:.1f}%</h1>
+                <p style="font-family: 'Bangers'; font-size: 1.2rem; color: #fff;">AVERAGE MISSION ACCURACY</p>
+                <p style="color: #aaa; margin-top: 10px;">TOTAL MISSIONS (QUIZZES) COMPLETED: {stats['performance']['total_quizzes_taken']}</p>
+            </div>
+            """, unsafe_allow_html=True)
+        else:
+            st.info("Take some quizzes to see performance metrics, rookie!")
+        st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
-        st.markdown("### 🎯 Performance")
-        if stats['performance']['total_quizzes_taken'] > 0:
-            st.metric("Average Score", f"{stats['performance']['average_score']*100:.1f}%")
-            st.metric("Quizzes Completed", stats['performance']['total_quizzes_taken'])
-        else:
-            st.info("Take quizzes to see performance metrics!")
-    
-    if st.session_state.agent_controller.planner_agent:
-        rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
-        st.markdown("### 📅 Revision Progress")
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            st.metric("Total Items", rev_stats['total_topics'])
-        with col2:
-            st.metric("Completed", rev_stats['completed'])
-        with col3:
-            st.metric("In Progress", rev_stats['in_progress'])
-        with col4:
-            st.metric("Completion Rate", f"{rev_stats['completion_rate']:.1f}%")
+        if st.session_state.agent_controller.planner_agent:
+            rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
+            st.markdown('<div class="designer-card" style="height: 100%; border-left: 15px solid #28a745;">', unsafe_allow_html=True)
+            st.markdown('<h3 class="designer-header">📅 REVISION STRATEGY PROGRESS</h3>', unsafe_allow_html=True)
+            st.markdown(f"""
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 150px;">
+                <h1 style="font-size: 4rem; font-family: 'Bangers'; color: #fff; margin: 0;">{rev_stats['completion_rate']:.1f}%</h1>
+                <p style="font-family: 'Bangers'; font-size: 1.2rem; color: #fff;">BATTLE PLAN COMPLETION</p>
+                <div style="display: flex; gap: 20px; margin-top: 10px; color: #eee;">
+                    <span>DONE: <strong>{rev_stats['completed']}</strong></span>
+                    <span>ACTIVE: <strong>{rev_stats['in_progress']}</strong></span>
+                    <span>PENDING: <strong>{rev_stats['pending']}</strong></span>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
