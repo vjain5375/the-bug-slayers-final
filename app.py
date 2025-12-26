@@ -249,13 +249,43 @@ st.markdown("""
     }
 
     /* Comic Panels (Cards) */
-    .stVerticalBlock > div > div {
+    .comic-card {
         background: #000 !important;
         border: 4px solid var(--deadpool-red) !important;
         border-radius: 0px !important;
         padding: 1.5rem !important;
         box-shadow: 8px 8px 0px #000 !important;
         margin-bottom: 1rem !important;
+    }
+
+    /* Sidebar Navigation Fancy Menu */
+    .sidebar-nav-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        margin-bottom: 8px;
+        border: 2px solid transparent;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        color: #ccc;
+        font-family: 'Oswald', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: bold;
+    }
+
+    .sidebar-nav-item:hover {
+        background: rgba(168, 0, 0, 0.1);
+        border-left: 5px solid var(--deadpool-red);
+        color: white;
+        padding-left: 20px;
+    }
+
+    .sidebar-nav-item.active {
+        background: var(--deadpool-red);
+        color: white;
+        border: 2px solid #000;
+        box-shadow: 4px 4px 0px #000;
     }
 
     /* Metrics */
@@ -462,17 +492,17 @@ def main():
                     <div style="background: var(--deadpool-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #000; font-family: 'Bangers';">1</div>
                     <div style="margin-left: 12px; font-size: 1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">📤 UPLOAD DOCS</div>
                 </div>
-                <div style="border-left: 3px solid var(--deadpool-red); height: 15px; margin-left: 12px; margin-top: -5px; margin-bottom: -5px;"></div>
+                <div style="border-left: 3px solid var(--deadpool-red); height: 12px; margin-left: 12px; margin-top: -5px; margin-bottom: -5px;"></div>
                 <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
                     <div style="background: var(--deadpool-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #000; font-family: 'Bangers';">2</div>
                     <div style="margin-left: 12px; font-size: 1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">💾 HIT SAVE</div>
                 </div>
-                <div style="border-left: 3px solid var(--deadpool-red); height: 15px; margin-left: 12px; margin-top: -5px; margin-bottom: -5px;"></div>
+                <div style="border-left: 3px solid var(--deadpool-red); height: 12px; margin-left: 12px; margin-top: -5px; margin-bottom: -5px;"></div>
                 <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
                     <div style="background: var(--deadpool-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #000; font-family: 'Bangers';">3</div>
                     <div style="margin-left: 12px; font-size: 1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">🔄 PROCESS NOW</div>
                 </div>
-                <div style="border-left: 3px solid var(--deadpool-red); height: 15px; margin-left: 12px; margin-top: -5px; margin-bottom: -5px;"></div>
+                <div style="border-left: 3px solid var(--deadpool-red); height: 12px; margin-left: 12px; margin-top: -5px; margin-bottom: -5px;"></div>
                 <div style="display: flex; align-items: center;">
                     <div style="background: var(--deadpool-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #000; font-family: 'Bangers';">4</div>
                     <div style="margin-left: 12px; font-size: 1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">🛡️ DOMINATE</div>
@@ -481,13 +511,9 @@ def main():
         </div>
         """, unsafe_allow_html=True)
         
-        # NAVIGATION SECTION
-        st.markdown("""
-        <div style="background: #000; padding: 0.5rem; border: 2px solid var(--deadpool-red); margin-bottom: 0.5rem; text-align: center; box-shadow: 3px 3px 0px #000;">
-            <p style="color: white; margin: 0; font-size: 1.1rem; font-family: 'Bangers'; letter-spacing: 1px;">🎯 DESTINATIONS</p>
-        </div>
-        """, unsafe_allow_html=True)
-
+        # FANCY NAVIGATION MENU
+        st.markdown("<p style='font-family: \"Bangers\"; font-size: 1.4rem; color: var(--deadpool-red); margin-bottom: 0.5rem; text-shadow: 2px 2px 0px #000;'>🎯 DESTINATIONS</p>", unsafe_allow_html=True)
+        
         nav_options = {
             "Home": "🏠",
             "Flashcards": "📇",
@@ -497,24 +523,14 @@ def main():
             "Analytics": "📊"
         }
         
-        current_index = 0
-        if st.session_state.current_page in nav_options:
-            current_index = list(nav_options.keys()).index(st.session_state.current_page)
-        
-        page = st.radio(
-            "Select Page",
-            list(nav_options.keys()),
-            format_func=lambda x: f"{nav_options[x]} {x}",
-            index=current_index,
-            label_visibility="collapsed",
-            key="sidebar_nav_radio"
-        )
-        
-        if page != st.session_state.current_page:
-            st.session_state.current_page = page
-            st.rerun()
+        for page_name, icon in nav_options.items():
+            is_active = st.session_state.current_page == page_name
+            # Create a stylized button-like container
+            if st.button(f"{icon} {page_name.upper()}", key=f"side_nav_{page_name}", use_container_width=True, type="secondary" if not is_active else "primary"):
+                st.session_state.current_page = page_name
+                st.rerun()
 
-        st.divider()
+        st.markdown("<div style='margin-bottom: 2rem;'></div>", unsafe_allow_html=True)
         
         uploaded_files = st.file_uploader(
             "📎 Upload Study Materials",
@@ -614,10 +630,9 @@ def main():
         st.divider()
     
     # Upload Section in Main Dashboard - Moved Above Navigation
-    st.markdown("### 📤 UPLOAD MATERIALS")
     st.markdown("""
-    <div style="background: #000; padding: 1.5rem; border: 4px solid var(--deadpool-red); margin: 0.5rem 0; text-align: center; box-shadow: 6px 6px 0px #000;">
-        <h2 style="color: white; margin: 0 0 0.5rem 0; font-size: 1.8rem; border: none;">📤 UPLOAD YOUR STUDY MATERIALS</h2>
+    <div class="comic-card" style="padding: 1.5rem; text-align: center;">
+        <h2 style="color: white; margin: 0 0 0.5rem 0; font-size: 1.8rem; border: none; font-family: 'Bangers';">📤 UPLOAD YOUR STUDY MATERIALS</h2>
         <p style="color: #fff; margin: 0; font-size: 1rem;">Upload PDF, DOCX, or TXT files to get started</p>
     </div>
     """, unsafe_allow_html=True)
@@ -799,22 +814,22 @@ def show_home_page():
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("""
-            <div style="background: #000; padding: 1.5rem; border: 4px solid var(--deadpool-red); box-shadow: 6px 6px 0px #000; margin-bottom: 1rem;">
+            <div class="comic-card">
                 <h3 style="font-size: 1.8rem; border: none;">1️⃣ LOAD UP</h3>
                 <p style="color: #fff; font-size: 1.1rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Drop your PDFs, DOCX, or Text notes into the feed.</p>
             </div>
-            <div style="background: #000; padding: 1.5rem; border: 4px solid var(--deadpool-red); box-shadow: 6px 6px 0px #000; margin-bottom: 1rem;">
+            <div class="comic-card">
                 <h3 style="font-size: 1.8rem; border: none;">3️⃣ EXTRACT</h3>
                 <p style="color: #fff; font-size: 1.1rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'PROCESS'</b>. My agents will slice and dice your text into pure semantic gold.</p>
             </div>
             """, unsafe_allow_html=True)
         with col2:
             st.markdown("""
-            <div style="background: #000; padding: 1.5rem; border: 4px solid var(--deadpool-red); box-shadow: 6px 6px 0px #000; margin-bottom: 1rem;">
+            <div class="comic-card">
                 <h3 style="font-size: 1.8rem; border: none;">2️⃣ LOCK & LOAD</h3>
                 <p style="color: #fff; font-size: 1.1rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'SAVE'</b> to commit those files to my infinite memory banks.</p>
             </div>
-            <div style="background: #000; padding: 1.5rem; border: 4px solid var(--deadpool-red); box-shadow: 6px 6px 0px #000; margin-bottom: 1rem;">
+            <div class="comic-card">
                 <h3 style="font-size: 1.8rem; border: none;">4️⃣ DOMINATE</h3>
                 <p style="color: #fff; font-size: 1.1rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now ready.</p>
             </div>
@@ -876,7 +891,7 @@ def show_home_page():
             if result.get('chunks'):
                 for chunk in result['chunks'][:2]:
                     st.markdown(f"""
-                    <div style="background: #111; padding: 1rem; border: 2px solid var(--deadpool-red); border-radius: 0px; font-size: 0.9rem; margin-bottom: 0.5rem; color: #eee; font-style: italic; box-shadow: 4px 4px 0px #000;">
+                    <div class="comic-card" style="padding: 1rem; border-width: 2px; font-size: 0.9rem; margin-bottom: 0.5rem; color: #eee; font-style: italic;">
                         "{chunk['text'][:120]}..."
                     </div>
                     """, unsafe_allow_html=True)
@@ -887,7 +902,7 @@ def show_home_page():
     # 4. Deadpool Footer EXPANDER
     with st.expander("💀 THE CHIMICHANGA MANUAL (HELP)", expanded=False):
         st.markdown("""
-        <div style="padding: 1.5rem; background: #000; border: 4px solid var(--deadpool-red); border-radius: 0px; box-shadow: 8px 8px 0px #000;">
+        <div class="comic-card" style="padding: 1.5rem;">
             <h4 style="font-family: 'Bangers', cursive; color: var(--deadpool-red); font-size: 2rem; margin-top: 0;">DON'T BE A DEGENERATE:</h4>
             <ul style="color: #fff; font-size: 1.1rem; font-family: 'Oswald', sans-serif;">
                 <li><b>RELOAD:</b> Put new files in the side-slot and hit 'Process' to reload your arsenal.</li>
