@@ -350,6 +350,24 @@ st.markdown("""
         max-width: 1200px !important;
     }
     
+    /* Custom Deadpool Balloons */
+    @keyframes floatUp {
+        0% { transform: translateY(100vh) rotate(0deg); opacity: 1; }
+        100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+    }
+    .deadpool-balloon {
+        position: fixed;
+        bottom: -100px;
+        width: 40px;
+        height: 55px;
+        border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+        z-index: 99999;
+        pointer-events: none;
+    }
+    .balloon-red { background: #A80000; border: 3px solid #000; }
+    .balloon-black { background: #000; border: 3px solid #A80000; }
+    .balloon-white { background: #fff; border: 3px solid #000; }
+    
     /* Global spacing reduction */
     [data-testid="stVerticalBlock"] {
         gap: 0.5rem !important;
@@ -448,6 +466,30 @@ def _compute_docs_signature(doc_files):
     entries.sort()
     return hashlib.md5("|".join(entries).encode()).hexdigest()
 
+def trigger_deadpool_balloons():
+    """Trigger custom red, black, and white balloons"""
+    import random
+    balloons_html = ""
+    colors = ["balloon-red", "balloon-black", "balloon-white"]
+    for i in range(30):
+        color = random.choice(colors)
+        left = random.randint(0, 95)
+        duration = random.uniform(3, 6)
+        delay = random.uniform(0, 2)
+        balloons_html += f'<div class="deadpool-balloon {color}" style="left: {left}vw; animation: floatUp {duration}s ease-in {delay}s forwards;"></div>'
+    
+    st.markdown(f"""
+        <div id="balloon-container">
+            {balloons_html}
+        </div>
+        <script>
+            setTimeout(() => {{
+                const container = document.getElementById("balloon-container");
+                if (container) container.remove();
+            }}, 8000);
+        </script>
+    """, unsafe_allow_html=True)
+
 def process_documents():
     """Process all documents using Reader Agent"""
     docs_dir = ensure_documents_directory()
@@ -487,6 +529,9 @@ def process_documents():
         st.session_state.documents_processed = True
         latest_info = f" (Latest: {st.session_state.latest_document})" if st.session_state.latest_document else ""
         st.success(f"✅ Processed {result['total_chunks']} chunks from {result['total_topics']} topics!{latest_info}")
+        
+        # Trigger custom Deadpool balloons
+        trigger_deadpool_balloons()
         
         # Store processing results for display
         st.session_state.processing_results = result
@@ -1252,7 +1297,7 @@ def show_planner_page():
                                     # Also update progress if they did well
                                     if res['accuracy'] >= 0.7:
                                         st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'completed')
-                                        st.balloons()
+                                        trigger_deadpool_balloons()
                                         st.info("Great job! This topic has been marked as completed.")
                         
                         if st.button("Close Study Area", key=f"close_{item_topic[:10]}_{item_date}", use_container_width=True):
