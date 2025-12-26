@@ -212,12 +212,21 @@ st.markdown("""
         margin-bottom: 5px !important;
     }
 
-    /* Navigation Buttons Specific Style - One word per line */
+    /* Navigation Buttons Specific Style - Uniform Icon and Text */
     [data-testid="stHorizontalBlock"] div div div .stButton > button {
-        height: 120px !important; 
-        font-size: 1.1rem !important;
+        height: 100px !important; 
+        font-size: 0.95rem !important;
         flex-direction: column !important;
-        line-height: 1.2 !important;
+        line-height: 1.1 !important;
+        gap: 5px !important;
+        padding: 5px !important;
+    }
+
+    /* Prevent text wrapping in navigation buttons */
+    [data-testid="stHorizontalBlock"] div div div .stButton > button div p {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
 
     .stButton > button:hover {
@@ -764,8 +773,8 @@ def main():
     for idx, (page_name, icon) in enumerate(nav_options.items()):
         with nav_cols[idx]:
             button_type = "primary" if st.session_state.current_page == page_name else "secondary"
-            # Format text: one word per line
-            button_label = f"{icon}\n{page_name.replace(' ', '\n')}"
+            # Format text: Icon and Name on separate lines, but don't split words
+            button_label = f"{icon}\n{page_name}"
             nav_button = st.button(button_label, use_container_width=True, key=f"main_nav_{page_name}", type=button_type)
             if nav_button:
                 st.session_state.current_page = page_name
@@ -787,10 +796,10 @@ def main():
     elif st.session_state.current_page == "Analytics":
         show_analytics_page()
 
-    # Footer
+    # Footer - Removed extra space
     st.markdown("""
-    <div style="text-align: center; margin-top: 1rem; padding: 1.5rem; border-top: 4px solid var(--deadpool-red); background: #000;">
-        <p style="color: #fff; font-family: 'Oswald', sans-serif; font-size: 0.9rem; margin: 0;">© 2025 Deadpool's Study Hub. No regenerating degenerates allowed.</p>
+    <div style="text-align: center; margin-top: 0rem; padding: 1rem; border-top: 4px solid var(--deadpool-red); background: #000;">
+        <p style="color: #fff; font-family: 'Oswald', sans-serif; font-size: 0.85rem; margin: 0;">© 2025 Deadpool's Study Hub. No regenerating degenerates allowed.</p>
     </div>
     """, unsafe_allow_html=True)
 
