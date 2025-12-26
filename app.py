@@ -149,9 +149,9 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@400;700&display=swap');
 
     :root {
-        --deadpool-red: #E62429;
+        --deadpool-red: #A80000;
         --deadpool-black: #000000;
-        --deadpool-dark-red: #8B0000;
+        --deadpool-dark-red: #700000;
         --comic-white: #FFFFFF;
         --comic-border: 4px solid #000000;
     }
@@ -179,11 +179,12 @@ st.markdown("""
     header[data-testid="stHeader"] {
         background-color: var(--deadpool-red) !important;
         border-bottom: 5px solid #000 !important;
+        height: 60px !important;
     }
 
     /* Sidebar Styling */
     [data-testid="stSidebar"] {
-        background-color: #111 !important;
+        background-color: #000 !important;
         border-right: 5px solid var(--deadpool-red) !important;
     }
 
@@ -192,101 +193,89 @@ st.markdown("""
         font-family: 'Bangers', cursive !important;
         background-color: var(--deadpool-red) !important;
         color: white !important;
-        font-size: 1.4rem !important;
+        font-size: 1.2rem !important;
         border: 4px solid #000 !important;
         border-radius: 0px !important;
-        padding: 0.8rem 1.5rem !important;
-        box-shadow: 6px 6px 0px #000 !important;
+        padding: 0.5rem 1rem !important;
+        box-shadow: 4px 4px 0px #000 !important;
         text-transform: uppercase !important;
         letter-spacing: 1px !important;
         width: 100% !important;
-        min-height: 70px !important;
-        height: auto !important;
+        min-height: 60px !important;
+        height: 60px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         white-space: normal !important;
         word-wrap: break-word !important;
-        line-height: 1.2 !important;
-        margin-bottom: 10px !important;
+        line-height: 1 !important;
+        margin-bottom: 5px !important;
     }
 
-    /* Navigation Buttons Specific Style - Fix for uniformity */
+    /* Navigation Buttons Specific Style - One word per line */
     [data-testid="stHorizontalBlock"] div div div .stButton > button {
-        height: 100px !important; 
-        font-size: 1.2rem !important;
+        height: 120px !important; 
+        font-size: 1.1rem !important;
+        flex-direction: column !important;
+        line-height: 1.2 !important;
     }
 
     .stButton > button:hover {
-        background-color: #FF3B3F !important;
-        transform: translate(-3px, -3px) !important;
-        box-shadow: 9px 9px 0px #000 !important;
-        border-color: #000 !important;
-    }
-
-    .stButton > button:active {
-        transform: translate(3px, 3px) !important;
-        box-shadow: 2px 2px 0px #000 !important;
+        background-color: var(--deadpool-dark-red) !important;
+        transform: translate(-2px, -2px) !important;
+        box-shadow: 6px 6px 0px #000 !important;
     }
 
     /* Primary Actions */
     .stButton > button[kind="primary"] {
-        background-color: var(--deadpool-black) !important;
-        border-color: var(--deadpool-red) !important;
-        color: var(--deadpool-red) !important;
+        background-color: var(--deadpool-red) !important;
+        border-color: #000 !important;
+        color: #fff !important;
     }
     
-    .stButton > button[kind="primary"]:hover {
-        background-color: var(--deadpool-red) !important;
-        color: white !important;
+    .stButton > button[kind="secondary"] {
+        background-color: #333 !important;
+        border-color: #000 !important;
+        color: #fff !important;
     }
 
     /* Comic Panels (Cards) */
     .stVerticalBlock > div > div {
-        background: #1A1A1A !important;
-        border: 5px solid #000 !important;
+        background: #000 !important;
+        border: 4px solid var(--deadpool-red) !important;
         border-radius: 0px !important;
-        padding: 2rem !important;
-        box-shadow: 12px 12px 0px var(--deadpool-red) !important;
-        margin-bottom: 2.5rem !important;
+        padding: 1.5rem !important;
+        box-shadow: 8px 8px 0px #000 !important;
+        margin-bottom: 1rem !important;
     }
 
     /* Metrics */
     [data-testid="stMetric"] {
         background: #000 !important;
-        border: 4px solid var(--deadpool-red) !important;
-        padding: 1.5rem !important;
-        box-shadow: 8px 8px 0px #000 !important;
+        border: 3px solid var(--deadpool-red) !important;
+        padding: 1rem !important;
+        box-shadow: 5px 5px 0px #000 !important;
     }
 
     [data-testid="stMetricLabel"] {
         color: var(--deadpool-red) !important;
         font-family: 'Bangers', cursive !important;
-        font-size: 1.5rem !important;
+        font-size: 1.2rem !important;
     }
 
     [data-testid="stMetricValue"] {
         color: #fff !important;
         font-family: 'Bangers', cursive !important;
-        font-size: 3rem !important;
+        font-size: 2.5rem !important;
     }
 
     /* Inputs */
     .stTextInput input, .stTextArea textarea, .stFileUploader {
-        background-color: #222 !important;
-        border: 4px solid #000 !important;
+        background-color: #111 !important;
+        border: 3px solid var(--deadpool-red) !important;
         color: #fff !important;
-        font-size: 1.1rem !important;
+        font-size: 1rem !important;
         border-radius: 0px !important;
-    }
-
-    /* Expanders */
-    .streamlit-expanderHeader {
-        font-family: 'Bangers', cursive !important;
-        font-size: 1.4rem !important;
-        background: #000 !important;
-        color: var(--deadpool-red) !important;
-        border: 3px solid #000 !important;
     }
 
     /* Markdown Text */
@@ -294,28 +283,30 @@ st.markdown("""
         font-family: 'Bangers', cursive !important;
         text-transform: uppercase !important;
         letter-spacing: 2px !important;
+        margin-top: 0px !important;
+        margin-bottom: 0.5rem !important;
     }
 
-    h1 { color: var(--deadpool-red) !important; font-size: 4rem !important; text-shadow: 4px 4px 0px #000 !important; }
-    h2 { color: #fff !important; font-size: 2.5rem !important; border-bottom: 5px solid var(--deadpool-red); display: inline-block; margin-bottom: 1.5rem !important; }
-    h3 { color: var(--deadpool-red) !important; }
+    h1 { color: var(--deadpool-red) !important; font-size: 3.5rem !important; text-shadow: 3px 3px 0px #000 !important; }
+    h2 { color: #fff !important; font-size: 2rem !important; border-bottom: 3px solid var(--deadpool-red); display: inline-block; }
+    h3 { color: var(--deadpool-red) !important; font-size: 1.5rem !important; }
 
-    /* Custom Halftone Overlay */
-    .halftone {
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background-image: radial-gradient(circle, #000 1px, transparent 1px);
-        background-size: 6px 6px;
-        opacity: 0.15;
-        pointer-events: none;
-        z-index: 1000;
+    /* Remove transitions and animations globally */
+    *, *::before, *::after {
+        transition: none !important;
+        animation: none !important;
     }
     
     /* Better spacing for main content */
     .main .block-container {
-        padding-top: 3rem !important;
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
         max-width: 1200px !important;
     }
+    
+    /* Remove streamlit padding */
+    .st-emotion-cache-1y4p8pa { padding-top: 0px !important; }
+    div[data-testid="stVerticalBlock"] > div:has(div.element-container) { margin-bottom: 0px !important; }
 </style>
 <div class="halftone"></div>
 """, unsafe_allow_html=True)
@@ -440,329 +431,23 @@ def process_documents():
 
 def main():
     """Main application"""
-    initialize_components()
-    
-    # Enhanced UI Styling - No Transitions or Animations
+    # Deadpool Branding Header - NOW AT THE VERY TOP
     st.markdown("""
-    <style>
-        /* Enhanced Buttons - No Transitions */
-        .stButton > button {
-            border-radius: 12px !important;
-            font-weight: 600 !important;
-            padding: 0.75rem 1.5rem !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
-            border: none !important;
-        }
-        
-        /* Primary Buttons */
-        .stButton > button[kind="primary"] {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
-        }
-        
-        /* Secondary Buttons */
-        .stButton > button[kind="secondary"] {
-            background: rgba(102, 126, 234, 0.1) !important;
-            color: #667eea !important;
-            border: 2px solid rgba(102, 126, 234, 0.3) !important;
-        }
-        
-        /* Enhanced Input Fields - No Transitions */
-        .stTextInput > div > div > input,
-        .stTextArea > div > div > textarea {
-            border-radius: 12px !important;
-            border: 2px solid rgba(102, 126, 234, 0.2) !important;
-            padding: 0.75rem 1rem !important;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-        }
-        
-        .stTextInput > div > div > input:focus,
-        .stTextArea > div > div > textarea:focus {
-            border-color: #667eea !important;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), 0 4px 15px rgba(102, 126, 234, 0.2) !important;
-        }
-        
-        /* Enhanced File Uploader */
-        .stFileUploader {
-            border-radius: 12px !important;
-            padding: 1rem !important;
-            border: 2px dashed rgba(102, 126, 234, 0.3) !important;
-        }
-        
-        /* Enhanced Expanders */
-        .streamlit-expanderHeader {
-            border-radius: 10px !important;
-            padding: 0.75rem 1rem !important;
-        }
-        
-        /* Enhanced Metrics */
-        [data-testid="stMetricValue"] {
-            font-weight: 700 !important;
-        }
-        
-        /* Enhanced Radio Buttons */
-        .stRadio > div {
-            gap: 0.5rem !important;
-        }
-        
-        .stRadio > div > label {
-            padding: 0.75rem 1rem !important;
-            border-radius: 10px !important;
-            border: 2px solid transparent !important;
-        }
-        
-        /* Enhanced Success/Info/Error Messages - No Animations */
-        .stSuccess, .stInfo, .stError, .stWarning {
-            border-radius: 12px !important;
-            padding: 1rem !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
-        }
-        
-        /* Enhanced Spacing */
-        .main .block-container {
-            padding-top: 2rem !important;
-            padding-bottom: 3rem !important;
-        }
-        
-        /* Enhanced Dividers */
-        hr {
-            margin: 2rem 0 !important;
-            border: none !important;
-            height: 2px !important;
-            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent) !important;
-        }
-        
-        /* Smooth Scrollbar - No Transitions */
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.05);
-            border-radius: 10px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px;
-        }
-        
-        /* Enhanced Selectbox */
-        .stSelectbox > div > div {
-            border-radius: 12px !important;
-        }
-        
-        /* Enhanced Spinner - Completely Disable All Animations and Rotation */
-        [data-testid="stSpinner"],
-        [data-testid="stSpinner"] *,
-        [data-testid="stSpinner"] *::before,
-        [data-testid="stSpinner"] *::after {
-            animation: none !important;
-            transition: none !important;
-            transform: none !important;
-            -webkit-animation: none !important;
-            -moz-animation: none !important;
-            -o-animation: none !important;
-        }
-        
-        /* Hide the rotating spinner circle completely */
-        [data-testid="stSpinner"] > div {
-            display: none !important;
-            visibility: hidden !important;
-            opacity: 0 !important;
-        }
-        
-        /* Hide any pseudo-elements */
-        [data-testid="stSpinner"] > div::before,
-        [data-testid="stSpinner"] > div::after {
-            display: none !important;
-            content: none !important;
-        }
-        
-        /* Stop any text rotation */
-        [data-testid="stSpinner"] + div,
-        [data-testid="stSpinner"] ~ div,
-        [data-testid="stSpinner"] + div *,
-        [data-testid="stSpinner"] ~ div * {
-            animation: none !important;
-            transform: none !important;
-            rotate: none !important;
-        }
-        
-        [data-testid="stSpinner"] + div::after,
-        [data-testid="stSpinner"] ~ div::after {
-            display: none !important;
-            content: '' !important;
-        }
-        
-        /* Target Streamlit's spinner container */
-        .stSpinner,
-        .stSpinner *,
-        .stSpinner *::before,
-        .stSpinner *::after {
-            animation: none !important;
-            transition: none !important;
-            transform: none !important;
-        }
-        
-        .stSpinner > div {
-            display: none !important;
-        }
-        
-        /* Better Focus States */
-        button:focus,
-        input:focus,
-        textarea:focus,
-        select:focus {
-            outline: none !important;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2) !important;
-        }
-        
-        /* Smooth Text Selection */
-        ::selection {
-            background: rgba(102, 126, 234, 0.3);
-            color: inherit;
-        }
-        
-        /* Disable all transitions and animations globally */
-        *, *::before, *::after {
-            transition: none !important;
-            animation: none !important;
-        }
-    </style>
-    <script>
-        // Disable all animations and transitions
-        function disableAllAnimations() {
-            // Remove all transitions and animations from all elements
-            const style = document.createElement('style');
-            style.id = 'no-animations-style';
-            style.textContent = `
-                *, *::before, *::after {
-                    transition: none !important;
-                    animation: none !important;
-                    transform: none !important;
-                    -webkit-animation: none !important;
-                    -moz-animation: none !important;
-                    -o-animation: none !important;
-                }
-                [data-testid="stSpinner"],
-                [data-testid="stSpinner"] *,
-                .stSpinner,
-                .stSpinner * {
-                    animation: none !important;
-                    transition: none !important;
-                    transform: none !important;
-                    display: none !important;
-                }
-            `;
-            // Remove old style if exists
-            const oldStyle = document.getElementById('no-animations-style');
-            if (oldStyle) oldStyle.remove();
-            document.head.appendChild(style);
-            
-            // Stop all animations on existing elements
-            const allElements = document.querySelectorAll('*');
-            allElements.forEach(el => {
-                el.style.transition = 'none';
-                el.style.animation = 'none';
-                el.style.transform = 'none';
-                el.style.webkitAnimation = 'none';
-                el.style.mozAnimation = 'none';
-                el.style.oAnimation = 'none';
-            });
-            
-            // Specifically target and hide spinners
-            const spinners = document.querySelectorAll('[data-testid="stSpinner"], .stSpinner');
-            spinners.forEach(spinner => {
-                spinner.style.display = 'none';
-                spinner.style.visibility = 'hidden';
-                const spinnerDiv = spinner.querySelector('div');
-                if (spinnerDiv) {
-                    spinnerDiv.style.display = 'none';
-                    spinnerDiv.style.animation = 'none';
-                    spinnerDiv.style.transform = 'none';
-                }
-            });
-        }
-        
-        // Run immediately
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', disableAllAnimations);
-        } else {
-            disableAllAnimations();
-        }
-        
-        // Also run after a delay to catch any late-rendered elements
-        setTimeout(disableAllAnimations, 100);
-        setTimeout(disableAllAnimations, 500);
-        setTimeout(disableAllAnimations, 1000);
-        setTimeout(disableAllAnimations, 2000);
-        
-        // Watch for any new spinners being added to the DOM and immediately disable them
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                mutation.addedNodes.forEach(function(node) {
-                    if (node.nodeType === 1) { // Element node
-                        // Check if it's a spinner or contains a spinner
-                        if (node.matches && (node.matches('[data-testid="stSpinner"]') || node.matches('.stSpinner'))) {
-                            disableAllAnimations();
-                        }
-                        // Check children
-                        const spinners = node.querySelectorAll ? node.querySelectorAll('[data-testid="stSpinner"], .stSpinner') : [];
-                        if (spinners.length > 0) {
-                            disableAllAnimations();
-                        }
-                    }
-                });
-            });
-        });
-        
-        // Start observing
-        if (document.body) {
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true
-            });
-        }
-        
-        // Also run continuously to catch any missed spinners
-        setInterval(function() {
-            const spinners = document.querySelectorAll('[data-testid="stSpinner"], .stSpinner');
-            if (spinners.length > 0) {
-                spinners.forEach(spinner => {
-                    spinner.style.display = 'none';
-                    spinner.style.visibility = 'hidden';
-                    spinner.style.animation = 'none';
-                    spinner.style.transform = 'none';
-                    const spinnerDiv = spinner.querySelector('div');
-                    if (spinnerDiv) {
-                        spinnerDiv.style.display = 'none';
-                        spinnerDiv.style.animation = 'none';
-                        spinnerDiv.style.transform = 'none';
-                    }
-                });
-            }
-        }, 100);
-    </script>
-    """, unsafe_allow_html=True)
-    
-    # Deadpool Branding Header
-    st.markdown("""
-    <div style="text-align: center; margin-bottom: 4rem;">
-        <h1 style="font-family: 'Bangers', cursive; font-size: 5rem; color: var(--deadpool-red); text-shadow: 6px 6px 0px #000; margin: 0;">⚡ DEADPOOL'S STUDY HUB</h1>
-        <div style="background: var(--deadpool-red); height: 10px; width: 300px; margin: 1rem auto; border: 4px solid #000; box-shadow: 4px 4px 0px #000;"></div>
-        <p style="font-family: 'Bangers', cursive; font-size: 1.8rem; color: #fff; letter-spacing: 1px;">WEAPONIZING YOUR DOCUMENTS FOR MAXIMUM LEARNING EFFORT!</p>
+    <div style="text-align: center; margin-bottom: 1rem; margin-top: -3rem;">
+        <h1 style="font-family: 'Bangers', cursive; font-size: 4rem; color: var(--deadpool-red); text-shadow: 4px 4px 0px #000; margin: 0;">⚡ DEADPOOL'S STUDY HUB</h1>
+        <div style="background: var(--deadpool-red); height: 6px; width: 200px; margin: 0.5rem auto; border: 3px solid #000; box-shadow: 3px 3px 0px #000;"></div>
+        <p style="font-family: 'Bangers', cursive; font-size: 1.4rem; color: #fff; letter-spacing: 1px; margin-top: 5px;">WEAPONIZING YOUR DOCUMENTS FOR MAXIMUM LEARNING EFFORT!</p>
     </div>
     """, unsafe_allow_html=True)
+
+    initialize_components()
     
-    # Sidebar - Upload Section First, then Navigation
+    # Sidebar - Navigation and Document Management
     with st.sidebar:
-        # Document Management - Upload Section (Moved to top)
-        st.markdown("### 📚 Document Management")
+        # Navigation Section (Moved to top of sidebar)
         st.markdown("""
-        <div style="background: rgba(102, 126, 234, 0.1); padding: 1rem; border-radius: 10px; margin-bottom: 1rem; border: 2px dashed rgba(102, 126, 234, 0.3);">
-            <p style="color: #667eea; margin: 0; text-align: center; font-weight: 600;">📤 Quick Upload</p>
+        <div style="background: #000; padding: 1rem; border: 3px solid var(--deadpool-red); margin-bottom: 1rem; text-align: center; box-shadow: 4px 4px 0px #000;">
+            <h2 style="color: white; margin: 0; font-size: 1.5rem; border: none;">🎯 MENU</h2>
         </div>
         """, unsafe_allow_html=True)
         
@@ -863,10 +548,10 @@ def main():
         
         st.divider()
         
-        # Navigation Section (Moved below Upload)
+        # Navigation Section (Moved to top of sidebar)
         st.markdown("""
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 1.5rem; border-radius: 15px; margin-bottom: 1rem; text-align: center;">
-            <h2 style="color: white; margin: 0; font-size: 1.5rem;">🎯 Navigation</h2>
+        <div style="background: #000; padding: 0.8rem; border: 3px solid var(--deadpool-red); margin-bottom: 0.5rem; text-align: center; box-shadow: 4px 4px 0px #000;">
+            <h2 style="color: white; margin: 0; font-size: 1.5rem; border: none;">🎯 MENU</h2>
         </div>
         """, unsafe_allow_html=True)
         
@@ -889,7 +574,8 @@ def main():
             "Select Page",
             list(nav_options.keys()),
             format_func=lambda x: f"{nav_options[x]} {x}",
-            index=current_index
+            index=current_index,
+            label_visibility="collapsed"
         )
         
         # Sync with main page navigation
@@ -897,10 +583,10 @@ def main():
             st.session_state.current_page = page
             st.rerun()
         
-        st.markdown("---")
-        st.markdown("**💡 Tip:** Use the buttons above to quickly access Flashcards and Quizzes!")
-        
         st.divider()
+
+        # Document Management - Upload Section
+        st.markdown("### 📚 UPLOAD")
         
         # Workflow Guide
         with st.expander("📖 How It Works - Step by Step", expanded=False):
@@ -945,11 +631,11 @@ def main():
         st.divider()
     
     # Upload Section in Main Dashboard - Moved Above Navigation
-    st.markdown("### 📤 Upload Your Study Materials")
+    st.markdown("### 📤 UPLOAD MATERIALS")
     st.markdown("""
-    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 20px; margin: 1rem 0; text-align: center; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);">
-        <h2 style="color: white; margin: 0 0 1rem 0; font-size: 2rem;">📤 Upload Your Study Materials</h2>
-        <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 1.1rem;">Upload PDF, DOCX, or TXT files to get started</p>
+    <div style="background: #000; padding: 1.5rem; border: 4px solid var(--deadpool-red); margin: 0.5rem 0; text-align: center; box-shadow: 6px 6px 0px #000;">
+        <h2 style="color: white; margin: 0 0 0.5rem 0; font-size: 1.8rem; border: none;">📤 UPLOAD YOUR STUDY MATERIALS</h2>
+        <p style="color: #fff; margin: 0; font-size: 1rem;">Upload PDF, DOCX, or TXT files to get started</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -964,13 +650,13 @@ def main():
             type=['pdf', 'docx', 'doc', 'txt'],
             accept_multiple_files=True,
             key="main_uploader",
-            help="Select one or more study material files (PDF, DOCX, TXT)"
+            help="Select one or more study material files (PDF, DOCX, TXT)",
+            label_visibility="collapsed"
         )
         # Sync with sidebar
         if uploaded_files_main:
             st.session_state.uploaded_files_shared = uploaded_files_main
     with col2:
-        st.markdown("<br>", unsafe_allow_html=True)
         if uploaded_files_main:
             st.success(f"✅ {len(uploaded_files_main)} file(s) selected")
         elif st.session_state.uploaded_files_shared:
@@ -983,7 +669,7 @@ def main():
     if files_to_process:
         col1, col2, col3 = st.columns([1, 1, 2])
         with col1:
-            if st.button("💾 Save Files", use_container_width=True, type="primary", key="save_main_files"):
+            if st.button("💾 SAVE", use_container_width=True, type="primary", key="save_main_files"):
                 docs_dir = ensure_documents_directory()
                 saved = 0
                 saved_files = []
@@ -1014,7 +700,7 @@ def main():
                     st.info("Files already exist or no new files to save.")
         
         with col2:
-            if st.button("🔄 Process & Index", use_container_width=True, type="primary", key="process_main_files"):
+            if st.button("🔄 PROCESS", use_container_width=True, type="primary", key="process_main_files"):
                 # First save files if not saved
                 docs_dir = ensure_documents_directory()
                 saved_files = []
@@ -1044,7 +730,7 @@ def main():
     # Show existing documents
     doc_files = get_document_files()
     if doc_files:
-        st.markdown("### 📁 Your Documents")
+        st.markdown("### 📁 YOUR DOCUMENTS")
         with st.expander(f"View {len(doc_files)} uploaded document(s)", expanded=False):
             for doc in doc_files:
                 doc_name = Path(doc).name
@@ -1060,10 +746,10 @@ def main():
                         except Exception as e:
                             st.error(f"Error: {e}")
     
-    st.markdown("---")
+    st.divider()
     
     # Navigation Buttons - Below Upload Section
-    st.markdown("### 🎯 Navigation")
+    st.markdown("### 🎯 NAVIGATION")
     nav_options = {
         "Home": "🏠",
         "Flashcards": "📇",
@@ -1078,7 +764,9 @@ def main():
     for idx, (page_name, icon) in enumerate(nav_options.items()):
         with nav_cols[idx]:
             button_type = "primary" if st.session_state.current_page == page_name else "secondary"
-            nav_button = st.button(f"{icon}\n{page_name}", use_container_width=True, key=f"main_nav_{page_name}", type=button_type)
+            # Format text: one word per line
+            button_label = f"{icon}\n{page_name.replace(' ', '\n')}"
+            nav_button = st.button(button_label, use_container_width=True, key=f"main_nav_{page_name}", type=button_type)
             if nav_button:
                 st.session_state.current_page = page_name
                 st.rerun()
@@ -1101,7 +789,7 @@ def main():
 
     # Footer
     st.markdown("""
-    <div style="text-align: center; margin-top: 5rem; padding: 2rem; border-top: 4px solid var(--deadpool-red); background: #000;">
+    <div style="text-align: center; margin-top: 1rem; padding: 1.5rem; border-top: 4px solid var(--deadpool-red); background: #000;">
         <p style="color: #fff; font-family: 'Oswald', sans-serif; font-size: 0.9rem; margin: 0;">© 2025 Deadpool's Study Hub. No regenerating degenerates allowed.</p>
     </div>
     """, unsafe_allow_html=True)
@@ -1109,68 +797,68 @@ def main():
 def show_home_page():
     """Deadpool-themed Home page with high-impact visuals"""
     
-    # Hero Section with Deadpool Action Grid Style
+    # Hero Section with Deadpool Action Grid Style - RED/BLACK/WHITE
     st.markdown("""
-    <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 6rem 2rem; border: 8px solid #000; box-shadow: 15px 15px 0px var(--deadpool-red); text-align: center; margin-bottom: 4rem; position: relative;">
-        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5);"></div>
+    <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 4rem 1rem; border: 6px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); text-align: center; margin-bottom: 2rem; position: relative;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.65);"></div>
         <div style="position: relative; z-index: 2;">
-            <h1 style="font-family: 'Bangers', cursive; color: var(--deadpool-red); font-size: 4rem; text-shadow: 6px 6px 0px #000; margin: 0;">Turn Your Docs into Weaponized Knowledge!</h1>
-            <p style="font-family: 'Bangers', cursive; color: #fff; font-size: 1.8rem; background: #000; display: inline-block; padding: 0.5rem 2rem; transform: skew(-10deg); margin-top: 1.5rem; border: 3px solid var(--deadpool-red);">Upload, Analyze, Conquer with Flashcards, Quizzes & Smart Planners.</p>
+            <h1 style="font-family: 'Bangers', cursive; color: var(--deadpool-red); font-size: 3rem; text-shadow: 4px 4px 0px #000; margin: 0;">Turn Your Docs into Weaponized Knowledge!</h1>
+            <p style="font-family: 'Bangers', cursive; color: #fff; font-size: 1.4rem; background: #000; display: inline-block; padding: 0.3rem 1.5rem; transform: skew(-10deg); margin-top: 1rem; border: 2px solid var(--deadpool-red);">Upload, Analyze, Conquer with Flashcards, Quizzes & Smart Planners.</p>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
     # CASE 1: NEW USER EXPERIENCE (High-Impact Onboarding)
     if not st.session_state.documents_processed:
-        st.markdown("<h2 style='text-align: center;'>⚔️ YOUR MISSION OBJECTIVES</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='text-align: center;'>⚔️ MISSION OBJECTIVES</h2>", unsafe_allow_html=True)
         
         # Journey Cards with Comic Borders
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("""
-            <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(-1deg);">
-                <h3 style="font-size: 2.2rem;">1️⃣ LOAD UP</h3>
-                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Drop your PDFs, DOCX, or Text notes into the feed. Don't worry, I won't bite... much.</p>
+            <div style="background: #000; padding: 1.5rem; border: 4px solid var(--deadpool-red); box-shadow: 6px 6px 0px #000; margin-bottom: 1rem;">
+                <h3 style="font-size: 1.8rem; border: none;">1️⃣ LOAD UP</h3>
+                <p style="color: #fff; font-size: 1.1rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Drop your PDFs, DOCX, or Text notes into the feed.</p>
             </div>
-            <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(1deg);">
-                <h3 style="font-size: 2.2rem;">3️⃣ EXTRACT</h3>
-                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'Process'</b>. My agents will slice and dice your text into pure semantic gold.</p>
+            <div style="background: #000; padding: 1.5rem; border: 4px solid var(--deadpool-red); box-shadow: 6px 6px 0px #000; margin-bottom: 1rem;">
+                <h3 style="font-size: 1.8rem; border: none;">3️⃣ EXTRACT</h3>
+                <p style="color: #fff; font-size: 1.1rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'PROCESS'</b>. My agents will slice and dice your text into pure semantic gold.</p>
             </div>
             """, unsafe_allow_html=True)
         with col2:
             st.markdown("""
-            <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(1deg);">
-                <h3 style="font-size: 2.2rem;">2️⃣ LOCK & LOAD</h3>
-                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'Save'</b> to commit those files to my infinite memory banks.</p>
+            <div style="background: #000; padding: 1.5rem; border: 4px solid var(--deadpool-red); box-shadow: 6px 6px 0px #000; margin-bottom: 1rem;">
+                <h3 style="font-size: 1.8rem; border: none;">2️⃣ LOCK & LOAD</h3>
+                <p style="color: #fff; font-size: 1.1rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'SAVE'</b> to commit those files to my infinite memory banks.</p>
             </div>
-            <div style="background: #111; padding: 2rem; border: 5px solid #000; box-shadow: 10px 10px 0px var(--deadpool-red); margin-bottom: 2.5rem; transform: rotate(-1deg);">
-                <h3 style="font-size: 2.2rem;">4️⃣ DOMINATE</h3>
-                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now ready for total destruction.</p>
+            <div style="background: #000; padding: 1.5rem; border: 4px solid var(--deadpool-red); box-shadow: 6px 6px 0px #000; margin-bottom: 1rem;">
+                <h3 style="font-size: 1.8rem; border: none;">4️⃣ DOMINATE</h3>
+                <p style="color: #fff; font-size: 1.1rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now ready.</p>
             </div>
             """, unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
         # Add the thumbs up Deadpool image
-        st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", use_container_width=True)
+        st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=300)
         
         return
 
     # CASE 2: RETURNING USER (Pro Dashboard)
     st.markdown("<h2>⚡ COMMAND CENTER</h2>", unsafe_allow_html=True)
     
-    # 1. High-Impact Quick Access
+    # 1. High-Impact Quick Access - ALREADY UNIFORM VIA CSS
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        if st.button("📇 **CARDS**\n\nMAX EFFORT", use_container_width=True, key="dash_flash"):
+        if st.button("📇 CARDS", use_container_width=True, key="dash_flash"):
             st.session_state.current_page = "Flashcards"; st.rerun()
     with col2:
-        if st.button("📝 **QUIZ**\n\nNO MERCY", use_container_width=True, key="dash_quiz"):
+        if st.button("📝 QUIZ", use_container_width=True, key="dash_quiz"):
             st.session_state.current_page = "Quizzes"; st.rerun()
     with col3:
-        if st.button("📅 **PLAN**\n\nTACTICAL", use_container_width=True, key="dash_plan"):
+        if st.button("📅 PLAN", use_container_width=True, key="dash_plan"):
             st.session_state.current_page = "Revision Planner"; st.rerun()
     with col4:
-        if st.button("💬 **CHAT**\n\nINTEL", use_container_width=True, key="dash_chat"):
+        if st.button("💬 CHAT", use_container_width=True, key="dash_chat"):
             st.session_state.current_page = "Chat Assistant"; st.rerun()
     
     st.markdown("<br>", unsafe_allow_html=True)
@@ -1205,27 +893,25 @@ def show_home_page():
             if result.get('chunks'):
                 for chunk in result['chunks'][:2]:
                     st.markdown(f"""
-                    <div style="background: #222; padding: 1.5rem; border: 3px solid var(--deadpool-red); border-radius: 0px; font-size: 1rem; margin-bottom: 1rem; color: #eee; font-style: italic; box-shadow: 5px 5px 0px #000;">
-                        "{chunk['text'][:150]}..."
+                    <div style="background: #111; padding: 1rem; border: 2px solid var(--deadpool-red); border-radius: 0px; font-size: 0.9rem; margin-bottom: 0.5rem; color: #eee; font-style: italic; box-shadow: 4px 4px 0px #000;">
+                        "{chunk['text'][:120]}..."
                     </div>
                     """, unsafe_allow_html=True)
 
     # Thumbs up Deadpool at the bottom for returning users too
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=300)
+    st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=250)
 
     # 4. Deadpool Footer EXPANDER
-    st.markdown("<br><br>", unsafe_allow_html=True)
     with st.expander("💀 THE CHIMICHANGA MANUAL (HELP)", expanded=False):
         st.markdown("""
-        <div style="padding: 2rem; background: #111; border: 5px solid var(--deadpool-red); border-radius: 0px; box-shadow: 10px 10px 0px #000;">
-            <h4 style="font-family: 'Bangers', cursive; color: var(--deadpool-red); font-size: 2.5rem; margin-top: 0;">DON'T BE A DEGENERATE:</h4>
-            <ul style="color: #fff; font-size: 1.3rem; font-family: 'Oswald', sans-serif;">
+        <div style="padding: 1.5rem; background: #000; border: 4px solid var(--deadpool-red); border-radius: 0px; box-shadow: 8px 8px 0px #000;">
+            <h4 style="font-family: 'Bangers', cursive; color: var(--deadpool-red); font-size: 2rem; margin-top: 0;">DON'T BE A DEGENERATE:</h4>
+            <ul style="color: #fff; font-size: 1.1rem; font-family: 'Oswald', sans-serif;">
                 <li><b>RELOAD:</b> Put new files in the side-slot and hit 'Process' to reload your arsenal.</li>
                 <li><b>EXTRACT:</b> Anki and CSV buttons are in the Cards/Quiz zones. Use 'em.</li>
                 <li><b>EFFORT:</b> If the AI is slow, it's probably thinking about tacos. Give it a sec.</li>
             </ul>
-            <p style="text-align: right; font-style: italic; color: var(--deadpool-red); font-family: 'Bangers', cursive; font-size: 1.5rem;">- Deadpool Out.</p>
+            <p style="text-align: right; font-style: italic; color: var(--deadpool-red); font-family: 'Bangers', cursive; font-size: 1.2rem;">- Deadpool Out.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1451,14 +1137,14 @@ def show_planner_page():
                     
                     # Card Header
                     status = item['status']
-                    status_color = "#28a745" if status == 'completed' else "#ffc107" if status == 'in_progress' else "#667eea"
-                    status_icon = "✅" if status == 'completed' else "⏳" if status == 'in_progress' else "📅"
+                    status_color = "#28a745" if status == 'completed' else "#A80000" if status == 'in_progress' else "#333333"
+                    status_icon = "✅" if status == 'completed' else "⚔️" if status == 'in_progress' else "📅"
                     
                     st.markdown(f"""
-                    <div style="background: rgba(255,255,255,0.05); padding: 1.2rem; border-radius: 15px; border-left: 5px solid {status_color}; margin-top: 1rem;">
+                    <div style="background: #000; padding: 1.2rem; border: 3px solid var(--deadpool-red); border-left: 10px solid {status_color}; margin-top: 1rem; box-shadow: 4px 4px 0px #000;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <h4 style="margin: 0; color: white;">{status_icon} {item_date} — {item_topic}</h4>
-                            <span style="background: {status_color}; color: white; padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.7rem; font-weight: 700;">{status.upper()}</span>
+                            <span style="background: {status_color}; color: white; padding: 0.2rem 0.8rem; border-radius: 0px; font-size: 0.7rem; font-weight: 700; border: 2px solid #000;">{status.upper()}</span>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
@@ -1508,7 +1194,7 @@ def show_planner_page():
 
                     # SHOW STUDY CONTENT RIGHT HERE
                     if is_studying:
-                        st.markdown(f"<div style='background: rgba(102, 126, 234, 0.1); padding: 1.5rem; border-radius: 15px; border: 1px solid #667eea; margin: 1rem 0;'>", unsafe_allow_html=True)
+                        st.markdown(f"<div style='background: #000; padding: 1.5rem; border-radius: 0px; border: 3px solid var(--deadpool-red); margin: 1rem 0; box-shadow: 6px 6px 0px #000;'>", unsafe_allow_html=True)
                         st.markdown(f"#### 🎓 Studying: {item_topic}")
                         
                         study_data = st.session_state.get('planner_temp_data', [])
