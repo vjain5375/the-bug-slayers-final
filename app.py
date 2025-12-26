@@ -309,12 +309,19 @@ st.markdown("""
     }
 
     /* Inputs */
-    .stTextInput input, .stTextArea textarea, .stFileUploader {
+    .stTextInput input, .stTextArea textarea {
         background-color: #111 !important;
         border: 3px solid var(--deadpool-red) !important;
         color: #fff !important;
         font-size: 1rem !important;
         border-radius: 0px !important;
+    }
+
+    /* Surgical uploader fix */
+    [data-testid="stFileUploader"] {
+        border: 2px dashed var(--deadpool-red) !important;
+        background-color: #000 !important;
+        padding: 0px !important;
     }
 
     /* Markdown Text */
@@ -338,14 +345,37 @@ st.markdown("""
     
     /* Better spacing for main content */
     .main .block-container {
-        padding-top: 1rem !important;
-        padding-bottom: 1rem !important;
+        padding-top: 0rem !important;
+        padding-bottom: 0rem !important;
         max-width: 1200px !important;
     }
     
-    /* Remove streamlit padding */
+    /* Global spacing reduction */
+    [data-testid="stVerticalBlock"] {
+        gap: 0.5rem !important;
+    }
+
+    /* Remove streamlit default top padding */
     .st-emotion-cache-1y4p8pa { padding-top: 0px !important; }
-    div[data-testid="stVerticalBlock"] > div:has(div.element-container) { margin-bottom: 0px !important; }
+    .st-emotion-cache-z5fcl4 { padding-top: 0px !important; }
+    
+    /* Remove gaps from columns */
+    [data-testid="stHorizontalBlock"] {
+        gap: 0.5rem !important;
+    }
+
+    /* Surgical spacing for cards */
+    .comic-card {
+        margin-top: 0px !important;
+        margin-bottom: 0.5rem !important;
+    }
+    /* Compact Success/Info/Error Messages */
+    .stSuccess, .stInfo, .stError, .stWarning {
+        padding: 0.5rem 1rem !important;
+        border-radius: 0px !important;
+        font-size: 0.9rem !important;
+        margin-bottom: 0.5rem !important;
+    }
 </style>
 <div class="halftone"></div>
 """, unsafe_allow_html=True)
@@ -472,10 +502,10 @@ def main():
     """Main application"""
     # Deadpool Branding Header - NOW AT THE VERY TOP
     st.markdown("""
-    <div style="text-align: center; margin-bottom: 1rem; margin-top: -3rem;">
-        <h1 style="font-family: 'Bangers', cursive; font-size: 4rem; color: var(--deadpool-red); text-shadow: 4px 4px 0px #000; margin: 0;">⚡ DEADPOOL'S STUDY HUB</h1>
-        <div style="background: var(--deadpool-red); height: 6px; width: 200px; margin: 0.5rem auto; border: 3px solid #000; box-shadow: 3px 3px 0px #000;"></div>
-        <p style="font-family: 'Bangers', cursive; font-size: 1.4rem; color: #fff; letter-spacing: 1px; margin-top: 5px;">WEAPONIZING YOUR DOCUMENTS FOR MAXIMUM LEARNING EFFORT!</p>
+    <div style="text-align: center; margin-bottom: 0.5rem; margin-top: -4.5rem;">
+        <h1 style="font-family: 'Bangers', cursive; font-size: 3.5rem; color: var(--deadpool-red); text-shadow: 3px 3px 0px #000; margin: 0;">⚡ DEADPOOL'S STUDY HUB</h1>
+        <div style="background: var(--deadpool-red); height: 4px; width: 150px; margin: 0.2rem auto; border: 2px solid #000; box-shadow: 2px 2px 0px #000;"></div>
+        <p style="font-family: 'Bangers', cursive; font-size: 1.2rem; color: #fff; letter-spacing: 1px; margin-top: 2px;">WEAPONIZING YOUR DOCUMENTS FOR MAXIMUM LEARNING EFFORT!</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -631,9 +661,9 @@ def main():
     
     # Upload Section in Main Dashboard - Moved Above Navigation
     st.markdown("""
-    <div class="comic-card" style="padding: 1.5rem; text-align: center;">
-        <h2 style="color: white; margin: 0 0 0.5rem 0; font-size: 1.8rem; border: none; font-family: 'Bangers';">📤 UPLOAD YOUR STUDY MATERIALS</h2>
-        <p style="color: #fff; margin: 0; font-size: 1rem;">Upload PDF, DOCX, or TXT files to get started</p>
+    <div class="comic-card" style="padding: 1rem; text-align: center;">
+        <h2 style="color: white; margin: 0 0 0.2rem 0; font-size: 1.5rem; border: none; font-family: 'Bangers';">📤 UPLOAD YOUR STUDY MATERIALS</h2>
+        <p style="color: #fff; margin: 0; font-size: 0.9rem;">Upload PDF, DOCX, or TXT files to get started</p>
     </div>
     """, unsafe_allow_html=True)
     
@@ -744,10 +774,8 @@ def main():
                         except Exception as e:
                             st.error(f"Error: {e}")
     
-    st.divider()
-    
     # Navigation Buttons - Below Upload Section
-    st.markdown("### 🎯 NAVIGATION")
+    st.markdown("<p style='font-family: \"Bangers\"; font-size: 1.4rem; color: var(--deadpool-red); margin-bottom: 0.5rem; text-shadow: 2px 2px 0px #000;'>🎯 NAVIGATION</p>", unsafe_allow_html=True)
     nav_options = {
         "Home": "🏠",
         "Flashcards": "📇",
@@ -768,8 +796,6 @@ def main():
             if nav_button:
                 st.session_state.current_page = page_name
                 st.rerun()
-    
-    st.markdown("<br>", unsafe_allow_html=True)
     
     # Main Content Area
     if st.session_state.current_page == "Home":
