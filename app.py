@@ -474,8 +474,8 @@ def trigger_deadpool_balloons():
     for i in range(30):
         color = random.choice(colors)
         left = random.randint(0, 95)
-        duration = random.uniform(3, 6)
-        delay = random.uniform(0, 2)
+        duration = random.uniform(2, 4)
+        delay = random.uniform(0, 1)
         balloons_html += f'<div class="deadpool-balloon {color}" style="left: {left}vw; animation: floatUp {duration}s ease-in {delay}s forwards;"></div>'
     
     st.markdown(f"""
@@ -486,7 +486,7 @@ def trigger_deadpool_balloons():
             setTimeout(() => {{
                 const container = document.getElementById("balloon-container");
                 if (container) container.remove();
-            }}, 8000);
+            }}, 5000);
         </script>
     """, unsafe_allow_html=True)
 
