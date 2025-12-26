@@ -584,7 +584,7 @@ def main():
             docs_dir = ensure_documents_directory()
             col1, col2 = st.columns(2)
             with col1:
-                if st.button("💾 Save", use_container_width=True, key="sidebar_save"):
+                if st.button("💾 SAVE", use_container_width=True, key="sidebar_save", type="primary"):
                     saved = 0
                     saved_files = []
                     for uploaded_file in files_to_process_sidebar:
@@ -613,7 +613,7 @@ def main():
                     else:
                         st.info("Files already exist.")
             with col2:
-                if st.button("🔄 Process", use_container_width=True, type="primary", key="sidebar_process"):
+                if st.button("🔄 PROCESS", use_container_width=True, type="primary", key="sidebar_process"):
                     # Save first if needed
                     saved_files = []
                     for uploaded_file in files_to_process_sidebar:
@@ -641,6 +641,8 @@ def main():
                             result = st.session_state.processing_results
                             st.success(f"✅ {result['total_chunks']} chunks, {result['total_topics']} topics!")
                         st.rerun()
+        
+        st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
         
         doc_files = get_document_files()
         if doc_files:
