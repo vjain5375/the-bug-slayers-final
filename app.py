@@ -802,8 +802,8 @@ def main():
     <div style="text-align: center; margin-bottom: 2rem; margin-top: -4.5rem; position: relative; z-index: 100;">
         <div style="display: flex; align-items: center; justify-content: center; gap: 25px;">
             <div style="background: #A80000; padding: 15px 40px; border: 6px solid #fff; transform: rotate(-2deg); box-shadow: 12px 12px 0px #000; display: flex; align-items: center; gap: 30px;">
-                <h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #ffffff !important; text-shadow: 4px 4px 0px #000; border: none; background: transparent; -webkit-text-fill-color: #ffffff !important;">⚔️ THE ARSENAL</h1>
-                <h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #ffffff !important; text-shadow: 4px 4px 0px #000; border: none; background: transparent; -webkit-text-fill-color: #ffffff !important;">STUDY HUB</h1>
+                <span style="font-family: 'Bangers'; font-size: 5rem; color: #ffffff !important; text-shadow: 4px 4px 0px #000; -webkit-text-fill-color: #ffffff !important;">⚔️ THE ARSENAL</span>
+                <span style="font-family: 'Bangers'; font-size: 5rem; color: #ffffff !important; text-shadow: 4px 4px 0px #000; -webkit-text-fill-color: #ffffff !important;">STUDY HUB</span>
             </div>
         </div>
         <div style="background: #A80000; color: #ffffff !important; font-family: 'Bangers'; font-size: 1.8rem; padding: 10px 40px; display: inline-block; transform: skew(-10deg); border: 4px solid #fff; margin-top: 25px; box-shadow: 10px 10px 0px #000; -webkit-text-fill-color: #ffffff !important;">
@@ -1042,8 +1042,8 @@ def main():
 <!-- Tactical Header -->
 <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 1rem;">
     <div style="background: #A80000; padding: 15px 40px; border: 6px solid #fff; transform: rotate(-4deg); box-shadow: 12px 12px 0px #000; display: flex; align-items: center; gap: 30px;">
-        <h2 style="font-family: 'Bangers'; font-size: 3.5rem; margin: 0; color: #ffffff !important; text-shadow: 3px 3px 0px #000; -webkit-text-fill-color: #ffffff !important;">⚔️ ARSENAL</h2>
-        <h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important;">PORTAL</h1>
+        <span style="font-family: 'Bangers'; font-size: 3.5rem; color: #ffffff !important; text-shadow: 3px 3px 0px #000; -webkit-text-fill-color: #ffffff !important;">⚔️ ARSENAL</span>
+        <span style="font-family: 'Bangers'; font-size: 5rem; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important;">PORTAL</span>
     </div>
 </div>
 
