@@ -197,59 +197,99 @@ st.markdown("""
         border-right: 5px solid var(--deadpool-red) !important;
     }
 
-    /* Uniform Comic Buttons */
+    /* Uniform Comic Buttons - OVERHAULED FOR MAXIMUM BEAUTY */
     .stButton > button, .stDownloadButton > button {
         font-family: 'Bangers', cursive !important;
         background-color: var(--deadpool-red) !important;
+        background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.2) 0%, transparent 40%) !important;
         color: white !important;
-        font-size: 1.4rem !important;
+        font-size: 1.5rem !important;
         border: 4px solid #000 !important;
         border-radius: 0px !important;
-        padding: 0.5rem 1rem !important;
-        box-shadow: 6px 6px 0px #000 !important;
+        padding: 0.6rem 1.2rem !important;
+        box-shadow: 8px 8px 0px #000 !important;
         text-transform: uppercase !important;
         letter-spacing: 2px !important;
         width: 100% !important;
-        min-height: 60px !important;
-        height: 60px !important;
+        min-height: 65px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
         white-space: normal !important;
         word-wrap: break-word !important;
         line-height: 1 !important;
-        margin-bottom: 8px !important;
-        transition: all 0.1s ease-in-out !important;
-        transform: skew(-2deg);
+        margin-bottom: 12px !important;
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        transform: skew(-3deg);
+        position: relative !important;
+        overflow: hidden !important;
+        text-shadow: 2px 2px 0px #000 !important;
     }
 
-    /* Navigation Buttons Specific Style */
-    [data-testid="stHorizontalBlock"] div div div .stButton > button, 
-    [data-testid="stHorizontalBlock"] div div div .stDownloadButton > button {
-        height: 110px !important; 
-        font-size: 1.1rem !important;
-        flex-direction: column !important;
-        line-height: 1.2 !important;
-        gap: 8px !important;
-        padding: 10px !important;
-        background-color: #111 !important;
-        border-color: var(--deadpool-red) !important;
-    }
-    
-    /* Active Navigation Button */
-    [data-testid="stHorizontalBlock"] div div div .stButton > button[kind="primary"] {
-        background-color: var(--deadpool-red) !important;
-        border-color: #000 !important;
-        transform: skew(-2deg) scale(1.05);
-        box-shadow: 8px 8px 0px #000 !important;
+    /* Premium Inner Border */
+    .stButton > button::before, .stDownloadButton > button::before {
+        content: "";
+        position: absolute;
+        top: 2px; left: 2px; right: 2px; bottom: 2px;
+        border: 2px solid rgba(255,255,255,0.3);
+        pointer-events: none;
+        z-index: 1;
     }
 
     .stButton > button:hover, .stDownloadButton > button:hover {
         background-color: #fff !important;
         color: var(--deadpool-red) !important;
-        transform: skew(-2deg) translate(-3px, -3px) scale(1.02) !important;
-        box-shadow: 10px 10px 0px #000 !important;
-        border-color: var(--deadpool-red) !important;
+        transform: skew(-3deg) translate(-5px, -5px) scale(1.02) !important;
+        box-shadow: 15px 15px 0px #000 !important;
+        border-color: #000 !important;
+        text-shadow: none !important;
+    }
+    
+    .stButton > button:active {
+        transform: skew(-3deg) translate(2px, 2px) !important;
+        box-shadow: 2px 2px 0px #000 !important;
+    }
+
+    /* Navigation Grid Specifics - THE "NON-DABBA" LOOK */
+    [data-testid="stHorizontalBlock"] div div div .stButton > button {
+        height: 120px !important; 
+        background-color: var(--deadpool-red) !important;
+        border-width: 5px !important;
+        font-size: 1.2rem !important;
+    }
+    
+    /* Active Navigation Button - GLOWING WHITE PANELS */
+    [data-testid="stHorizontalBlock"] div div div .stButton > button[kind="primary"] {
+        background-color: #fff !important;
+        color: var(--deadpool-red) !important;
+        border-color: #000 !important;
+        transform: skew(-3deg) scale(1.1) !important;
+        box-shadow: 0 0 25px rgba(168,0,0,0.6), 10px 10px 0px #000 !important;
+        z-index: 10 !important;
+        text-shadow: none !important;
+    }
+    
+    [data-testid="stHorizontalBlock"] div div div .stButton > button[kind="primary"]::before {
+        border-color: rgba(168,0,0,0.2);
+    }
+
+    /* Sidebar Fancy Navigation Buttons */
+    [data-testid="stSidebar"] .stButton > button {
+        text-align: left !important;
+        justify-content: flex-start !important;
+        padding-left: 1.5rem !important;
+        font-size: 1.3rem !important;
+        min-height: 55px !important;
+        margin-bottom: 10px !important;
+        background-image: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, transparent 100%) !important;
+    }
+    
+    [data-testid="stSidebar"] .stButton > button[kind="primary"] {
+        background-color: #fff !important;
+        color: var(--deadpool-red) !important;
+        border-color: #000 !important;
+        box-shadow: 6px 6px 0px #000 !important;
+        text-shadow: none !important;
     }
 
     /* Input Labels and Fonts */
@@ -735,27 +775,24 @@ def main():
     with st.sidebar:
         # MISSION PROTOCOL FLOWCHART - Top of Sidebar
         st.markdown("""
-        <div style="background: #000; padding: 1rem; border: 3px solid var(--deadpool-red); margin-bottom: 1.5rem; box-shadow: 6px 6px 0px #000; border-radius: 0px;">
-            <h2 style="color: var(--deadpool-red); margin: 0 0 1rem 0; font-size: 1.6rem; border: none; text-align: center; font-family: 'Bangers'; text-shadow: 2px 2px 0px #000;">⚔️ MISSION FLOW</h2>
-            <div style="padding-left: 5px;">
-                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
-                    <div style="background: var(--deadpool-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #000; font-family: 'Bangers';">1</div>
-                    <div style="margin-left: 12px; font-size: 1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">📤 UPLOAD DOCS</div>
+        <div class="designer-card" style="padding: 1.2rem; border-width: 5px; margin-bottom: 2rem;">
+            <h2 class="designer-header" style="font-size: 1.8rem; text-align: center; display: block; margin-bottom: 1.5rem;">⚔️ MISSION FLOW</h2>
+            <div style="position: relative;">
+                <div style="display: flex; align-items: center; margin-bottom: 1rem; background: rgba(168,0,0,0.1); padding: 8px; border-left: 4px solid var(--deadpool-red);">
+                    <div style="background: #000; color: white; width: 30px; height: 30px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid var(--deadpool-red); font-family: 'Bangers'; transform: rotate(-5deg);">1</div>
+                    <div style="margin-left: 15px; font-size: 1.1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">📤 LOAD UP</div>
                 </div>
-                <div style="border-left: 3px solid var(--deadpool-red); height: 12px; margin-left: 12px; margin-top: -5px; margin-bottom: -5px;"></div>
-                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
-                    <div style="background: var(--deadpool-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #000; font-family: 'Bangers';">2</div>
-                    <div style="margin-left: 12px; font-size: 1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">💾 HIT SAVE</div>
+                <div style="display: flex; align-items: center; margin-bottom: 1rem; background: rgba(168,0,0,0.1); padding: 8px; border-left: 4px solid var(--deadpool-red);">
+                    <div style="background: #000; color: white; width: 30px; height: 30px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid var(--deadpool-red); font-family: 'Bangers'; transform: rotate(5deg);">2</div>
+                    <div style="margin-left: 15px; font-size: 1.1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">💾 LOCK IT</div>
                 </div>
-                <div style="border-left: 3px solid var(--deadpool-red); height: 12px; margin-left: 12px; margin-top: -5px; margin-bottom: -5px;"></div>
-                <div style="display: flex; align-items: center; margin-bottom: 0.5rem;">
-                    <div style="background: var(--deadpool-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #000; font-family: 'Bangers';">3</div>
-                    <div style="margin-left: 12px; font-size: 1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">🔄 PROCESS NOW</div>
+                <div style="display: flex; align-items: center; margin-bottom: 1rem; background: rgba(168,0,0,0.1); padding: 8px; border-left: 4px solid var(--deadpool-red);">
+                    <div style="background: #000; color: white; width: 30px; height: 30px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid var(--deadpool-red); font-family: 'Bangers'; transform: rotate(-3deg);">3</div>
+                    <div style="margin-left: 15px; font-size: 1.1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">🔄 SLICE IT</div>
                 </div>
-                <div style="border-left: 3px solid var(--deadpool-red); height: 12px; margin-left: 12px; margin-top: -5px; margin-bottom: -5px;"></div>
-                <div style="display: flex; align-items: center;">
-                    <div style="background: var(--deadpool-red); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #000; font-family: 'Bangers';">4</div>
-                    <div style="margin-left: 12px; font-size: 1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1px;">🛡️ DOMINATE</div>
+                <div style="display: flex; align-items: center; background: var(--deadpool-red); padding: 8px; border: 2px solid #000; box-shadow: 4px 4px 0px #000;">
+                    <div style="background: #000; color: white; width: 30px; height: 30px; border-radius: 0; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid #fff; font-family: 'Bangers'; transform: rotate(10deg);">4</div>
+                    <div style="margin-left: 15px; font-size: 1.1rem; font-weight: bold; color: #fff; font-family: 'Bangers'; letter-spacing: 1.5px;">🛡️ DOMINATE</div>
                 </div>
             </div>
         </div>
@@ -775,10 +812,18 @@ def main():
         
         for page_name, icon in nav_options.items():
             is_active = st.session_state.current_page == page_name
-            # Create a stylized button-like container
-            if st.button(f"{icon} {page_name.upper()}", key=f"side_nav_{page_name}", use_container_width=True, type="secondary" if not is_active else "primary"):
-                st.session_state.current_page = page_name
-                st.rerun()
+            
+            # Sidebar Active Marker
+            col_marker, col_btn = st.columns([1, 9])
+            with col_marker:
+                if is_active:
+                    st.markdown("<div style='height: 55px; width: 8px; background: white; box-shadow: 0 0 15px white; margin-top: 2px;'></div>", unsafe_allow_html=True)
+            
+            with col_btn:
+                # Create a stylized button-like container
+                if st.button(f"{icon} {page_name.upper()}", key=f"side_nav_{page_name}", use_container_width=True, type="secondary" if not is_active else "primary"):
+                    st.session_state.current_page = page_name
+                    st.rerun()
 
         st.markdown("<div style='margin-bottom: 2rem;'></div>", unsafe_allow_html=True)
         
@@ -1004,9 +1049,21 @@ def main():
     nav_cols = st.columns(6)
     for idx, (page_name, icon) in enumerate(nav_options.items()):
         with nav_cols[idx]:
-            button_type = "primary" if st.session_state.current_page == page_name else "secondary"
+            is_active = st.session_state.current_page == page_name
+            button_type = "primary" if is_active else "secondary"
             # Format text: Icon and Name on separate lines, but don't split words
             button_label = f"{icon}\n{page_name}"
+            
+            # Active Page Indicator (Comic Arrow Style)
+            if is_active:
+                st.markdown("""
+                <div style="text-align: center; margin-bottom: -15px; position: relative; z-index: 100;">
+                    <div style="display: inline-block; width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 15px solid white; filter: drop-shadow(0px 4px 2px rgba(0,0,0,0.5));"></div>
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+                
             nav_button = st.button(button_label, use_container_width=True, key=f"main_nav_{page_name}", type=button_type)
             if nav_button:
                 st.session_state.current_page = page_name
