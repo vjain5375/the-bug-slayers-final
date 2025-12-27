@@ -142,6 +142,8 @@ if 'num_questions' not in st.session_state:
     st.session_state.num_questions = 10
 if 'last_processed_signature' not in st.session_state:
     st.session_state.last_processed_signature = None
+if 'balloons_queued' not in st.session_state:
+    st.session_state.balloons_queued = False
 
 # Load CSS (Premium Deadpool Comic Theme)
 st.markdown("""
@@ -640,8 +642,12 @@ def _compute_docs_signature(doc_files):
     entries.sort()
     return hashlib.md5("|".join(entries).encode()).hexdigest()
 
-def trigger_deadpool_balloons():
-    """Trigger custom red, black, and white balloons with local animation styles for reliability"""
+def trigger_deadpool_balloons(queued=False):
+    """Trigger custom red, black, and white balloons. If queued=True, sets a flag for next render."""
+    if queued:
+        st.session_state.balloons_queued = True
+        return
+
     import random
     balloons_html = ""
     # Strictly Red, Black, White
@@ -653,8 +659,8 @@ def trigger_deadpool_balloons():
         color = colors[idx]
         border = border_colors[idx]
         left = random.randint(0, 95)
-        duration = random.uniform(1.2, 3.0) # Even snappier
-        delay = random.uniform(0, 0.6)
+        duration = random.uniform(2.5, 4.5) # Slightly slower to be visible
+        delay = random.uniform(0, 0.8)
         size = random.randint(35, 55)
         
         balloons_html += f"""
@@ -670,12 +676,12 @@ def trigger_deadpool_balloons():
     st.markdown(f"""
         <style>
             @keyframes floatUpAnim {{
-                0% {{ transform: translateY(100vh) rotate(0deg); opacity: 1; }}
-                100% {{ transform: translateY(-100vh) rotate(360deg); opacity: 0; }}
+                0% {{ transform: translateY(0) rotate(0deg); opacity: 1; }}
+                100% {{ transform: translateY(-120vh) rotate(360deg); opacity: 0; }}
             }}
             .deadpool-balloon-instance {{
                 position: fixed;
-                bottom: -100px;
+                bottom: -150px;
                 border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
                 z-index: 999999;
                 pointer-events: none;
@@ -692,14 +698,14 @@ def trigger_deadpool_balloons():
                 background: #666;
             }}
         </style>
-        <div id="balloon-container">
+        <div id="balloon-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999999;">
             {balloons_html}
         </div>
         <script>
             setTimeout(() => {{
                 const container = document.getElementById("balloon-container");
                 if (container) container.remove();
-            }}, 4000);
+            }}, 6000);
         </script>
     """, unsafe_allow_html=True)
 
@@ -744,7 +750,7 @@ def process_documents():
         st.success(f"✅ Processed {result['total_chunks']} chunks from {result['total_topics']} topics!{latest_info}")
         
         # Trigger custom Deadpool balloons
-        trigger_deadpool_balloons()
+        trigger_deadpool_balloons(queued=True)
         
         # Store processing results for display
         st.session_state.processing_results = result
@@ -758,6 +764,11 @@ def process_documents():
 
 def main():
     """Main application"""
+    # Trigger any queued balloons first
+    if st.session_state.get('balloons_queued', False):
+        trigger_deadpool_balloons()
+        st.session_state.balloons_queued = False
+
     # Deadpool Branding Header - NOW AT THE VERY TOP
     st.markdown("""
     <div style="text-align: center; margin-bottom: 1rem; margin-top: -4.5rem;">
@@ -1320,7 +1331,7 @@ def show_flashcards_page():
                 flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards, difficulty_mix=difficulty_mix)
                 processing_msg.empty()
                 st.session_state.flashcards = flashcards
-                trigger_deadpool_balloons()
+                trigger_deadpool_balloons(queued=True)
                 st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
@@ -1393,7 +1404,7 @@ def show_quizzes_page():
                 if questions:
                     st.session_state.quizzes = questions
                     st.session_state.quiz_answers = {}
-                    trigger_deadpool_balloons()
+                    trigger_deadpool_balloons(queued=True)
                     st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
@@ -1569,7 +1580,7 @@ def show_planner_page():
                         with c2:
                             if st.button("✅ NEUTRALIZE", key=f"comp_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'completed')
-                                trigger_deadpool_balloons()
+                                trigger_deadpool_balloons(queued=True)
                                 st.rerun()
                         
                         cc1, cc2 = st.columns(2)
