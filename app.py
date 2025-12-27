@@ -291,25 +291,37 @@ st.markdown("""
         border-color: rgba(255,255,255,0.6);
     }
 
-    /* Sidebar Fancy Navigation Buttons */
+    /* Sidebar Fancy Navigation Buttons - SYNCED WITH BROWSE BUTTON */
     [data-testid="stSidebar"] .stButton > button {
-        text-align: left !important;
-        justify-content: flex-start !important;
-        padding-left: 1.5rem !important;
-        font-size: 1.5rem !important;
-        min-height: 60px !important;
-        margin-bottom: 12px !important;
-        background-image: linear-gradient(90deg, rgba(255,255,255,0.1) 0%, transparent 100%) !important;
-        border: 4px solid #FFF !important;
-        box-shadow: 6px 6px 0px #000 !important;
+        text-align: center !important;
+        justify-content: center !important;
+        padding: 0.5rem 1rem !important;
+        font-size: 1.6rem !important;
+        min-height: 70px !important;
+        margin-bottom: 15px !important;
+        background-color: var(--deadpool-red) !important;
+        background-image: none !important;
+        border: 5px solid #FFF !important;
+        box-shadow: 10px 10px 0px #000 !important;
+        color: white !important;
+        transform: none !important;
+        border-radius: 0px !important;
+        transition: all 0.2s ease !important;
     }
     
+    [data-testid="stSidebar"] .stButton > button:hover {
+        background-color: #FFF !important;
+        color: var(--deadpool-red) !important;
+        border-color: #000 !important;
+        transform: translate(-5px, -5px) !important;
+        box-shadow: 15px 15px 0px #000 !important;
+    }
+
     [data-testid="stSidebar"] .stButton > button[kind="primary"] {
-        background-color: var(--deadpool-red) !important;
-        color: white !important;
-        border-color: white !important;
-        box-shadow: 10px 10px 0px #000 !important;
-        transform: scale(1.05) rotate(-1deg) !important;
+        border-color: #FFF !important;
+        box-shadow: 12px 12px 0px #000 !important;
+        transform: scale(1.05) !important;
+        z-index: 10 !important;
     }
 
     /* Input Labels and Fonts */
@@ -830,7 +842,7 @@ def main():
         """, unsafe_allow_html=True)
         
         # FANCY NAVIGATION MENU
-        st.markdown("<p style='font-family: \"Bangers\"; font-size: 1.4rem; color: var(--deadpool-red); margin-bottom: 0.5rem; text-shadow: 2px 2px 0px #000;'>🎯 DESTINATIONS</p>", unsafe_allow_html=True)
+        st.markdown("<p style='font-family: \"Bangers\"; font-size: 1.4rem; color: var(--deadpool-red); margin-bottom: 2rem; text-shadow: 2px 2px 0px #000;'>🎯 DESTINATIONS</p>", unsafe_allow_html=True)
         
         nav_options = {
             "Home": "🏠",
@@ -844,17 +856,17 @@ def main():
         for page_name, icon in nav_options.items():
             is_active = st.session_state.current_page == page_name
             
-            # Sidebar Active Marker (Premium Comic Arrow) - Now More Robust
+            # Sidebar Active Marker (Premium Comic Arrow) - Height Matched to Buttons
             col_marker, col_btn = st.columns([2, 8])
             with col_marker:
                 if is_active:
                     st.markdown("""
-                    <div style='height: 55px; display: flex; align-items: center; justify-content: center; margin-right: -10px;'>
-                        <div style="font-size: 2rem; color: white; filter: drop-shadow(3px 3px 0px #000);">▶</div>
+                    <div style='height: 70px; display: flex; align-items: center; justify-content: center; margin-right: -10px;'>
+                        <div style="font-size: 2.5rem; color: white; filter: drop-shadow(4px 4px 0px #000);">▶</div>
                     </div>
                     """, unsafe_allow_html=True)
                 else:
-                    st.markdown("<div style='height: 55px;'></div>", unsafe_allow_html=True)
+                    st.markdown("<div style='height: 70px;'></div>", unsafe_allow_html=True)
             
             with col_btn:
                 # Create a stylized button-like container
