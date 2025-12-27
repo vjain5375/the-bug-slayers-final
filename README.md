@@ -1,6 +1,6 @@
 # ⚔️ THE ARSENAL: AI-POWERED MULTI-AGENT STUDY HUB ⚔️
 
-### "Oye, Recruit! Engineered by Mr. Vansh Jain · Hack Infinity 2025 Finalist"
+### "Engineered by Mr. Vansh Jain · Hack Infinity 2025 Finalist"
 
 > *"With great power, comes great... wait, wrong franchise. WITH MAXIMUM EFFORT, COMES MAXIMUM GRADES!"* — Deadpool (probably while eating a paratha)
 
