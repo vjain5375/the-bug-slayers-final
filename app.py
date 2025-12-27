@@ -160,7 +160,16 @@ st.markdown("""
     .stApp {
         background-color: var(--deadpool-black);
         color: var(--comic-white);
-        font-family: 'Oswald', sans-serif;
+        font-family: 'Oswald', sans-serif !important;
+    }
+    
+    /* Force fonts on everything */
+    .stMarkdown, .stText, .stButton, .stDownloadButton, .stSelectbox, .stSlider, .stTextInput, .stTextArea, div, span, p, li, label {
+        font-family: 'Oswald', sans-serif !important;
+    }
+    
+    h1, h2, h3, h4, h5, h6, .designer-header, .stButton > button, .stDownloadButton > button {
+        font-family: 'Bangers', cursive !important;
     }
 
     /* Comic Grid Background */
@@ -189,7 +198,7 @@ st.markdown("""
     }
 
     /* Uniform Comic Buttons */
-    .stButton > button {
+    .stButton > button, .stDownloadButton > button {
         font-family: 'Bangers', cursive !important;
         background-color: var(--deadpool-red) !important;
         color: white !important;
@@ -215,7 +224,8 @@ st.markdown("""
     }
 
     /* Navigation Buttons Specific Style */
-    [data-testid="stHorizontalBlock"] div div div .stButton > button {
+    [data-testid="stHorizontalBlock"] div div div .stButton > button, 
+    [data-testid="stHorizontalBlock"] div div div .stDownloadButton > button {
         height: 110px !important; 
         font-size: 1.1rem !important;
         flex-direction: column !important;
@@ -234,7 +244,7 @@ st.markdown("""
         box-shadow: 8px 8px 0px #000 !important;
     }
 
-    .stButton > button:hover {
+    .stButton > button:hover, .stDownloadButton > button:hover {
         background-color: #fff !important;
         color: var(--deadpool-red) !important;
         transform: skew(-2deg) translate(-3px, -3px) scale(1.02) !important;
