@@ -1,116 +1,72 @@
-# AI Study Assistant · Multi-Agent Copilot
+# ⚔️ THE ARSENAL: VANSH JAIN'S STUDY HUB ⚔️
 
-[![Streamlit](https://img.shields.io/badge/Streamlit-%23FF4B4B.svg?style=flat&logo=Streamlit&logoColor=white)](https://streamlit.io/) [![LangChain](https://img.shields.io/badge/LangChain-1E4169?style=flat&logo=chainlink&logoColor=white)](https://www.langchain.com/) [![ChromaDB](https://img.shields.io/badge/ChromaDB-181818?style=flat&logo=amazondynamodb&logoColor=white)](https://www.trychroma.com/)
+### "With great power, comes great... wait, wrong franchise. WITH MAXIMUM EFFORT, COMES MAXIMUM GRADES!" 
 
-> Hack Infinity finalist that turns unstructured study material into flashcards, quizzes, revision plans, and chat responses—all orchestrated by resilient AI agents.
-
-**🌐 Live demo:** [the-bug-slayers-hack-infinity-final.streamlit.app](https://the-bug-slayers-hack-infinity-final.streamlit.app/)  
-**🧠 Pitch deck / video:** _coming soon_ · grab the [assets folder](documents/) to see sample PDFs we use during judging.
+Welcome to the **Arsenal Drop Zone**, a lethal study ecosystem engineered by **Mr. Vansh Jain**. This isn't your grandma's study app. This is a multi-agent, document-slicing, brain-weaponizing tactical command center designed to turn your boring PDFs into pure academic dominance.
 
 ---
 
-## 🔍 Why This Matters
-- Students lose time rewriting notes—this copilot ingests PDFs and produces study artefacts in minutes.
-- Multi-agent coordination (Reader → Flashcards → Quiz → Planner → Chat) keeps context in sync without hallucinations.
-- A vector store watchdog clears stale chunks per session so judges can’t break the demo with repeated uploads.
+## 🎭 THE FOURTH WALL (A Message from Vansh)
+Look, we all know studying sucks. It's dry, it's long, and it usually involves way too many words. So, Vansh decided to fix it. He built me (Deadpool) into the UI, harnessed a fleet of AI agents, and created a system that does the hard work for you. You just upload the intel; we slice it into pieces you can actually digest. 
+
+**Maximum Effort. Zero Boredom.**
 
 ---
 
-## ✨ Feature Highlights
-- **Document Intelligence**
-  - PDF/DOCX/TXT ingestion with chunk level metrics and topic extraction
-  - On-the-fly API key discovery (Streamlit Secrets → env vars → `.env`)
-- **Autonomous Agents**
-  - `ReaderAgent` cleans + chunks content and logs chunk counts
-  - `FlashcardAgent`, `QuizAgent`, `PlannerAgent`, and `ChatAgent` share the same memory namespace through `AgentController`
-- **Learning Workflow**
-  - Flashcard carousel with spaced-repetition tags
-  - Adaptive quizzes that store answer history
-  - Revision planner that prioritizes weak topics and adds daily streak targets
-  - Chat assistant with RAG + semantic reranking to quote original pages
-- **Resilience**
-  - Embedding backend falls back between local `SentenceTransformer` and Gemini/OpenAI APIs (`EMBEDDING_BACKEND=auto`)
-  - Vector store gets wiped per session to avoid stale embeddings
-  - Graceful error blocks with actionable fixes (Torch install, API keys, etc.)
+## 🛠️ THE TACTICAL TOOLBOX (Features)
+
+### 📤 1. THE ARSENAL DROP ZONE
+The main event. Throw your PDFs, DOCX, or TXT files into the "Hole." My surgical reader agent slices them into semantic chunks before you can say "Chimichanga!"
+
+### 📇 2. THE WEAPONIZED FLASHCARDS
+No more boring notes. We generate high-impact Q&A pairs with difficulty tagging. Easy for the rookies, Hard for the veterans.
+
+### 🎯 3. MISSION INTEL QUIZZES
+Test your accuracy. If you score above 50%, you get a celebration. If you fail... well, stick to the movies, rookie.
+
+### 📅 4. THE STRATEGIC BATTLE PLAN
+Vansh knows you procrastinate. Our Planner Agent builds a day-by-day revision schedule with a "Done or Die" progress tracker.
+
+### 💬 5. THE INTERROGATION ROOM (CHAT)
+Got a doubt? Ask the archives. Our RAG-powered chat assistant answers only using your uploaded materials. No hallucinations, just cold hard facts.
 
 ---
 
-## 🧱 Architecture at a Glance
-```
-┌─────────────┐       ┌─────────────┐     ┌────────────────┐     ┌──────────────┐
-│ Streamlit UI├──────▶│AgentController├───▶│VectorStore/LLMs├────▶│ChromaDB store│
-└─────▲───────┘       └──────┬──────┘     └────────┬───────┘     └──────▲───────┘
-      │ Documents            │ Agents: Reader, Flashcard, Quiz, Planner, Chat │
-      └──────────────────────┴─────────────────────────────────────────────────┘
-```
-- UI events dispatch intents to the controller.
-- Controller requests embeddings via `vector_store.py` (local ST or API).
-- LangChain pipelines (Gemini Flash 2.0) create flashcards/quizzes/plans.
-- ChromaDB holds semantic chunks; controller clears/refreshes per upload.
+## 🚀 DEPLOYING THE ARSENAL (Installation)
 
----
+If you're brave enough to run this locally:
 
-## 🧑‍💻 Agents & Modules
-- `agents/reader_agent.py` – PDF parsing, chunking, topic extraction
-- `agents/flashcard_agent.py` – generates QA pairs + difficulty tagging
-- `agents/quiz_agent.py` – adaptive MCQs with answer tracking
-- `agents/planner_agent.py` – multi-day revision plans using workload heuristics
-- `agents/chat_agent.py` – RAG chat grounded in the latest vector store
-- `vector_store.py` – local/API embedding backend, cache, and cleanup helpers
-- `alerts_manager.py` – surfaces Streamlit toasts from deep calls
-
----
-
-## ⚙️ Getting Started
-1. **Clone & install**
+1. **Clone the Masterpiece:**
    ```bash
    git clone https://github.com/vjain5375/the-bug-slayers-final.git
    cd the-bug-slayers-final
-   python -m venv .venv && .\.venv\Scripts\activate  # or source .venv/bin/activate
+   ```
+
+2. **Suit Up (Install Dependencies):**
+   ```bash
    pip install -r requirements.txt
    ```
-2. **Configure keys (`.env`)**
-   ```
-   GOOGLE_API_KEY=your_gemini_key
-   # optional fallbacks
-   OPENAI_API_KEY=sk-...
-   EMBEDDING_BACKEND=auto   # local | api | auto
-   ```
-3. **(Optional) force API embeddings**
-   ```
-   EMBEDDING_BACKEND=api
+
+3. **Ignite the Engine:**
+   ```bash
+   streamlit run app.py
    ```
 
 ---
 
-## 🏃 Run Locally
-```bash
-streamlit run app.py
-```
-
-### CLI flags you might need
-- `STREAMLIT_SERVER_ADDRESS=0.0.0.0` for LAN demos
-- `EMBEDDING_BACKEND=local` to keep everything offline (installs `torch` CPU wheel)
+## 🛡️ MISSION LOGS
+*   **Architect:** Mr. Vansh Jain
+*   **Codename:** The Bug Slayers
+*   **Mission:** Hack Infinity 2025 Finals
+*   **Status:** **OPERATIONAL & SEXY**
 
 ---
 
-## 🧩 Troubleshooting Cheatsheet
-| Symptom | Fix |
-| --- | --- |
-| “Vector store failed to initialize” | Install Torch CPU `pip install torch --index-url https://download.pytorch.org/whl/cpu` or switch to `EMBEDDING_BACKEND=api`. |
-| Streamlit spinner never shows progress | Spinners are intentionally disabled for accessibility; watch the static status banners at the top. |
-| Nothing happens after uploading | Check `documents/` directory permissions; the app cleans older files on session reset. |
+## 🤝 CONNECT WITH THE MASTERMIND
+> "Vansh Jain doesn't just build apps. He builds legends."
+
+- 🧠 Talk to him about GenAI workflows or UI polish.
+- 💌 GitHub: [@vjain5375](https://github.com/vjain5375)
 
 ---
-
-## 📌 Roadmap
-- [x] Export flashcards/quizzes as Anki decks & CSV.
-- [ ] Shared study rooms with invite links.
-- [ ] Automated grading for custom answers.
-- [ ] Voice interface for mobile learners.
-
----
-
-## 🤝 Contributors
-Built by **The Bug Slayers** for Hack Infinity 2025. Reach out via issues or discussions if you’d like to collaborate!
-
+*Disclaimer: No chimichangas were harmed in the making of this software. Study responsibly, or don't. I'm a README, not your mom.*
