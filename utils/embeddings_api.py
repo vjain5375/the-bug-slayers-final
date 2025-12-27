@@ -103,29 +103,15 @@ class APiEmbeddingsWrapper:
             raise
     
     def _embed_gemini(self, texts: List[str]) -> List[List[float]]:
-        """
-        Generate embeddings using Google Gemini API
-        
-        Note: Gemini doesn't have a dedicated embeddings API, so we use the model
-        to generate text representations. For production, consider using
-        Vertex AI Embeddings or a dedicated embedding model.
-        """
+        """Generate embeddings using Google Gemini API (models/embedding-001)"""
         try:
-            # Gemini doesn't have direct embeddings, so we'll use a workaround
-            # For now, return a simple hash-based embedding (not ideal but functional)
-            # In production, you should use Vertex AI Embeddings API or switch to OpenAI
-            logger.warning(
-                "Gemini doesn't have a direct embeddings API. "
-                "Using fallback method. For production, use Vertex AI Embeddings or OpenAI."
+            # Use the dedicated embedding model
+            result = self.client.embed_content(
+                model="models/embedding-001",
+                content=texts,
+                task_type="retrieval_document"
             )
-            
-            # Fallback: Use simple TF-IDF-like approach or switch to OpenAI
-            # For now, we'll raise an error suggesting to use OpenAI instead
-            raise NotImplementedError(
-                "Gemini embeddings not directly supported. "
-                "Please set EMB_PROVIDER=openai and OPENAI_API_KEY, "
-                "or use Vertex AI Embeddings API."
-            )
+            return result['embedding']
         except Exception as e:
             logger.error(f"Gemini embedding error: {e}")
             raise
