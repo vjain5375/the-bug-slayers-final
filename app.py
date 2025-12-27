@@ -919,11 +919,21 @@ def main():
         
         st.divider()
     
-    # Upload Section in Main Dashboard - Moved Above Navigation
+    # Upload Section in Main Dashboard - OVERHAULED FOR MAXIMUM IMPACT
     st.markdown("""
-    <div class="designer-card" style="padding: 1rem !important; text-align: center;">
-        <h2 style="color: white; margin: 0 0 0.2rem 0; font-size: 1.5rem; border: none; font-family: 'Bangers';">📤 UPLOAD YOUR STUDY MATERIALS</h2>
-        <p style="color: #fff; margin: 0; font-size: 0.9rem;">Upload PDF, DOCX, or TXT files to get started</p>
+    <div style="position: relative; margin-bottom: 2rem;">
+        <!-- The Background Flash -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: var(--deadpool-red); transform: skewY(-1.5deg); z-index: 0; box-shadow: 10px 10px 0px #000; border: 4px solid #000;"></div>
+        
+        <div style="position: relative; z-index: 1; padding: 2rem; text-align: center; background: #000; border: 4px solid var(--deadpool-red); transform: skewY(0.5deg); margin: 5px;">
+            <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 1rem;">
+                <img src="https://static.printler.com/shop/2022-07/62d669ec6db0d6.14114414.jpg" style="width: 80px; border-radius: 50%; border: 3px solid var(--deadpool-red); box-shadow: 4px 4px 0px #000;">
+                <h1 class="designer-header" style="font-size: 3.5rem; margin: 0; color: #fff; text-shadow: 4px 4px 0px var(--deadpool-red);">⚔️ THE ARSENAL DROP ZONE</h1>
+            </div>
+            <p style="font-family: 'Bangers'; font-size: 1.5rem; color: var(--deadpool-red); letter-spacing: 2px; margin-bottom: 0;">FEED ME YOUR DOCS OR I'LL STAB YOU! (JUST KIDDING... MAYBE)</p>
+            <div style="background: var(--deadpool-red); height: 4px; width: 300px; margin: 10px auto; border: 2px solid #000;"></div>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; text-transform: uppercase;">Accepting: PDF, DOCX, & TXT Files for Semantic Slicing.</p>
+        </div>
     </div>
     """, unsafe_allow_html=True)
     
@@ -931,7 +941,9 @@ def main():
     if 'uploaded_files_shared' not in st.session_state:
         st.session_state.uploaded_files_shared = None
     
-    col1, col2 = st.columns([2, 1])
+    # Designer Container for Uploader
+    st.markdown('<div class="designer-card" style="border-style: dashed; border-width: 5px; background: rgba(168,0,0,0.05) !important;">', unsafe_allow_html=True)
+    col1, col2 = st.columns([3, 1])
     with col1:
         uploaded_files_main = st.file_uploader(
             "📎 Choose files to upload",
@@ -946,9 +958,18 @@ def main():
             st.session_state.uploaded_files_shared = uploaded_files_main
     with col2:
         if uploaded_files_main:
-            st.success(f"✅ {len(uploaded_files_main)} file(s) selected")
+            st.markdown(f"""
+            <div style="background: var(--deadpool-red); color: white; padding: 10px; border: 3px solid #000; text-align: center; font-family: 'Bangers'; transform: rotate(5deg); box-shadow: 5px 5px 0px #000;">
+                ✅ {len(uploaded_files_main)} FILES LOADED!
+            </div>
+            """, unsafe_allow_html=True)
         elif st.session_state.uploaded_files_shared:
-            st.info(f"📁 {len(st.session_state.uploaded_files_shared)} file(s) from sidebar")
+            st.markdown(f"""
+            <div style="background: #333; color: white; padding: 10px; border: 3px solid var(--deadpool-red); text-align: center; font-family: 'Bangers'; transform: rotate(-3deg);">
+                📁 {len(st.session_state.uploaded_files_shared)} FILES WAITING...
+            </div>
+            """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # Use shared uploaded files if main uploader is empty but sidebar has files
     files_to_process = uploaded_files_main if uploaded_files_main else st.session_state.uploaded_files_shared
