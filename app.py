@@ -1076,8 +1076,14 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
             position: relative !important;
             margin-top: -2rem !important;
         }
-        [data-testid="stFileUploader"] section {
+        /* Surgical precision: Hide only the boring parts, KEEP THE BUTTON */
+        [data-testid="stFileUploader"] section > div:first-child {
             display: none !important;
+        }
+        [data-testid="stFileUploader"] section {
+            padding: 0 !important;
+            border: none !important;
+            background: transparent !important;
         }
         [data-testid="stFileUploader"] label {
             display: none !important;
@@ -1105,10 +1111,6 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
     </style>
     """, unsafe_allow_html=True)
 
-    # Upload area in main section - Synced with sidebar
-    if 'uploaded_files_shared' not in st.session_state:
-        st.session_state.uploaded_files_shared = None
-    
     uploaded_files_main = st.file_uploader(
         "📎 Choose files to upload",
         type=['pdf', 'docx', 'doc', 'txt'],
