@@ -934,71 +934,132 @@ def main():
         
         st.divider()
         
-    # Upload Section in Main Dashboard - MAXIMUM EFFORT OVERHAUL
+    # Upload Section in Main Dashboard - SEXY EDITION
     st.markdown("""
-<div style="position: relative; margin-bottom: 2rem; overflow: visible;">
-    <!-- The Halftone Background Flash -->
-    <div style="position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; 
-                background-color: #A80000; 
-                background-image: radial-gradient(#000 15%, transparent 16%); 
-                background-size: 10px 10px; 
-                transform: skewY(-1deg); z-index: 0; 
-                box-shadow: 15px 15px 0px #000; border: 5px solid #000;"></div>
-    
-    <div style="position: relative; z-index: 1; padding: 2.5rem; text-align: center; background: #000; border: 5px solid #fff; transform: skewY(0.5deg); margin: 5px;">
+<style>
+    @keyframes tactical-glow {
+        0% { box-shadow: 0 0 10px rgba(168,0,0,0.4), inset 0 0 10px rgba(168,0,0,0.2); }
+        50% { box-shadow: 0 0 30px rgba(168,0,0,0.8), inset 0 0 20px rgba(168,0,0,0.4); }
+        100% { box-shadow: 0 0 10px rgba(168,0,0,0.4), inset 0 0 10px rgba(168,0,0,0.2); }
+    }
+    @keyframes stripes-move {
+        from { background-position: 0 0; }
+        to { background-position: 40px 0; }
+    }
+    .sexy-drop-zone {
+        position: relative;
+        margin-bottom: 3rem;
+        overflow: visible;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .sexy-drop-zone:hover {
+        transform: scale(1.02) rotate(-0.5deg);
+    }
+    .tactical-border {
+        position: absolute;
+        top: -15px; left: -15px; right: -15px; bottom: -15px;
+        background-color: #A80000;
+        background-image: radial-gradient(#000 20%, transparent 20%);
+        background-size: 8px 8px;
+        z-index: 0;
+        border: 4px solid #000;
+        box-shadow: 15px 15px 0px #000;
+    }
+    .command-center {
+        position: relative;
+        z-index: 1;
+        padding: 3rem;
+        text-align: center;
+        background: #000;
+        border: 6px solid #fff;
+        animation: tactical-glow 3s infinite;
+    }
+    .moving-danger-stripes {
+        height: 25px;
+        width: 100%;
+        background: repeating-linear-gradient(45deg, #A80000, #A80000 20px, #000 20px, #000 40px);
+        background-size: 40px 100%;
+        animation: stripes-move 1s linear infinite;
+        border: 3px solid #fff;
+        margin: 1.5rem 0;
+    }
+    .pop-art-label {
+        font-family: 'Bangers';
+        font-size: 1.5rem;
+        color: #fff;
+        background: #A80000;
+        padding: 5px 15px;
+        border: 3px solid #000;
+        display: inline-block;
+        transform: rotate(-3deg);
+        position: absolute;
+        top: -20px;
+        left: 20px;
+        box-shadow: 5px 5px 0px #000;
+        z-index: 5;
+    }
+</style>
+
+<div class="sexy-drop-zone">
+    <div class="tactical-border"></div>
+    <div class="command-center">
+        <div class="pop-art-label">CLASSIFIED ARCHIVES</div>
+        
         <!-- Tactical Header -->
-        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 1.5rem;">
-            <div style="background: #A80000; padding: 10px; border: 3px solid #fff; transform: rotate(-5deg); box-shadow: 5px 5px 0px #000;">
-                <h2 style="font-family: 'Bangers'; font-size: 3rem; margin: 0; color: #fff; text-shadow: 3px 3px 0px #000; border: none;">⚔️ THE ARSENAL</h2>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 1rem;">
+            <div style="background: #A80000; padding: 12px; border: 4px solid #fff; transform: rotate(-4deg); box-shadow: 8px 8px 0px #000;">
+                <h2 style="font-family: 'Bangers'; font-size: 3.5rem; margin: 0; color: #fff; text-shadow: 3px 3px 0px #000;">⚔️ ARSENAL</h2>
             </div>
-            <h1 style="font-family: 'Bangers'; font-size: 4rem; margin: 0; color: #A80000; text-shadow: 4px 4px 0px #fff; border: none; background: transparent;">DROP ZONE</h1>
+            <h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #A80000; text-shadow: 5px 5px 0px #fff;">PORTAL</h1>
         </div>
 
-        <!-- Deadpool Sticker -->
-        <div style="position: absolute; right: -40px; top: -30px; z-index: 10; transform: rotate(15deg);">
-            <img src="https://i.pinimg.com/originals/e0/61/8c/e0618c66e92b34a413d90708573138b7.png" style="width: 120px; filter: drop-shadow(5px 5px 0px #000);">
+        <!-- Deadpool Interactive Sticker -->
+        <div style="position: absolute; right: -50px; bottom: -40px; z-index: 10; transform: rotate(-10deg); transition: all 0.3s;">
+            <img src="https://i.pinimg.com/originals/e0/61/8c/e0618c66e92b34a413d90708573138b7.png" style="width: 150px; filter: drop-shadow(8px 8px 0px #000);">
         </div>
 
-        <p style="font-family: 'Bangers'; font-size: 1.8rem; color: #fff; letter-spacing: 2px; margin-bottom: 1rem; text-transform: uppercase;">
-            <span style="color: #A80000;">STUFF</span> YOUR KNOWLEDGE INTO THE <span style="color: #A80000;">HOLE!</span> (THE UPLOAD HOLE, PERVERT)
+        <p style="font-family: 'Bangers'; font-size: 2rem; color: #fff; letter-spacing: 3px; margin: 1.5rem 0;">
+            DROP YOUR <span style="color: #A80000; font-size: 2.5rem;">BRAIN JUICE</span> HERE!
         </p>
         
-        <!-- Danger Stripes -->
-        <div style="height: 20px; width: 100%; background: repeating-linear-gradient(45deg, #A80000, #A80000 20px, #000 20px, #000 40px); border: 2px solid #fff; margin-bottom: 2rem;"></div>
+        <div class="moving-danger-stripes"></div>
 
-        <div style="background: rgba(168,0,0,0.05); padding: 2rem; border: 4px dashed #A80000; position: relative;">
-            <p style="color: #aaa; font-family: 'Oswald'; font-size: 1.1rem; text-transform: uppercase; margin-bottom: 1rem;">Targeting: PDF, DOCX, & TXT Files for Maximum Slicing.</p>
+        <div style="padding: 2.5rem; border: 5px dashed #A80000; background: rgba(168,0,0,0.1); position: relative;">
+            <div style="position: absolute; left: -15px; top: -15px; background: #fff; color: #000; font-family: 'Bangers'; padding: 5px; border: 2px solid #000;">KAPOW!</div>
+            <div style="position: absolute; right: -15px; bottom: -15px; background: #fff; color: #A80000; font-family: 'Bangers'; padding: 5px; border: 2px solid #000;">READY?</div>
             
             <style>
-                /* Surgical UI Override for the Uploader itself */
                 [data-testid="stFileUploader"] {
-                    background-color: #111 !important;
-                    border: 4px solid #A80000 !important;
-                    padding: 2rem !important;
-                    box-shadow: inset 0 0 20px rgba(168,0,0,0.4) !important;
+                    background-color: transparent !important;
+                    border: none !important;
                 }
-                [data-testid="stFileUploader"] section {
+                [data-testid="stFileUploaderSection"] {
                     padding: 0 !important;
                 }
-                [data-testid="stFileUploader"] div div div div {
-                    color: white !important;
-                    font-family: 'Bangers', cursive !important;
-                    font-size: 1.5rem !important;
-                }
                 [data-testid="stFileUploader"] button {
-                    background-color: #A80000 !important;
+                    width: 100% !important;
+                    height: 80px !important;
+                    background: #A80000 !important;
                     color: white !important;
-                    border: 3px solid #fff !important;
-                    font-family: 'Bangers', cursive !important;
-                    font-size: 1.2rem !important;
-                    text-transform: uppercase !important;
-                    box-shadow: 5px 5px 0px #000 !important;
-                    transition: all 0.2s !important;
+                    font-size: 2.5rem !important;
+                    font-family: 'Bangers' !important;
+                    border: 5px solid #fff !important;
+                    box-shadow: 10px 10px 0px #000 !important;
+                    border-radius: 0px !important;
+                    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
                 }
                 [data-testid="stFileUploader"] button:hover {
-                    background-color: #fff !important;
+                    transform: scale(1.05) translateY(-5px) !important;
+                    background: #fff !important;
                     color: #A80000 !important;
-                    transform: scale(1.1) rotate(-2deg) !important;
+                    box-shadow: 15px 15px 0px #000 !important;
+                }
+                [data-testid="stFileUploader"] [data-testid="stMarkdownContainer"] p {
+                    color: #aaa !important;
+                    font-family: 'Oswald' !important;
+                    text-transform: uppercase !important;
+                    font-size: 1.2rem !important;
+                    margin-top: 1rem !important;
                 }
             </style>
         </div>
