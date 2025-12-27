@@ -232,15 +232,16 @@ st.markdown("""
         background-color: var(--deadpool-red) !important;
         background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.2) 0%, transparent 40%) !important;
         color: white !important;
-        font-size: 1.8rem !important;
-        border: 5px solid #FFF !important; /* White border like the screenshot */
+        font-size: 2rem !important;
+        font-weight: 900 !important;
+        border: 6px solid #FFF !important; /* Thicker white border */
         border-radius: 0px !important;
-        padding: 0.8rem 1.5rem !important;
-        box-shadow: 12px 12px 0px #000 !important; /* Heavy black shadow */
+        padding: 1rem 2rem !important;
+        box-shadow: 15px 15px 0px #000 !important; /* Heavier black shadow */
         text-transform: uppercase !important;
         letter-spacing: 2px !important;
         width: 100% !important;
-        min-height: 75px !important;
+        min-height: 85px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -271,10 +272,13 @@ st.markdown("""
 
     /* Navigation Grid Specifics - THE "NON-DABBA" LOOK */
     [data-testid="stHorizontalBlock"] div div div .stButton > button {
-        height: 120px !important; 
+        height: 130px !important; 
         background-color: var(--deadpool-red) !important;
-        border-width: 5px !important;
-        font-size: 1.2rem !important;
+        border-width: 6px !important;
+        font-size: 1.6rem !important;
+        font-weight: 900 !important;
+        letter-spacing: 1px !important;
+        line-height: 1.1 !important;
     }
     
     /* Active Navigation Button - NO MORE WHITE "DABBA" */
@@ -296,13 +300,16 @@ st.markdown("""
         text-align: center !important;
         justify-content: center !important;
         padding: 0.5rem 1rem !important;
-        font-size: 1.6rem !important;
-        min-height: 70px !important;
+        font-size: 2rem !important;
+        font-weight: 900 !important;
+        letter-spacing: 1.5px !important;
+        text-shadow: 3px 3px 0px #000 !important;
+        min-height: 85px !important;
         margin-bottom: 15px !important;
         background-color: var(--deadpool-red) !important;
         background-image: none !important;
-        border: 5px solid #FFF !important;
-        box-shadow: 10px 10px 0px #000 !important;
+        border: 6px solid #FFF !important;
+        box-shadow: 12px 12px 0px #000 !important;
         color: white !important;
         transform: none !important;
         border-radius: 0px !important;
@@ -397,9 +404,10 @@ st.markdown("""
     }
     
     .stButton > button[kind="secondary"] {
-        background-color: #333 !important;
-        border-color: #000 !important;
+        background-color: var(--deadpool-red) !important;
+        border-color: #FFF !important;
         color: #fff !important;
+        opacity: 0.8; /* Slight dimming for secondary action, but still red/white */
     }
 
     /* Designer Comic Card with Flair */
@@ -871,12 +879,12 @@ def main():
             with col_marker:
                 if is_active:
                     st.markdown("""
-                    <div style='height: 70px; display: flex; align-items: center; justify-content: center; margin-right: -10px;'>
-                        <div style="font-size: 2.5rem; color: white; filter: drop-shadow(4px 4px 0px #000);">▶</div>
+                    <div style='height: 85px; display: flex; align-items: center; justify-content: center; margin-right: -10px;'>
+                        <div style="font-size: 3rem; color: white; filter: drop-shadow(4px 4px 0px #000);">▶</div>
                     </div>
                     """, unsafe_allow_html=True)
                 else:
-                    st.markdown("<div style='height: 70px;'></div>", unsafe_allow_html=True)
+                    st.markdown("<div style='height: 85px;'></div>", unsafe_allow_html=True)
             
             with col_btn:
                 # Create a stylized button-like container
