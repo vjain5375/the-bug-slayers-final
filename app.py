@@ -958,18 +958,18 @@ def main():
         
         st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
         
-        doc_files = get_document_files()
-        if doc_files:
-            st.info(f"📁 {len(doc_files)} document(s) in arsenal")
-        
-        if st.session_state.vector_store:
-            count = st.session_state.vector_store.get_collection_count()
-            st.metric("INDEXED CHUNKS", count)
-        
-        st.divider()
-        
+    doc_files = get_document_files()
+    if doc_files:
+        st.info(f"📁 {len(doc_files)} document(s) in arsenal")
+    
+    if st.session_state.vector_store:
+        count = st.session_state.vector_store.get_collection_count()
+        st.metric("INDEXED CHUNKS", count)
+    
+    st.divider()
+    
     # Upload Section in Main Dashboard - SEXY EDITION
-        st.markdown("""
+    st.markdown("""
 <style>
 @keyframes tactical-glow {
     0% { box-shadow: 0 0 10px rgba(168,0,0,0.4), inset 0 0 10px rgba(168,0,0,0.2); }
@@ -1057,48 +1057,54 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
 </p>
 
 <div class="moving-danger-stripes"></div>
-
-        <div style="padding: 2.5rem; border: 5px solid #FFF; background: #000; position: relative; box-shadow: 12px 12px 0px #000;">
-            <div style="position: absolute; left: -15px; top: -15px; background: #fff; color: #000; font-family: 'Bangers'; padding: 5px; border: 2px solid #000;">KAPOW!</div>
-            <div style="position: absolute; right: -15px; bottom: -15px; background: #fff; color: #A80000; font-family: 'Bangers'; padding: 5px; border: 2px solid #000;">READY?</div>
-            
-            <style>
-                [data-testid="stFileUploader"] {
-                    background-color: transparent !important;
-                    border: none !important;
-                }
-                [data-testid="stFileUploader"] section {
-                    display: none !important; /* Hide the drag and drop box entirely */
-                }
-                [data-testid="stFileUploader"] label {
-                    display: none !important; /* Hide the small label */
-                }
-                [data-testid="stFileUploader"] button {
-                    width: 100% !important;
-                    height: 100px !important;
-                    background: #A80000 !important;
-                    color: white !important;
-                    font-size: 3rem !important;
-                    font-family: 'Bangers' !important;
-                    border: 6px solid #fff !important;
-                    box-shadow: 12px 12px 0px #000 !important;
-                    border-radius: 0px !important;
-                    text-transform: uppercase !important;
-                    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-                    cursor: pointer !important;
-                }
-                [data-testid="stFileUploader"] button:hover {
-                    transform: scale(1.05) translateY(-5px) !important;
-                    background: #fff !important;
-                    color: #A80000 !important;
-                    box-shadow: 18px 18px 0px #000 !important;
-                }
-            </style>
-        </div>
 </div>
-    </div>
+</div>
+""", unsafe_allow_html=True)
+
+    # Upload area in main section - Synced with sidebar
+    if 'uploaded_files_shared' not in st.session_state:
+        st.session_state.uploaded_files_shared = None
+
+    # Custom styling for the file uploader to make it look like part of the portal
+    st.markdown("""
+    <style>
+        [data-testid="stFileUploader"] {
+            background-color: #000 !important;
+            border: 5px solid #FFF !important;
+            padding: 2.5rem !important;
+            box-shadow: 12px 12px 0px #000 !important;
+            position: relative !important;
+            margin-top: -2rem !important;
+        }
+        [data-testid="stFileUploader"] section {
+            display: none !important;
+        }
+        [data-testid="stFileUploader"] label {
+            display: none !important;
+        }
+        [data-testid="stFileUploader"] button {
+            width: 100% !important;
+            height: 100px !important;
+            background: #A80000 !important;
+            color: white !important;
+            font-size: 3rem !important;
+            font-family: 'Bangers' !important;
+            border: 6px solid #fff !important;
+            box-shadow: 12px 12px 0px #000 !important;
+            border-radius: 0px !important;
+            text-transform: uppercase !important;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            cursor: pointer !important;
+        }
+        [data-testid="stFileUploader"] button:hover {
+            transform: scale(1.05) translateY(-5px) !important;
+            background: #fff !important;
+            color: #A80000 !important;
+            box-shadow: 18px 18px 0px #000 !important;
+        }
+    </style>
     """, unsafe_allow_html=True)
-    
+
     # Upload area in main section - Synced with sidebar
     if 'uploaded_files_shared' not in st.session_state:
         st.session_state.uploaded_files_shared = None
