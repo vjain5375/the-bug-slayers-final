@@ -801,14 +801,12 @@ def main():
     st.markdown("""
     <div style="text-align: center; margin-bottom: 2rem; margin-top: -4.5rem; position: relative; z-index: 100;">
         <div style="display: flex; align-items: center; justify-content: center; gap: 25px;">
-            <div style="background: #A80000; padding: 15px 30px; border: 6px solid #fff; transform: rotate(-3deg); box-shadow: 12px 12px 0px #000;">
-                <h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #fff !important; text-shadow: 4px 4px 0px #000; border: none; background: transparent;">⚔️ THE ARSENAL</h1>
-            </div>
-            <div style="background: #000; padding: 15px 30px; border: 6px solid #A80000; transform: rotate(2deg); box-shadow: 12px 12px 0px #A80000;">
-                <h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #fff !important; text-shadow: 4px 4px 0px #A80000; border: none; background: transparent;">STUDY HUB</h1>
+            <div style="background: #A80000; padding: 15px 40px; border: 6px solid #fff; transform: rotate(-2deg); box-shadow: 12px 12px 0px #000; display: flex; align-items: center; gap: 30px;">
+                <h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #ffffff !important; text-shadow: 4px 4px 0px #000; border: none; background: transparent; -webkit-text-fill-color: #ffffff !important;">⚔️ THE ARSENAL</h1>
+                <h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #ffffff !important; text-shadow: 4px 4px 0px #000; border: none; background: transparent; -webkit-text-fill-color: #ffffff !important;">STUDY HUB</h1>
             </div>
         </div>
-        <div style="background: #A80000; color: #fff; font-family: 'Bangers'; font-size: 1.8rem; padding: 8px 30px; display: inline-block; transform: skew(-10deg); border: 4px solid #fff; margin-top: 25px; box-shadow: 10px 10px 0px #000;">
+        <div style="background: #A80000; color: #ffffff !important; font-family: 'Bangers'; font-size: 1.8rem; padding: 10px 40px; display: inline-block; transform: skew(-10deg); border: 4px solid #fff; margin-top: 25px; box-shadow: 10px 10px 0px #000; -webkit-text-fill-color: #ffffff !important;">
             MAXIMUM EFFORT ONLY! NO ROOKIES ALLOWED!
         </div>
     </div>
@@ -862,11 +860,11 @@ def main():
             col_marker, col_btn = st.columns([2, 8])
             with col_marker:
                 if is_active:
-                    st.markdown("""
+    st.markdown("""
                     <div style='height: 70px; display: flex; align-items: center; justify-content: center; margin-right: -10px;'>
                         <div style="font-size: 2.5rem; color: white; filter: drop-shadow(4px 4px 0px #000);">▶</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
                 else:
                     st.markdown("<div style='height: 70px;'></div>", unsafe_allow_html=True)
             
@@ -1043,9 +1041,9 @@ def main():
 
 <!-- Tactical Header -->
 <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 1rem;">
-    <div style="background: #A80000; padding: 15px 40px; border: 6px solid #fff; transform: rotate(-4deg); box-shadow: 12px 12px 0px #000; display: flex; align-items: center; gap: 20px;">
-        <h2 style="font-family: 'Bangers'; font-size: 3.5rem; margin: 0; color: #fff; text-shadow: 3px 3px 0px #000;">⚔️ ARSENAL</h2>
-        <h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #fff; text-shadow: 5px 5px 0px #000;">PORTAL</h1>
+    <div style="background: #A80000; padding: 15px 40px; border: 6px solid #fff; transform: rotate(-4deg); box-shadow: 12px 12px 0px #000; display: flex; align-items: center; gap: 30px;">
+        <h2 style="font-family: 'Bangers'; font-size: 3.5rem; margin: 0; color: #ffffff !important; text-shadow: 3px 3px 0px #000; -webkit-text-fill-color: #ffffff !important;">⚔️ ARSENAL</h2>
+        <h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important;">PORTAL</h1>
     </div>
 </div>
 
@@ -1055,7 +1053,7 @@ def main():
 </div>
 
 <p style="font-family: 'Bangers'; font-size: 2rem; color: #fff; letter-spacing: 3px; margin: 1.5rem 0;">
-DROP YOUR <span style="color: #A80000; font-size: 2.5rem;">BRAIN JUICE</span> HERE!
+DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow: 3px 3px 0px #A80000; -webkit-text-fill-color: #ffffff !important;">BRAIN JUICE</span> HERE!
 </p>
 
 <div class="moving-danger-stripes"></div>
@@ -1271,15 +1269,15 @@ def show_home_page():
     """Deadpool-themed Home page with Designer Visuals"""
     
     # Hero Section with Deadpool Action Grid Style - RED/BLACK/WHITE
-    st.markdown("""
+        st.markdown("""
     <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 4rem 1rem; border: 6px solid #000; box-shadow: 12px 12px 0px var(--deadpool-red); text-align: center; margin-bottom: 2rem; position: relative;">
         <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.65);"></div>
         <div style="position: relative; z-index: 2;">
             <h1 class="designer-header" style="font-size: 3.5rem; text-shadow: 4px 4px 0px #000; margin: 0;">Turn Your Docs into Weaponized Knowledge!</h1>
             <p style="font-family: 'Bangers', cursive; color: #fff; font-size: 1.6rem; background: #000; display: inline-block; padding: 0.5rem 2rem; transform: skew(-10deg); margin-top: 1.5rem; border: 3px solid var(--deadpool-red); box-shadow: 5px 5px 0px #000;">Upload, Analyze, Conquer with AI-Powered Intelligence.</p>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
         
     # CASE 1: NEW USER EXPERIENCE (High-Impact Onboarding)
     if not st.session_state.documents_processed:
@@ -1287,7 +1285,7 @@ def show_home_page():
         
         # Journey Cards with Designer Style
         col1, col2 = st.columns(2)
-        with col1:
+            with col1:
             st.markdown("""
             <div class="designer-card" style="transform: rotate(-0.5deg);">
                 <h3 class="designer-header" style="font-size: 2rem;">1️⃣ LOAD UP</h3>
@@ -1298,8 +1296,8 @@ def show_home_page():
                 <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'PROCESS'</b>. My agents will slice and dice your text into pure semantic gold.</p>
             </div>
             """, unsafe_allow_html=True)
-        with col2:
-            st.markdown("""
+            with col2:
+        st.markdown("""
             <div class="designer-card" style="transform: rotate(0.5deg);">
                 <h3 class="designer-header" style="font-size: 2rem;">2️⃣ LOCK & LOAD</h3>
                 <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'SAVE'</b> to commit those files to my infinite memory banks.</p>
@@ -1409,9 +1407,9 @@ def show_flashcards_page():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">ARSENAL CONFIGURATION</h3>', unsafe_allow_html=True)
         col1, col2, col3 = st.columns([2, 2, 1])
-        with col1:
+    with col1:
             num_flashcards = st.slider("CARD QUANTITY", 5, 30, value=st.session_state.num_flashcards, key="flashcard_slider")
-        with col2:
+    with col2:
             difficulty_mix_label = st.selectbox(
                 "DIFFICULTY MIX",
                 ["Easy + Medium", "Medium + Hard", "Easy + Medium + Hard"],
@@ -1424,10 +1422,10 @@ def show_flashcards_page():
             if st.button("🔄 GENERATE ARSENAL", use_container_width=True, type="primary"):
                 processing_msg = st.info("Deadpool is thinking (mostly about tacos and world peace... nah, just tacos)...")
                 flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards, difficulty_mix=difficulty_mix)
-                processing_msg.empty()
-                st.session_state.flashcards = flashcards
+            processing_msg.empty()
+            st.session_state.flashcards = flashcards
                 trigger_deadpool_balloons(queued=True)
-                st.rerun()
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Load existing flashcards
@@ -1485,22 +1483,22 @@ def show_quizzes_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION BRIEFING CONFIG</h3>', unsafe_allow_html=True)
-        col1, col2, col3 = st.columns([2, 2, 1])
-        with col1:
+    col1, col2, col3 = st.columns([2, 2, 1])
+    with col1:
             difficulty = st.selectbox("INTEL DIFFICULTY", ["easy", "medium", "hard"], index=1)
-        with col2:
+    with col2:
             num_questions = st.slider("TARGET QUESTIONS", 3, 30, value=st.session_state.num_questions, key="quiz_slider")
-        with col3:
+    with col3:
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("🎯 INITIATE QUIZ", use_container_width=True, type="primary"):
                 processing_msg = st.info("Drafting questions... mostly about you failing... and maybe some tacos...")
                 questions = st.session_state.agent_controller.generate_quiz(difficulty, num_questions, True)
-                processing_msg.empty()
+            processing_msg.empty()
                 if questions:
-                    st.session_state.quizzes = questions
-                    st.session_state.quiz_answers = {}
+            st.session_state.quizzes = questions
+            st.session_state.quiz_answers = {}
                     trigger_deadpool_balloons(queued=True)
-                    st.rerun()
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Display quiz
@@ -1599,19 +1597,19 @@ def show_planner_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION TIMELINE CONFIG</h3>', unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
-        with col1:
+    col1, col2 = st.columns(2)
+    with col1:
             exam_date = st.date_input("MISSION DEADLINE (EXAM DATE)", value=None)
-        with col2:
+    with col2:
             study_days = st.slider("TRAINING INTENSITY (DAYS/WEEK)", 3, 7, 5)
-        
+    
         if st.button("📅 INITIATE STRATEGIC BATTLE PLAN", type="primary", use_container_width=True):
             processing_msg = st.info("Calculating optimal learning trajectories... trying not to get distracted by tacos...")
-            plan = st.session_state.agent_controller.create_revision_plan(
-                exam_date.strftime('%Y-%m-%d') if exam_date else None,
-                study_days
-            )
-            processing_msg.empty()
+        plan = st.session_state.agent_controller.create_revision_plan(
+            exam_date.strftime('%Y-%m-%d') if exam_date else None,
+            study_days
+        )
+        processing_msg.empty()
             trigger_deadpool_balloons(queued=True)
             st.success(f"✅ Strategic Battle Plan ready with {len(plan)} targets identified!")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -1758,7 +1756,7 @@ def show_chat_page():
         if isinstance(chat, tuple):
             q, a = chat
             s = []
-        else:
+            else:
             q = chat.get('question', '')
             a = chat.get('answer', '')
             s = chat.get('sources', [])
@@ -1825,8 +1823,8 @@ def show_analytics_page():
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
-        if st.session_state.agent_controller.planner_agent:
-            rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
+    if st.session_state.agent_controller.planner_agent:
+        rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
             st.markdown('<div class="designer-card" style="height: 100%; border-left: 15px solid #28a745;">', unsafe_allow_html=True)
             st.markdown('<h3 class="designer-header">📅 REVISION STRATEGY PROGRESS</h3>', unsafe_allow_html=True)
             st.markdown(f"""
