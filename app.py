@@ -1043,10 +1043,10 @@ def main():
 
 <!-- Tactical Header -->
 <div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 1rem;">
-<div style="background: #A80000; padding: 12px; border: 4px solid #fff; transform: rotate(-4deg); box-shadow: 8px 8px 0px #000;">
-<h2 style="font-family: 'Bangers'; font-size: 3.5rem; margin: 0; color: #fff; text-shadow: 3px 3px 0px #000;">⚔️ ARSENAL</h2>
-</div>
-<h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #A80000; text-shadow: 5px 5px 0px #fff;">PORTAL</h1>
+    <div style="background: #A80000; padding: 15px 40px; border: 6px solid #fff; transform: rotate(-4deg); box-shadow: 12px 12px 0px #000; display: flex; align-items: center; gap: 20px;">
+        <h2 style="font-family: 'Bangers'; font-size: 3.5rem; margin: 0; color: #fff; text-shadow: 3px 3px 0px #000;">⚔️ ARSENAL</h2>
+        <h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #fff; text-shadow: 5px 5px 0px #000;">PORTAL</h1>
+    </div>
 </div>
 
 <!-- Deadpool Interactive Sticker -->
