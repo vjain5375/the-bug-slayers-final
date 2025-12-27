@@ -1046,45 +1046,43 @@ DROP YOUR <span style="color: #A80000; font-size: 2.5rem;">BRAIN JUICE</span> HE
 
 <div class="moving-danger-stripes"></div>
 
-<div style="padding: 2.5rem; border: 5px dashed #A80000; background: rgba(168,0,0,0.1); position: relative;">
-<div style="position: absolute; left: -15px; top: -15px; background: #fff; color: #000; font-family: 'Bangers'; padding: 5px; border: 2px solid #000;">KAPOW!</div>
-<div style="position: absolute; right: -15px; bottom: -15px; background: #fff; color: #A80000; font-family: 'Bangers'; padding: 5px; border: 2px solid #000;">READY?</div>
-
-<style>
-[data-testid="stFileUploader"] {
-background-color: transparent !important;
-border: none !important;
-}
-[data-testid="stFileUploaderSection"] {
-padding: 0 !important;
-}
-[data-testid="stFileUploader"] button {
-width: 100% !important;
-height: 80px !important;
-background: #A80000 !important;
-color: white !important;
-font-size: 2.5rem !important;
-font-family: 'Bangers' !important;
-border: 5px solid #fff !important;
-box-shadow: 10px 10px 0px #000 !important;
-border-radius: 0px !important;
-transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-}
-[data-testid="stFileUploader"] button:hover {
-transform: scale(1.05) translateY(-5px) !important;
-background: #fff !important;
-color: #A80000 !important;
-box-shadow: 15px 15px 0px #000 !important;
-}
-[data-testid="stFileUploader"] [data-testid="stMarkdownContainer"] p {
-color: #aaa !important;
-font-family: 'Oswald' !important;
-text-transform: uppercase !important;
-font-size: 1.2rem !important;
-margin-top: 1rem !important;
-}
-</style>
-</div>
+        <div style="padding: 2.5rem; border: 5px solid #FFF; background: #000; position: relative; box-shadow: 12px 12px 0px #000;">
+            <div style="position: absolute; left: -15px; top: -15px; background: #fff; color: #000; font-family: 'Bangers'; padding: 5px; border: 2px solid #000;">KAPOW!</div>
+            <div style="position: absolute; right: -15px; bottom: -15px; background: #fff; color: #A80000; font-family: 'Bangers'; padding: 5px; border: 2px solid #000;">READY?</div>
+            
+            <style>
+                [data-testid="stFileUploader"] {
+                    background-color: transparent !important;
+                    border: none !important;
+                }
+                [data-testid="stFileUploader"] section {
+                    display: none !important; /* Hide the drag and drop box entirely */
+                }
+                [data-testid="stFileUploader"] label {
+                    display: none !important; /* Hide the small label */
+                }
+                [data-testid="stFileUploader"] button {
+                    width: 100% !important;
+                    height: 100px !important;
+                    background: #A80000 !important;
+                    color: white !important;
+                    font-size: 3rem !important;
+                    font-family: 'Bangers' !important;
+                    border: 6px solid #fff !important;
+                    box-shadow: 12px 12px 0px #000 !important;
+                    border-radius: 0px !important;
+                    text-transform: uppercase !important;
+                    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+                    cursor: pointer !important;
+                }
+                [data-testid="stFileUploader"] button:hover {
+                    transform: scale(1.05) translateY(-5px) !important;
+                    background: #fff !important;
+                    color: #A80000 !important;
+                    box-shadow: 18px 18px 0px #000 !important;
+                }
+            </style>
+        </div>
 </div>
     </div>
     """, unsafe_allow_html=True)
