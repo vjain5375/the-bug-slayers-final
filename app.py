@@ -310,14 +310,24 @@ st.markdown("""
     }
     
     [data-testid="stSidebar"] .stButton > button:hover {
-        background-color: #FFF !important;
-        color: var(--deadpool-red) !important;
-        border-color: #000 !important;
+        background-color: var(--deadpool-red) !important;
+        color: white !important;
+        border-color: #FFF !important;
         transform: translate(-5px, -5px) !important;
         box-shadow: 15px 15px 0px #000 !important;
     }
 
+    [data-testid="stSidebar"] .stButton > button:focus, 
+    [data-testid="stSidebar"] .stButton > button:active {
+        background-color: var(--deadpool-red) !important;
+        color: white !important;
+        border-color: #FFF !important;
+        box-shadow: 10px 10px 0px #000 !important;
+    }
+
     [data-testid="stSidebar"] .stButton > button[kind="primary"] {
+        background-color: var(--deadpool-red) !important;
+        color: white !important;
         border-color: #FFF !important;
         box-shadow: 12px 12px 0px #000 !important;
         transform: scale(1.05) !important;
