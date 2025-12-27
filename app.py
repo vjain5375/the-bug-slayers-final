@@ -193,13 +193,13 @@ st.markdown("""
         font-family: 'Bangers', cursive !important;
         background-color: var(--deadpool-red) !important;
         color: white !important;
-        font-size: 1.2rem !important;
+        font-size: 1.4rem !important;
         border: 4px solid #000 !important;
         border-radius: 0px !important;
         padding: 0.5rem 1rem !important;
-        box-shadow: 4px 4px 0px #000 !important;
+        box-shadow: 6px 6px 0px #000 !important;
         text-transform: uppercase !important;
-        letter-spacing: 1px !important;
+        letter-spacing: 2px !important;
         width: 100% !important;
         min-height: 60px !important;
         height: 60px !important;
@@ -209,30 +209,92 @@ st.markdown("""
         white-space: normal !important;
         word-wrap: break-word !important;
         line-height: 1 !important;
-        margin-bottom: 5px !important;
+        margin-bottom: 8px !important;
+        transition: all 0.1s ease-in-out !important;
+        transform: skew(-2deg);
     }
 
-    /* Navigation Buttons Specific Style - Uniform Icon and Text */
+    /* Navigation Buttons Specific Style */
     [data-testid="stHorizontalBlock"] div div div .stButton > button {
-        height: 100px !important; 
-        font-size: 0.95rem !important;
+        height: 110px !important; 
+        font-size: 1.1rem !important;
         flex-direction: column !important;
-        line-height: 1.1 !important;
-        gap: 5px !important;
-        padding: 5px !important;
+        line-height: 1.2 !important;
+        gap: 8px !important;
+        padding: 10px !important;
+        background-color: #111 !important;
+        border-color: var(--deadpool-red) !important;
     }
-
-    /* Prevent text wrapping in navigation buttons */
-    [data-testid="stHorizontalBlock"] div div div .stButton > button div p {
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+    
+    /* Active Navigation Button */
+    [data-testid="stHorizontalBlock"] div div div .stButton > button[kind="primary"] {
+        background-color: var(--deadpool-red) !important;
+        border-color: #000 !important;
+        transform: skew(-2deg) scale(1.05);
+        box-shadow: 8px 8px 0px #000 !important;
     }
 
     .stButton > button:hover {
-        background-color: var(--deadpool-dark-red) !important;
-        transform: translate(-2px, -2px) !important;
-        box-shadow: 6px 6px 0px #000 !important;
+        background-color: #fff !important;
+        color: var(--deadpool-red) !important;
+        transform: skew(-2deg) translate(-3px, -3px) scale(1.02) !important;
+        box-shadow: 10px 10px 0px #000 !important;
+        border-color: var(--deadpool-red) !important;
+    }
+
+    /* Input Labels and Fonts */
+    label, .stMarkdown p, .stMarkdown li {
+        font-family: 'Oswald', sans-serif !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        color: #fff !important;
+    }
+
+    /* Selectbox, Slider, Radio Styling */
+    .stSelectbox div[data-baseweb="select"] {
+        background-color: #000 !important;
+        border: 3px solid var(--deadpool-red) !important;
+        border-radius: 0px !important;
+    }
+    .stSelectbox div[data-baseweb="select"] div {
+        color: white !important;
+        font-family: 'Oswald', sans-serif !important;
+    }
+    
+    div[data-testid="stThumbValue"] {
+        font-family: 'Bangers' !important;
+        color: var(--deadpool-red) !important;
+        font-size: 1.5rem !important;
+    }
+    
+    .stSlider [data-testid="stTickBar"] {
+        display: none;
+    }
+
+    /* Radio buttons */
+    [data-testid="stWidgetLabel"] p {
+        font-family: 'Bangers', cursive !important;
+        font-size: 1.2rem !important;
+        color: var(--deadpool-red) !important;
+    }
+    
+    [data-testid="stRadio"] label {
+        background: #111 !important;
+        border: 2px solid #333 !important;
+        padding: 10px 15px !important;
+        margin-bottom: 5px !important;
+        width: 100% !important;
+        transition: all 0.2s !important;
+    }
+    
+    [data-testid="stRadio"] label:hover {
+        border-color: var(--deadpool-red) !important;
+        background: #1a1a1a !important;
+    }
+    
+    [data-testid="stRadio"] div[role="radiogroup"] {
+        gap: 0px !important;
     }
 
     /* Primary Actions */
@@ -248,14 +310,15 @@ st.markdown("""
         color: #fff !important;
     }
 
-    /* Comic Panels (Cards) */
-    .comic-card {
+    /* Designer Comic Card with Flair */
+    .designer-card {
         background: #000 !important;
         border: 4px solid var(--deadpool-red) !important;
-        border-radius: 0px !important;
         padding: 1.5rem !important;
-        box-shadow: 8px 8px 0px #000 !important;
-        margin-bottom: 1rem !important;
+        box-shadow: 10px 10px 0px #000 !important;
+        margin-bottom: 1.5rem !important;
+        position: relative;
+        overflow: hidden;
     }
 
     /* Sidebar Navigation Fancy Menu */
@@ -313,15 +376,28 @@ st.markdown("""
         background-color: #111 !important;
         border: 3px solid var(--deadpool-red) !important;
         color: #fff !important;
-        font-size: 1rem !important;
+        font-size: 1.1rem !important;
         border-radius: 0px !important;
+        font-family: 'Oswald', sans-serif !important;
     }
 
     /* Surgical uploader fix */
     [data-testid="stFileUploader"] {
-        border: 2px dashed var(--deadpool-red) !important;
-        background-color: #000 !important;
-        padding: 0px !important;
+        border: 3px dashed var(--deadpool-red) !important;
+        background-color: #080808 !important;
+        padding: 1rem !important;
+        border-radius: 0px !important;
+        box-shadow: inset 0 0 10px rgba(168,0,0,0.2) !important;
+    }
+    
+    [data-testid="stFileUploader"] section {
+        padding: 0 !important;
+    }
+    
+    [data-testid="stFileUploader"] label {
+        color: var(--deadpool-red) !important;
+        font-family: 'Bangers' !important;
+        font-size: 1.5rem !important;
     }
 
     /* Markdown Text */
@@ -336,12 +412,6 @@ st.markdown("""
     h1 { color: var(--deadpool-red) !important; font-size: 3.5rem !important; text-shadow: 3px 3px 0px #000 !important; }
     h2 { color: #fff !important; font-size: 2rem !important; border-bottom: 3px solid var(--deadpool-red); display: inline-block; }
     h3 { color: var(--deadpool-red) !important; font-size: 1.5rem !important; }
-
-    /* Remove transitions and animations globally */
-    *, *::before, *::after {
-        transition: none !important;
-        animation: none !important;
-    }
     
     /* Better spacing for main content */
     .main .block-container {
@@ -377,6 +447,30 @@ st.markdown("""
         transform: rotate(-1deg);
         display: inline-block;
         margin-bottom: 1rem !important;
+    }
+
+    /* Chat Bubbles */
+    .chat-bubble {
+        padding: 1rem 1.5rem !important;
+        border-radius: 0px !important;
+        margin-bottom: 1rem !important;
+        font-family: 'Oswald', sans-serif !important;
+        position: relative !important;
+        border: 3px solid #000 !important;
+        box-shadow: 5px 5px 0px #000 !important;
+        max-width: 85% !important;
+    }
+    .user-bubble {
+        background-color: #333 !important;
+        color: #fff !important;
+        margin-left: auto !important;
+        border-right: 8px solid var(--deadpool-red) !important;
+    }
+    .assistant-bubble {
+        background-color: var(--deadpool-red) !important;
+        color: #fff !important;
+        margin-right: auto !important;
+        border-left: 8px solid #fff !important;
     }
     
     /* Custom Deadpool Balloons */
@@ -414,10 +508,10 @@ st.markdown("""
     }
 
     /* Surgical spacing for cards */
-    .comic-card {
+    .designer-card {
         margin-top: 0px !important;
-        margin-bottom: 0.3rem !important;
-        padding: 1rem !important;
+        margin-bottom: 0.5rem !important;
+        padding: 1.2rem !important;
     }
     /* Compact Success/Info/Error Messages */
     .stSuccess, .stInfo, .stError, .stWarning {
@@ -499,18 +593,57 @@ def _compute_docs_signature(doc_files):
     return hashlib.md5("|".join(entries).encode()).hexdigest()
 
 def trigger_deadpool_balloons():
-    """Trigger custom red, black, and white balloons"""
+    """Trigger custom red, black, and white balloons with local animation styles for reliability"""
     import random
     balloons_html = ""
-    colors = ["balloon-red", "balloon-black", "balloon-white"]
-    for i in range(30):
-        color = random.choice(colors)
+    # Strictly Red, Black, White
+    colors = ["#A80000", "#000000", "#FFFFFF"] 
+    border_colors = ["#000000", "#A80000", "#000000"]
+    
+    for i in range(40): # Increased to 40 for more impact
+        idx = random.randint(0, 2)
+        color = colors[idx]
+        border = border_colors[idx]
         left = random.randint(0, 95)
-        duration = random.uniform(2, 4)
-        delay = random.uniform(0, 1)
-        balloons_html += f'<div class="deadpool-balloon {color}" style="left: {left}vw; animation: floatUp {duration}s ease-in {delay}s forwards;"></div>'
+        duration = random.uniform(1.2, 3.0) # Even snappier
+        delay = random.uniform(0, 0.6)
+        size = random.randint(35, 55)
+        
+        balloons_html += f"""
+        <div class="deadpool-balloon-instance" style="
+            left: {left}vw; 
+            animation: floatUpAnim {duration}s ease-in {delay}s forwards;
+            background: {color};
+            border: 3px solid {border};
+            width: {size}px;
+            height: {size*1.3}px;
+        "></div>"""
     
     st.markdown(f"""
+        <style>
+            @keyframes floatUpAnim {{
+                0% {{ transform: translateY(100vh) rotate(0deg); opacity: 1; }}
+                100% {{ transform: translateY(-100vh) rotate(360deg); opacity: 0; }}
+            }}
+            .deadpool-balloon-instance {{
+                position: fixed;
+                bottom: -100px;
+                border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+                z-index: 999999;
+                pointer-events: none;
+                box-shadow: inset -5px -5px 10px rgba(0,0,0,0.3);
+            }}
+            /* Add a string to the balloon */
+            .deadpool-balloon-instance::after {{
+                content: "";
+                position: absolute;
+                bottom: -20px;
+                left: 50%;
+                width: 2px;
+                height: 20px;
+                background: #666;
+            }}
+        </style>
         <div id="balloon-container">
             {balloons_html}
         </div>
@@ -518,7 +651,7 @@ def trigger_deadpool_balloons():
             setTimeout(() => {{
                 const container = document.getElementById("balloon-container");
                 if (container) container.remove();
-            }}, 5000);
+            }}, 4000);
         </script>
     """, unsafe_allow_html=True)
 
@@ -579,10 +712,10 @@ def main():
     """Main application"""
     # Deadpool Branding Header - NOW AT THE VERY TOP
     st.markdown("""
-    <div style="text-align: center; margin-bottom: 0.5rem; margin-top: -4.5rem;">
-        <h1 style="font-family: 'Bangers', cursive; font-size: 3.5rem; color: var(--deadpool-red); text-shadow: 3px 3px 0px #000; margin: 0;">⚡ DEADPOOL'S STUDY HUB</h1>
-        <div style="background: var(--deadpool-red); height: 4px; width: 150px; margin: 0.2rem auto; border: 2px solid #000; box-shadow: 2px 2px 0px #000;"></div>
-        <p style="font-family: 'Bangers', cursive; font-size: 1.2rem; color: #fff; letter-spacing: 1px; margin-top: 2px;">WEAPONIZING YOUR DOCUMENTS FOR MAXIMUM LEARNING EFFORT!</p>
+    <div style="text-align: center; margin-bottom: 1rem; margin-top: -4.5rem;">
+        <h1 class="designer-header" style="font-size: 4rem; margin: 0; filter: drop-shadow(5px 5px 0px #000);">⚡ DEADPOOL'S STUDY HUB</h1>
+        <div style="background: var(--deadpool-red); height: 6px; width: 250px; margin: 0.5rem auto; border: 3px solid #000; box-shadow: 4px 4px 0px #000;"></div>
+        <p style="font-family: 'Bangers', cursive; font-size: 1.4rem; color: #fff; letter-spacing: 2px; margin-top: 5px; background: #000; display: inline-block; padding: 0.2rem 1rem; transform: skew(-5deg); border: 2px solid var(--deadpool-red);">WEAPONIZING YOUR DOCUMENTS FOR MAXIMUM LEARNING EFFORT!</p>
     </div>
     """, unsafe_allow_html=True)
 
@@ -723,24 +856,17 @@ def main():
         
         doc_files = get_document_files()
         if doc_files:
-            st.info(f"📁 {len(doc_files)} document(s) ready")
-        
-        if st.button("🔄 Process Documents", use_container_width=True, type="primary"):
-            if process_documents():
-                # Show summary in sidebar
-                if 'processing_results' in st.session_state:
-                    result = st.session_state.processing_results
-                    st.success(f"✅ {result['total_chunks']} chunks, {result['total_topics']} topics extracted!")
+            st.info(f"📁 {len(doc_files)} document(s) in arsenal")
         
         if st.session_state.vector_store:
             count = st.session_state.vector_store.get_collection_count()
-            st.metric("Indexed Chunks", count)
+            st.metric("INDEXED CHUNKS", count)
         
         st.divider()
     
     # Upload Section in Main Dashboard - Moved Above Navigation
     st.markdown("""
-    <div class="comic-card" style="padding: 1rem; text-align: center;">
+    <div class="designer-card" style="padding: 1rem !important; text-align: center;">
         <h2 style="color: white; margin: 0 0 0.2rem 0; font-size: 1.5rem; border: none; font-family: 'Bangers';">📤 UPLOAD YOUR STUDY MATERIALS</h2>
         <p style="color: #fff; margin: 0; font-size: 0.9rem;">Upload PDF, DOCX, or TXT files to get started</p>
     </div>
