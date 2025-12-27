@@ -802,11 +802,13 @@ def main():
     <div style="text-align: center; margin-bottom: 2rem; margin-top: -4.5rem; position: relative; z-index: 100;">
         <div style="display: flex; align-items: center; justify-content: center; gap: 25px;">
             <div style="background: #A80000; padding: 15px 30px; border: 6px solid #fff; transform: rotate(-3deg); box-shadow: 12px 12px 0px #000;">
-                <h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #fff; text-shadow: 4px 4px 0px #000; border: none; background: transparent;">⚔️ THE ARSENAL</h1>
+                <h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #fff !important; text-shadow: 4px 4px 0px #000; border: none; background: transparent;">⚔️ THE ARSENAL</h1>
             </div>
-            <h1 style="font-family: 'Bangers'; font-size: 6rem; margin: 0; color: #A80000; text-shadow: 6px 6px 0px #fff; border: none; background: transparent;">STUDY HUB</h1>
+            <div style="background: #000; padding: 15px 30px; border: 6px solid #A80000; transform: rotate(2deg); box-shadow: 12px 12px 0px #A80000;">
+                <h1 style="font-family: 'Bangers'; font-size: 5rem; margin: 0; color: #fff !important; text-shadow: 4px 4px 0px #A80000; border: none; background: transparent;">STUDY HUB</h1>
+            </div>
         </div>
-        <div style="background: #000; color: #fff; font-family: 'Bangers'; font-size: 1.8rem; padding: 5px 20px; display: inline-block; transform: skew(-10deg); border: 3px solid #A80000; margin-top: 15px; box-shadow: 6px 6px 0px #A80000;">
+        <div style="background: #A80000; color: #fff; font-family: 'Bangers'; font-size: 1.8rem; padding: 8px 30px; display: inline-block; transform: skew(-10deg); border: 4px solid #fff; margin-top: 25px; box-shadow: 10px 10px 0px #000;">
             MAXIMUM EFFORT ONLY! NO ROOKIES ALLOWED!
         </div>
     </div>
