@@ -1,72 +1,91 @@
-# ⚔️ THE ARSENAL: VANSH JAIN'S STUDY HUB ⚔️
+# ⚔️ THE ARSENAL: AI-POWERED MULTI-AGENT STUDY ECOSYSTEM ⚔️
 
-### "Oye! Study karni hai ya mazaak? CHAK DE PHATTE, MAXIMUM EFFORT!" 
+### Engineered by Mr. Vansh Jain · Hack Infinity 2025 Finalist
 
-Welcome to the **Arsenal Drop Zone**, a high-octane study command center built by **Mr. Vansh Jain**. This isn't just code; it's a full-on vibe. If your study material feels like a dry paratha, Vansh just added the butter, the spice, and a side of Deadpool attitude.
-
----
-
-## 🎭 THE FOURTH WALL (Vansh's Tactical Briefing)
-Look, Paji, we’ve all been there. Staring at 50-page PDFs while your brain screams for a break. So, Vansh decided to weaponize the boredom. He took a bunch of top-tier AI agents, gave them a Deadpool mask, and told them: *"Oye, make studying actually sexy."*
-
-Whether you're prepping for exams or just trying to look smart, we’ve got your back. We slice your documents, quiz your brain, and celebrate your wins like a true Punjabi wedding—with balloons and maximum hype.
+> *"With great power, comes great... wait, wrong franchise. WITH MAXIMUM EFFORT, COMES MAXIMUM GRADES!"* — Deadpool (probably)
 
 ---
 
-## 🛠️ THE TACTICAL TOOLBOX (Full Power Features)
+## 🚀 PROJECT OVERVIEW
+**The Arsenal** is a sophisticated Multi-Agent RAG (Retrieval-Augmented Generation) system designed to transform unstructured study materials into high-impact learning assets. Built with **Streamlit**, **LangChain**, and **Google Gemini**, it orchestrates a fleet of specialized AI agents to automate document analysis, revision planning, and knowledge assessment.
 
-### 📤 1. THE ARSENAL DROP ZONE
-The main gate. Throw your PDFs, DOCX, or TXT files in. Our agents shred them faster than a bullet train. No leftovers, just pure intel.
-
-### 📇 2. WEAPONIZED FLASHCARDS
-Notes are for rookies. Flashcards are for legends. We generate Q&A pairs that actually make sense, with difficulty levels from "Easy Peasy" to "Maximum Effort."
-
-### 🎯 3. MISSION INTEL QUIZZES
-Wanna see if you're actually learning or just scrolling? Take the quiz. Score high and the red, black, and white balloons will swarm your screen. Score low... and well, don't tell Vansh.
-
-### 📅 4. STRATEGIC BATTLE PLAN
-Vansh knows you love a good plan. Our Planner Agent builds a day-by-day map of your mission. Track your progress, neutralize targets, and stay ahead of the game.
-
-### 💬 5. THE INTERROGATION ROOM (CHAT)
-Got a question? Ask. Our RAG-powered chat is grounded in *your* documents. No gaslighting, no hallucinations—just straight talk.
+*Note from Vansh:* "Look, we all know studying can be dry. I built this to weaponize your documents and make the process high-octane and efficient."
 
 ---
 
-## 🚀 LAUNCH THE ARSENAL (Installation)
+## 🛠️ THE TACTICAL TECH STACK
+*   **LLM Orchestration:** LangChain with Google Gemini 1.5 Flash
+*   **Vector Database:** ChromaDB (Semantic search with fallback embedding backends)
+*   **Frontend:** Custom-styled Streamlit (Comic-themed CSS architecture)
+*   **Document Processing:** PyPDF2, python-docx, and OCR fallback
+*   **Architecture:** Multi-Agent Controller pattern for inter-agent communication
 
-Oye, ready to deploy? Follow the steps:
+---
 
-1. **Clone the Legend:**
+## 🧑‍💻 THE AGENT SQUADRON
+
+### 📤 1. THE READER AGENT (Data Ingestion)
+Performs surgical extraction of text from PDF, DOCX, and TXT files. It handles semantic chunking and topic classification to ensure context is preserved for the entire pipeline.
+> *"It shreds your files faster than a bullet train. No leftovers, just pure intel."*
+
+### 📇 2. THE FLASHCARD AGENT (Active Recall)
+Automatically generates optimized Q/A pairs with dynamic difficulty tagging. Supports export to Anki-compatible CSV formats for spaced repetition.
+
+### 🎯 3. THE QUIZ AGENT (Assessment)
+Constructs adaptive multiple-choice quizzes. It evaluates performance in real-time, providing detailed explanations for every correct and incorrect answer.
+
+### 📅 4. THE PLANNER AGENT (Strategic Roadmap)
+Analyzes extracted topics to build a day-by-day revision schedule. It prioritizes high-weightage topics and tracks "Mission Completion" status.
+
+### 💬 5. THE CHAT AGENT (Contextual RAG)
+A specialized interrogation module that answers questions strictly based on the uploaded "intel." No hallucinations—just grounded facts.
+
+---
+
+## 🛡️ SYSTEM ARCHITECTURE
+```mermaid
+graph TD
+    A[User Documents] --> B[Reader Agent]
+    B --> C[Vector Store / Memory]
+    C --> D[Agent Controller]
+    D --> E[Flashcard Gen]
+    D --> F[Quiz Engine]
+    D --> G[Revision Planner]
+    D --> H[RAG Chat]
+    H -.-> |Contextual Retrieval| C
+```
+
+---
+
+## 🏃 DEPLOYMENT INSTRUCTIONS
+
+1. **Clone the Repository:**
    ```bash
    git clone https://github.com/vjain5375/the-bug-slayers-final.git
    cd the-bug-slayers-final
    ```
 
-2. **Suit Up:**
+2. **Configure Environment:**
+   Install dependencies via pip:
    ```bash
    pip install -r requirements.txt
    ```
 
-3. **Full Power Start:**
+3. **Ignite the Engine:**
    ```bash
    streamlit run app.py
    ```
 
 ---
 
-## 🛡️ MISSION LOGS
-*   **Mastermind:** Mr. Vansh Jain
-*   **Squad Name:** The Bug Slayers
-*   **Mission:** Hack Infinity 2025 Finals
-*   **Status:** **READY TO DOMINATE**
-
----
-
 ## 🤝 CONNECT WITH THE ARCHITECT
-> "Vansh Jain doesn't just build apps. He builds an empire, one chimichanga at a time."
+**Mr. Vansh Jain**  
+GenAI Developer | UI/UX Enthusiast | Multi-Agent Systems Tinkerer
 
-- 🧠 Catch him talking about GenAI, UI/UX polish, or where to find the best butter chicken.
-- 💌 GitHub: [@vjain5375](https://github.com/vjain5375)
+- 🧠 **Focus:** AI Workflows, Document Intelligence, & Immersive Frontends.
+- 💌 **GitHub:** [@vjain5375](https://github.com/vjain5375)
+- 💼 **Mission:** Hack Infinity 2025 Finals
 
 ---
-*Disclaimer: No chimichangas (or samosas) were harmed. Study hard, play harder. Vansh's orders!*
+
+***Disclaimer:** No chimichangas were harmed in the making of this software. Study responsibly, or don't. I'm a README, not your mom.*
