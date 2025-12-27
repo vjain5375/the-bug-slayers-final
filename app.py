@@ -258,19 +258,18 @@ st.markdown("""
         font-size: 1.2rem !important;
     }
     
-    /* Active Navigation Button - GLOWING WHITE PANELS */
+    /* Active Navigation Button - NO MORE WHITE "DABBA" */
     [data-testid="stHorizontalBlock"] div div div .stButton > button[kind="primary"] {
-        background-color: #fff !important;
-        color: var(--deadpool-red) !important;
-        border-color: #000 !important;
-        transform: skew(-3deg) scale(1.1) !important;
-        box-shadow: 0 0 25px rgba(168,0,0,0.6), 10px 10px 0px #000 !important;
+        background-color: var(--deadpool-red) !important;
+        color: white !important;
+        border-color: white !important;
+        transform: skew(-3deg) scale(1.05) !important;
+        box-shadow: 0 0 15px rgba(255,255,255,0.3), 10px 10px 0px #000 !important;
         z-index: 10 !important;
-        text-shadow: none !important;
     }
     
     [data-testid="stHorizontalBlock"] div div div .stButton > button[kind="primary"]::before {
-        border-color: rgba(168,0,0,0.2);
+        border-color: rgba(255,255,255,0.6);
     }
 
     /* Sidebar Fancy Navigation Buttons */
@@ -285,11 +284,10 @@ st.markdown("""
     }
     
     [data-testid="stSidebar"] .stButton > button[kind="primary"] {
-        background-color: #fff !important;
-        color: var(--deadpool-red) !important;
-        border-color: #000 !important;
+        background-color: var(--deadpool-red) !important;
+        color: white !important;
+        border-color: white !important;
         box-shadow: 6px 6px 0px #000 !important;
-        text-shadow: none !important;
     }
 
     /* Input Labels and Fonts */
