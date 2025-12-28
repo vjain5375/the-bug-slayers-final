@@ -5,7 +5,7 @@ import os
 import pandas as pd
 from pathlib import Path
 from agents.controller import AgentController
-from rag_pipeline import VectorStore
+from vector_store import VectorStore
 import logging
 import traceback
 import time
