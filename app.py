@@ -520,7 +520,7 @@ def _compute_docs_signature(doc_files):
 if 'current_page' not in st.session_state:
     st.session_state.current_page = "Home"
 if 'vector_store' not in st.session_state:
-            st.session_state.vector_store = None
+    st.session_state.vector_store = None
 if 'agent_controller' not in st.session_state:
     st.session_state.agent_controller = None
 if 'flashcards' not in st.session_state:
