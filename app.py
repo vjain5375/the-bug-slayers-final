@@ -5,7 +5,6 @@ import os
 import pandas as pd
 from pathlib import Path
 from agents.controller import AgentController
-from utils.embeddings_api import get_embeddings_model
 from rag_pipeline import VectorStore
 import logging
 import traceback
