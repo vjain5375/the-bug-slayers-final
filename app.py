@@ -47,9 +47,25 @@ st.markdown("""
     /* App Border Frame */
     .stApp {
         background-color: #000 !important;
-        border: 20px solid var(--deadpool-red) !important;
-        outline: 4px solid #fff !important;
+        border: 25px solid var(--deadpool-red) !important;
+        outline: 4px dashed rgba(255,255,255,0.6) !important;
         outline-offset: -12px !important;
+        position: relative !important;
+    }
+
+    /* Black dot effect (Halftone) on the main app border */
+    .stApp::before {
+        content: "";
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-image: radial-gradient(rgba(0,0,0,0.6) 2.5px, transparent 2.5px);
+        background-size: 10px 10px;
+        z-index: 999999;
+        pointer-events: none;
+        -webkit-mask: linear-gradient(#fff, #fff) content-box, linear-gradient(#fff, #fff);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        padding: 25px;
     }
 
     /* Halftone Pattern Overlay */
