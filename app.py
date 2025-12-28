@@ -81,14 +81,15 @@ st.markdown("""
         z-index: 1;
     }
 
-    /* Global Typography */
+    /* Global Typography - RESTRICTED TO PREVENT ICON BREAKAGE */
     h1, h2, h3, h4, h5, h6, .designer-header, .stButton > button, .stDownloadButton > button {
         font-family: 'Bangers', cursive !important;
         text-transform: uppercase !important;
         letter-spacing: 2px !important;
     }
 
-    p, li, label, div, span {
+    /* Target only text elements for Oswald, avoiding Streamlit icons */
+    .stMarkdown p, .stMarkdown li, .stMarkdown label, .stMarkdown span:not(.st-emotion-cache-1if77p1) {
         font-family: 'Oswald', sans-serif !important;
     }
 
@@ -779,13 +780,13 @@ def main():
         for page_name, icon in nav_options.items():
             is_active = st.session_state.current_page == page_name
             
-            # Sidebar Active Marker (Premium Comic Arrow) - Height Matched to Buttons
-            col_marker, col_btn = st.columns([2, 8])
+            # Sidebar Active Marker (Premium Comic Arrow) - Improved Positioning
+            col_marker, col_btn = st.columns([1.5, 8.5])
             with col_marker:
                 if is_active:
                     st.markdown("""
-                    <div style='height: 95px; display: flex; align-items: center; justify-content: center; margin-right: -10px;'>
-                        <div style="font-size: 3.5rem; color: white; filter: drop-shadow(4px 4px 0px #000);">▶</div>
+                    <div style='height: 95px; display: flex; align-items: center; justify-content: flex-end; margin-right: 5px;'>
+                        <div style="font-size: 3.5rem; color: white; filter: drop-shadow(4px 4px 0px #000); line-height: 1;">▶</div>
                     </div>
                     """, unsafe_allow_html=True)
                 else:
@@ -1126,11 +1127,12 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
     # Show existing documents
     doc_files = get_document_files()
     if doc_files:
-        st.markdown("### 📁 YOUR DOCUMENTS")
-        with st.expander(f"View {len(doc_files)} uploaded document(s)", expanded=False):
+        st.markdown("<div style='margin-top: 3rem;'></div>", unsafe_allow_html=True)
+        st.markdown("<h3 class='designer-header' style='font-size: 2rem;'>📁 YOUR DOCUMENTS</h3>", unsafe_allow_html=True)
+        with st.expander(f"VIEW {len(doc_files)} TARGET INTEL FILES", expanded=False):
             for doc in doc_files:
                 doc_name = Path(doc).name
-                st.markdown(f"📄 **{doc_name}**")
+                st.markdown(f"📄 <span style='color: #fff; font-size: 1.1rem;'>{doc_name}</span>", unsafe_allow_html=True)
     
     # Top Navigation Grid - Designer Edition
     st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
