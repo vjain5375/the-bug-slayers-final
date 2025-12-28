@@ -700,24 +700,27 @@ def trigger_deadpool_balloons(queued=False):
     colors = ["#A80000", "#000000", "#FFFFFF"] 
     border_colors = ["#000000", "#A80000", "#000000"]
     
-    for i in range(40): # Increased to 40 for more impact
+    for i in range(50): # Even more balloons!
         idx = random.randint(0, 2)
         color = colors[idx]
         border = border_colors[idx]
         left = random.randint(0, 95)
-        duration = random.uniform(2.5, 4.5) # Slightly slower to be visible
-        delay = random.uniform(0, 0.8)
-        size = random.randint(35, 55)
+        duration = random.uniform(2.0, 4.0) # Faster and punchier
+        delay = random.uniform(0, 1.2) # Spread them out more
+        size = random.randint(80, 120) # MASSIVE BALLOONS as requested
         
         balloons_html += f"""
         <div class="deadpool-balloon-instance" style="
             left: {left}vw; 
-            animation: floatUpAnim {duration}s ease-in {delay}s forwards;
+            animation: floatUpAnim {duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) {delay}s forwards;
             background: {color};
-            border: 3px solid {border};
+            border: 5px solid {border};
             width: {size}px;
             height: {size*1.3}px;
-        "></div>"""
+            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.4), 10px 10px 0px rgba(0,0,0,0.2);
+        ">
+            <div style="position: absolute; top: 15%; left: 15%; width: 25%; height: 20%; background: rgba(255,255,255,0.3); border-radius: 50%;"></div>
+        </div>"""
     
     st.markdown(f"""
         <style>
