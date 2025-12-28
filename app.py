@@ -1036,18 +1036,18 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
     if 'uploaded_files_shared' not in st.session_state:
         st.session_state.uploaded_files_shared = None
     
-        uploaded_files_main = st.file_uploader(
-            "📎 Choose files to upload",
-            type=['pdf', 'docx', 'doc', 'txt'],
-            accept_multiple_files=True,
-            key="main_uploader",
+    uploaded_files_main = st.file_uploader(
+        "📎 Choose files to upload",
+        type=['pdf', 'docx', 'doc', 'txt'],
+        accept_multiple_files=True,
+        key="main_uploader",
         help="Select one or more study material files (PDF, DOCX, TXT)",
         label_visibility="collapsed"
-        )
+    )
 
-        # Sync with sidebar
-        if uploaded_files_main:
-            st.session_state.uploaded_files_shared = uploaded_files_main
+    # Sync with sidebar
+    if uploaded_files_main:
+        st.session_state.uploaded_files_shared = uploaded_files_main
 
     # Visual status badges
     if uploaded_files_main or st.session_state.uploaded_files_shared:
