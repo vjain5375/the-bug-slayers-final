@@ -687,14 +687,12 @@ def main():
     
     # Deadpool Branding Header - NOW AT THE VERY TOP
     st.markdown("""
-    <div style="text-align: center; margin-bottom: 2rem; margin-top: -4.5rem; position: relative; z-index: 100;">
-        <div style="display: flex; align-items: center; justify-content: center; gap: 25px;">
-            <div style="background: #A80000; padding: 15px 40px; border: 6px solid #fff; transform: rotate(-2deg); box-shadow: 12px 12px 0px #000; display: flex; align-items: center; gap: 30px;">
-                <span style="font-family: 'Bangers', cursive !important; font-size: 5.5rem; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; letter-spacing: 2px;">⚔️ THE ARSENAL</span>
-                <span style="font-family: 'Bangers', cursive !important; font-size: 5.5rem; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; letter-spacing: 2px;">STUDY HUB</span>
-            </div>
+    <div style="text-align: center; margin-bottom: 3rem; margin-top: -4.5rem; position: relative; z-index: 100;">
+        <div style="background: #A80000; padding: 20px 60px; border: 8px solid #fff; transform: rotate(-1.5deg); box-shadow: 15px 15px 0px #000; display: inline-block; white-space: nowrap;">
+            <span style="font-family: 'Bangers', cursive !important; font-size: 6rem; color: #ffffff !important; text-shadow: 8px 8px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 3px;">⚔️ THE ARSENAL STUDY HUB</span>
         </div>
-        <div style="background: #A80000; color: #ffffff !important; font-family: 'Bangers', cursive !important; font-size: 2rem; padding: 10px 40px; display: inline-block; transform: skew(-10deg); border: 4px solid #fff; margin-top: 25px; box-shadow: 10px 10px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic;">
+        <br>
+        <div style="background: #A80000; color: #ffffff !important; font-family: 'Bangers', cursive !important; font-size: 2.2rem; padding: 12px 50px; display: inline-block; transform: skew(-10deg); border: 4px solid #fff; margin-top: 30px; box-shadow: 10px 10px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900;">
             MAXIMUM EFFORT ONLY! NO ROOKIES ALLOWED!
         </div>
     </div>
@@ -928,10 +926,9 @@ def main():
 <div class="pop-art-label">CLASSIFIED ARCHIVES</div>
 
 <!-- Tactical Header -->
-<div style="display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 1rem;">
-    <div style="background: #A80000; padding: 15px 40px; border: 6px solid #fff; transform: rotate(-4deg); box-shadow: 12px 12px 0px #000; display: flex; align-items: center; gap: 30px;">
-        <span style="font-family: 'Bangers', cursive !important; font-size: 4rem; color: #ffffff !important; text-shadow: 4px 4px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; letter-spacing: 2px;">⚔️ ARSENAL</span>
-        <span style="font-family: 'Bangers', cursive !important; font-size: 5.5rem; color: #ffffff !important; text-shadow: 6px 6px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; letter-spacing: 3px;">PORTAL</span>
+<div style="display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+    <div style="background: #A80000; padding: 20px 50px; border: 6px solid #fff; transform: rotate(-3deg); box-shadow: 12px 12px 0px #000; display: inline-block; white-space: nowrap;">
+        <span style="font-family: 'Bangers', cursive !important; font-size: 5.5rem; color: #ffffff !important; text-shadow: 6px 6px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 2px;">⚔️ ARSENAL PORTAL</span>
     </div>
 </div>
 
