@@ -1,223 +1,85 @@
-"""
-AI Study Assistant - Multi-Agent System
-Personalized study assistant with flashcards, quizzes, and revision planning
-"""
-
 import streamlit as st
 import os
-import logging
-import hashlib
-import traceback
+import pandas as pd
 from pathlib import Path
-from dotenv import load_dotenv
-from vector_store import VectorStore
 from agents.controller import AgentController
-from utils import ensure_documents_directory, get_document_files
+from utils.embeddings_api import get_embeddings_model
+from rag_pipeline import VectorStore
+import logging
+import traceback
+import time
+import base64
+import random
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load .env file
-def load_api_key():
-    """Load API key from .env file or Streamlit secrets"""
-    api_key = None
-    
-    # Try Streamlit secrets first
-    try:
-        if hasattr(st, 'secrets') and st.secrets:
-            api_key = st.secrets.get("GOOGLE_API_KEY") or st.secrets.get("OPENAI_API_KEY")
-            if api_key:
-                os.environ['GOOGLE_API_KEY'] = api_key
-                return api_key
-    except Exception:
-        pass
-    
-    # Try environment variables
-    api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")
-    if api_key:
-        return api_key
-    
-    # Try .env file
-    possible_paths = [
-        Path(__file__).parent / '.env',
-        Path('.env'),
-        Path.cwd() / '.env',
-    ]
-    
-    for env_path in possible_paths:
-        if env_path.exists():
-            load_dotenv(dotenv_path=env_path, override=True)
-            api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")
-            if api_key:
-                break
-    
-    # Read directly from file
-    if not api_key:
-        for env_path in possible_paths:
-            if env_path.exists():
-                try:
-                    with open(env_path, 'r', encoding='utf-8') as f:
-                        for line in f:
-                            line_clean = line.strip()
-                            if line_clean and '=' in line_clean:
-                                if 'GOOGLE_API_KEY' in line_clean:
-                                    api_key = line_clean.split('=', 1)[1].strip()
-                                    api_key = api_key.strip('"').strip("'")
-                                    os.environ['GOOGLE_API_KEY'] = api_key
-                                    break
-                                elif 'OPENAI_API_KEY' in line_clean:
-                                    api_key = line_clean.split('=', 1)[1].strip()
-                                    api_key = api_key.strip('"').strip("'")
-                                    os.environ['OPENAI_API_KEY'] = api_key
-                                    break
-                        if api_key:
-                            break
-                except Exception:
-                    continue
-    
-    return api_key
-
-# Page configuration
+# Set page configuration
 st.set_page_config(
-    page_title="AI Study Assistant",
-    page_icon="📚",
+    page_title="Deadpool's Study Hub",
+    page_icon="⚔️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Load API key
-load_api_key()
-
-# Initialize session state
-if 'session_initialized' not in st.session_state:
-    # Clear documents on new session/refresh
-    st.session_state.session_initialized = True
-    docs_dir = ensure_documents_directory()
-    doc_files = get_document_files()
-    for doc_path in doc_files:
-        try:
-            Path(doc_path).unlink()
-        except Exception:
-            pass
-    # Clear vector store (only if it can be initialized)
-    try:
-        temp_vs = VectorStore()
-        temp_vs.clear_collection()
-    except Exception as e:
-        logger.warning(f"Could not clear vector store on session init: {e}")
-        pass
-    st.session_state.documents_processed = False
-    st.session_state.uploaded_files_shared = None
-    st.session_state.latest_document = None
-    st.session_state.document_upload_order = []  # Track upload order
-    st.session_state.num_flashcards = 10  # Reset to default
-    st.session_state.num_questions = 10  # Reset to default
-
-if 'agent_controller' not in st.session_state:
-    st.session_state.agent_controller = None
-if 'vector_store' not in st.session_state:
-    st.session_state.vector_store = None
-if 'documents_processed' not in st.session_state:
-    st.session_state.documents_processed = False
-if 'current_page' not in st.session_state:
-    st.session_state.current_page = "Home"
-if 'flashcards' not in st.session_state:
-    st.session_state.flashcards = []
-if 'quizzes' not in st.session_state:
-    st.session_state.quizzes = []
-if 'quiz_answers' not in st.session_state:
-    st.session_state.quiz_answers = {}
-if 'chat_history' not in st.session_state:
-    st.session_state.chat_history = []
-if 'uploaded_files_shared' not in st.session_state:
-    st.session_state.uploaded_files_shared = None
-if 'latest_document' not in st.session_state:
-    st.session_state.latest_document = None
-if 'document_upload_order' not in st.session_state:
-    st.session_state.document_upload_order = []
-if 'num_flashcards' not in st.session_state:
-    st.session_state.num_flashcards = 10
-if 'num_questions' not in st.session_state:
-    st.session_state.num_questions = 10
-if 'last_processed_signature' not in st.session_state:
-    st.session_state.last_processed_signature = None
-if 'balloons_queued' not in st.session_state:
-    st.session_state.balloons_queued = False
-
-# Load CSS (Premium Deadpool Comic Theme)
+# Custom CSS for Deadpool Theme
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@400;700&display=swap');
 
     :root {
         --deadpool-red: #A80000;
-        --deadpool-black: #000000;
         --deadpool-dark-red: #700000;
-        --comic-white: #FFFFFF;
-        --comic-border: 5px solid #FFFFFF;
-        --heavy-shadow: 10px 10px 0px #000000;
+        --deadpool-black: #000000;
+        --deadpool-grey: #222222;
+        --deadpool-white: #FFFFFF;
     }
 
-    /* Global Overrides */
+    /* Main Container Padding */
+    .main .block-container {
+        padding: 0rem !important;
+        max-width: 100% !important;
+    }
+
+    /* App Border Frame */
     .stApp {
-        background-color: var(--deadpool-black);
-        color: var(--comic-white);
-        font-family: 'Oswald', sans-serif !important;
-        border: 20px solid var(--deadpool-red); /* Thick red site border */
-        box-sizing: border-box;
-    }
-    
-    /* Internal Frame - White line like in the screenshot */
-    .stApp::after {
-        content: "";
-        position: fixed;
-        top: 10px; left: 10px; right: 10px; bottom: 10px;
-        border: 4px solid #FFF;
-        pointer-events: none;
-        z-index: 9999;
-        box-shadow: inset 0 0 0 5px #000;
+        background-color: #000 !important;
+        border: 20px solid var(--deadpool-red) !important;
+        outline: 4px solid #fff !important;
+        outline-offset: -12px !important;
     }
 
-    /* Comic Grid Background - Now more aggressive */
-    .stApp::before {
-        content: "";
+    /* Halftone Pattern Overlay */
+    .halftone {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
-        background-image: 
-            radial-gradient(var(--deadpool-red) 15%, transparent 16%);
-        background-size: 15px 15px;
-        background-attachment: fixed;
-        opacity: 0.1;
-        z-index: -1;
+        background-image: radial-gradient(var(--deadpool-red) 1px, transparent 1px);
+        background-size: 20px 20px;
+        opacity: 0.05;
+        pointer-events: none;
+        z-index: 1;
     }
-    
-    /* Force fonts on everything */
-    .stMarkdown, .stText, .stButton, .stDownloadButton, .stSelectbox, .stSlider, .stTextInput, .stTextArea, div, span, p, li, label {
-        font-family: 'Oswald', sans-serif !important;
-    }
-    
+
+    /* Global Typography */
     h1, h2, h3, h4, h5, h6, .designer-header, .stButton > button, .stDownloadButton > button {
         font-family: 'Bangers', cursive !important;
+        text-transform: uppercase !important;
+        letter-spacing: 2px !important;
     }
 
-    /* Comic Grid Background */
-    .stApp::before {
-        content: "";
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background-image: 
-            linear-gradient(rgba(0,0,0,0.85), rgba(0,0,0,0.85)),
-            url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
-        background-attachment: fixed;
-        z-index: -1;
+    p, li, label, div, span {
+        font-family: 'Oswald', sans-serif !important;
     }
 
-    /* Header Styling */
-    header[data-testid="stHeader"] {
-        background-color: var(--deadpool-red) !important;
-        border-bottom: 5px solid #000 !important;
-        height: 60px !important;
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+        width: 12px;
+        background: #000;
+    }
+    ::-webkit-scrollbar-thumb {
+        background: var(--deadpool-red);
+        border: 3px solid #000;
     }
 
     /* Sidebar Styling */
@@ -402,7 +264,7 @@ st.markdown("""
     /* Primary Actions */
     .stButton > button[kind="primary"] {
         background-color: var(--deadpool-red) !important;
-        border-color: #000 !important;
+        border-color: #FFF !important;
         color: #fff !important;
     }
     
@@ -411,47 +273,6 @@ st.markdown("""
         border-color: #FFF !important;
         color: #fff !important;
         opacity: 0.8; /* Slight dimming for secondary action, but still red/white */
-    }
-
-    /* Designer Comic Card with Flair */
-    .designer-card {
-        background: #000 !important;
-        border: 5px solid #FFF !important; /* Thick white border like screenshot */
-        padding: 2rem !important;
-        box-shadow: 15px 15px 0px #000 !important;
-        margin-bottom: 2rem !important;
-        position: relative;
-        overflow: visible !important;
-    }
-
-    /* Sidebar Navigation Fancy Menu */
-    .sidebar-nav-item {
-        display: flex;
-        align-items: center;
-        padding: 10px 15px;
-        margin-bottom: 8px;
-        border: 2px solid transparent;
-        transition: all 0.2s ease;
-        cursor: pointer;
-        color: #ccc;
-        font-family: 'Oswald', sans-serif;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        font-weight: bold;
-    }
-
-    .sidebar-nav-item:hover {
-        background: rgba(168, 0, 0, 0.1);
-        border-left: 5px solid var(--deadpool-red);
-        color: white;
-        padding-left: 20px;
-    }
-
-    .sidebar-nav-item.active {
-        background: var(--deadpool-red);
-        color: white;
-        border: 2px solid #000;
-        box-shadow: 4px 4px 0px #000;
     }
 
     /* Metrics */
@@ -528,6 +349,7 @@ st.markdown("""
         margin-bottom: 2rem !important;
         position: relative;
         overflow: visible !important;
+        z-index: 1;
     }
     .designer-card::before {
         content: "";
@@ -535,7 +357,7 @@ st.markdown("""
         top: -50%; left: -50%; width: 200%; height: 200%;
         background-image: radial-gradient(circle, rgba(168,0,0,0.1) 1px, transparent 1px);
         background-size: 15px 15px;
-        z-index: 0;
+        z-index: -1;
         pointer-events: none;
     }
     .designer-header {
@@ -598,7 +420,7 @@ st.markdown("""
     /* Remove streamlit default top padding */
     .st-emotion-cache-1y4p8pa, .st-emotion-cache-z5fcl4, .st-emotion-cache-uf99v8 { 
         padding-top: 0px !important; 
-        padding-bottom: 0px !important;
+        padding-bottom: 0px !important; 
     }
     
     /* Remove gaps from columns */
@@ -636,7 +458,7 @@ def initialize_components():
             # Log successful initialization
             backend = st.session_state.vector_store.embedding_backend
             st.success(f"✅ Vector store initialized using {backend} backend")
-        except Exception as e:
+        except Exception:
             loading_msg.empty()
             tb = traceback.format_exc()
             logger.exception("VectorStore init failed: %s", tb)
@@ -658,38 +480,67 @@ def initialize_components():
             3. Check the logs for detailed error information.
             """)
             
-            # Set a dummy object to prevent crashes in UI
-            st.session_state.vector_store = None
-            st.stop()
-    
     if st.session_state.agent_controller is None:
-        # Show static loading message
-        loading_msg = st.info("Initializing AI agents...")
-        if not api_key:
-            loading_msg.empty()
-            st.error("⚠️ API key not found! Please check your .env file.")
-            st.stop()
-        try:
-            st.session_state.agent_controller = AgentController(st.session_state.vector_store)
-            loading_msg.empty()
-        except Exception as e:
-            loading_msg.empty()
-            logger.exception("AgentController init failed: %s", e)
-            st.error(f"⚠️ Failed to initialize AI agents: {e}")
-            st.stop()
+        st.session_state.agent_controller = AgentController(api_key)
+
+def load_api_key():
+    """Load API key from environment"""
+    from dotenv import load_dotenv
+    load_dotenv()
+    return os.getenv("GOOGLE_API_KEY")
+
+def ensure_documents_directory():
+    """Ensure the documents directory exists"""
+    docs_dir = Path("documents")
+    docs_dir.mkdir(exist_ok=True)
+    return docs_dir
+
+def get_document_files():
+    """Get list of files in documents directory"""
+    docs_dir = ensure_documents_directory()
+    return list(docs_dir.glob("*"))
 
 def _compute_docs_signature(doc_files):
-    """Create a quick signature of documents based on name, size, and mtime"""
-    entries = []
-    for doc in doc_files:
-        p = Path(doc)
-        if p.exists():
-            stat = p.stat()
-            entries.append(f"{p.name}:{stat.st_size}:{int(stat.st_mtime)}")
-    if not entries:
+    """Compute a signature based on file names and modification times"""
+    import hashlib
+    if not doc_files:
         return ""
-    entries.sort()
-    return hashlib.md5("|".join(entries).encode()).hexdigest()
+    
+    files_info = []
+    for f in doc_files:
+        if f.exists():
+            files_info.append(f"{f.name}_{f.stat().st_mtime}")
+    
+    files_info.sort()
+    return hashlib.md5("".join(files_info).encode()).hexdigest()
+
+# Initialize Session State
+if 'current_page' not in st.session_state:
+    st.session_state.current_page = "Home"
+if 'vector_store' not in st.session_state:
+            st.session_state.vector_store = None
+if 'agent_controller' not in st.session_state:
+    st.session_state.agent_controller = None
+if 'flashcards' not in st.session_state:
+    st.session_state.flashcards = []
+if 'quizzes' not in st.session_state:
+    st.session_state.quizzes = []
+if 'chat_history' not in st.session_state:
+    st.session_state.chat_history = []
+if 'num_flashcards' not in st.session_state:
+    st.session_state.num_flashcards = 10
+if 'num_questions' not in st.session_state:
+    st.session_state.num_questions = 5
+if 'documents_processed' not in st.session_state:
+    st.session_state.documents_processed = False
+if 'uploaded_files_shared' not in st.session_state:
+    st.session_state.uploaded_files_shared = None
+if 'document_upload_order' not in st.session_state:
+    st.session_state.document_upload_order = []
+if 'latest_document' not in st.session_state:
+    st.session_state.latest_document = None
+if 'balloons_queued' not in st.session_state:
+    st.session_state.balloons_queued = False
 
 def trigger_deadpool_balloons(queued=False):
     """Trigger custom red, black, and white balloons. If queued=True, sets a flag for next render."""
@@ -794,23 +645,16 @@ def process_documents():
     # Show static processing message
     processing_msg = st.info("Processing documents with Reader Agent...")
     result = st.session_state.agent_controller.process_study_materials(str(docs_dir))
-    processing_msg.empty()
     
-    if result['total_chunks'] > 0:
+    if result and result.get('total_chunks', 0) > 0:
         st.session_state.documents_processed = True
-        latest_info = f" (Latest: {st.session_state.latest_document})" if st.session_state.latest_document else ""
-        st.success(f"✅ Processed {result['total_chunks']} chunks from {result['total_topics']} topics!{latest_info}")
-        
-        # Trigger custom Deadpool balloons
-        trigger_deadpool_balloons(queued=True)
-        
-        # Store processing results for display
         st.session_state.processing_results = result
         st.session_state.last_processed_signature = signature
-        st.session_state.last_index_count = result.get('total_chunks', 0)
-        
+        processing_msg.empty()
+        trigger_deadpool_balloons(queued=True)
         return True
     else:
+        processing_msg.empty()
         st.error("No content could be extracted from documents.")
         return False
 
@@ -884,14 +728,14 @@ def main():
             col_marker, col_btn = st.columns([2, 8])
             with col_marker:
                 if is_active:
-                    st.markdown("""
+    st.markdown("""
                     <div style='height: 95px; display: flex; align-items: center; justify-content: center; margin-right: -10px;'>
                         <div style="font-size: 3.5rem; color: white; filter: drop-shadow(4px 4px 0px #000);">▶</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
                 else:
                     st.markdown("<div style='height: 95px;'></div>", unsafe_allow_html=True)
-
+            
             with col_btn:
                 # Create a stylized button-like container
                 if st.button(f"{icon} {page_name.upper()}", key=f"side_nav_{page_name}", use_container_width=True, type="secondary" if not is_active else "primary"):
@@ -993,7 +837,7 @@ def main():
         st.divider()
         
     # Upload Section in Main Dashboard - SEXY EDITION
-    st.markdown("""
+        st.markdown("""
 <style>
 @keyframes tactical-glow {
     0% { box-shadow: 0 0 10px rgba(168,0,0,0.4), inset 0 0 10px rgba(168,0,0,0.2); }
@@ -1080,17 +924,13 @@ def main():
 DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow: 3px 3px 0px #A80000; -webkit-text-fill-color: #ffffff !important;">BRAIN JUICE</span> HERE!
 </p>
 
-<div class="moving-danger-stripes"></div>
+    <div class="moving-danger-stripes"></div>
 </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Upload area in main section - Synced with sidebar
-    if 'uploaded_files_shared' not in st.session_state:
-        st.session_state.uploaded_files_shared = None
-    
+</div>
+""", unsafe_allow_html=True)
+
     # Custom styling for the file uploader to make it look like part of the portal
-    st.markdown("""
+            st.markdown("""
     <style>
         [data-testid="stFileUploader"] {
             background-color: #000 !important;
@@ -1137,26 +977,30 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
         }
     </style>
     """, unsafe_allow_html=True)
-
-    uploaded_files_main = st.file_uploader(
-        "📎 Choose files to upload",
-        type=['pdf', 'docx', 'doc', 'txt'],
-        accept_multiple_files=True,
-        key="main_uploader",
+    
+    # Upload area in main section - Synced with sidebar
+    if 'uploaded_files_shared' not in st.session_state:
+        st.session_state.uploaded_files_shared = None
+    
+        uploaded_files_main = st.file_uploader(
+            "📎 Choose files to upload",
+            type=['pdf', 'docx', 'doc', 'txt'],
+            accept_multiple_files=True,
+            key="main_uploader",
         help="Select one or more study material files (PDF, DOCX, TXT)",
         label_visibility="collapsed"
-    )
+        )
     
-    # Sync with sidebar
-    if uploaded_files_main:
-        st.session_state.uploaded_files_shared = uploaded_files_main
+        # Sync with sidebar
+        if uploaded_files_main:
+            st.session_state.uploaded_files_shared = uploaded_files_main
 
     # Visual status badges
     if uploaded_files_main or st.session_state.uploaded_files_shared:
-        count = len(uploaded_files_main) if uploaded_files_main else len(st.session_state.uploaded_files_shared)
+        f_count = len(uploaded_files_main) if uploaded_files_main else len(st.session_state.uploaded_files_shared)
         st.markdown(f"""
         <div style="background: #A80000; color: white; padding: 10px; border: 3px solid #000; text-align: center; font-family: 'Bangers'; transform: rotate(2deg); box-shadow: 5px 5px 0px #000; margin-bottom: 1rem;">
-            ✅ {count} TARGETS LOCKED! READY FOR SLICING!
+            ✅ {f_count} TARGETS LOCKED! READY FOR SLICING!
         </div>
         """, unsafe_allow_html=True)
     
@@ -1232,20 +1076,12 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
         with st.expander(f"View {len(doc_files)} uploaded document(s)", expanded=False):
             for doc in doc_files:
                 doc_name = Path(doc).name
-                col1, col2 = st.columns([3, 1])
-                with col1:
                     st.markdown(f"📄 **{doc_name}**")
-                with col2:
-                    if st.button("🗑️", key=f"delete_{doc_name}", help=f"Delete {doc_name}"):
-                        try:
-                            Path(doc).unlink()
-                            st.success(f"Deleted {doc_name}")
-                            st.rerun()
-                        except Exception as e:
-                            st.error(f"Error: {e}")
     
-    # Navigation Buttons - Below Upload Section
+    # Top Navigation Grid - Designer Edition
+    st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
     st.markdown("<p style='font-family: \"Bangers\"; font-size: 1.4rem; color: var(--deadpool-red); margin-bottom: 0.2rem; text-shadow: 2px 2px 0px #000;'>🎯 NAVIGATION</p>", unsafe_allow_html=True)
+    
     nav_options = {
         "Home": "🏠",
         "Flashcards": "📇",
@@ -1255,7 +1091,6 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
         "Analytics": "📊"
     }
     
-    # Create navigation buttons in a grid - Always visible
     nav_cols = st.columns(6)
     for idx, (page_name, icon) in enumerate(nav_options.items()):
         with nav_cols[idx]:
@@ -1264,11 +1099,11 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
             # Format text: Icon and Name on separate lines, but don't split words
             button_label = f"{icon}\n{page_name}"
             
-            # Active Page Indicator (Comic Arrow Style) - More Robust
+            # Active Page Indicator (Comic Arrow Style) - Height Matched to Buttons
             if is_active:
                 st.markdown("""
                 <div style="text-align: center; margin-bottom: -20px; position: relative; z-index: 100;">
-                    <div style="font-size: 2rem; color: white; filter: drop-shadow(0px 4px 2px rgba(0,0,0,0.5)); transform: rotate(90deg) translateX(-5px); display: inline-block;">▶</div>
+                    <div style="font-size: 2.5rem; color: white; filter: drop-shadow(0px 4px 2px rgba(0,0,0,0.5)); transform: rotate(90deg) translateX(-5px); display: inline-block;">▶</div>
                 </div>
                 """, unsafe_allow_html=True)
             else:
@@ -1304,7 +1139,7 @@ def show_home_page():
     """Deadpool-themed Home page with Designer Visuals"""
     
     # Hero Section with Deadpool Action Grid Style - RED/BLACK/WHITE
-    st.markdown("""
+        st.markdown("""
     <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 4rem 1rem; border: 6px solid #000; box-shadow: 12px 12px 0px var(--deadpool-red); text-align: center; margin-bottom: 2rem; position: relative;">
         <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.65);"></div>
         <div style="position: relative; z-index: 2;">
@@ -1320,7 +1155,7 @@ def show_home_page():
         
         # Journey Cards with Designer Style
         col1, col2 = st.columns(2)
-        with col1:
+            with col1:
             st.markdown("""
             <div class="designer-card" style="transform: rotate(-0.5deg);">
                 <h3 class="designer-header" style="font-size: 2rem;">1️⃣ LOAD UP</h3>
@@ -1331,8 +1166,8 @@ def show_home_page():
                 <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'PROCESS'</b>. My agents will slice and dice your text into pure semantic gold.</p>
             </div>
             """, unsafe_allow_html=True)
-        with col2:
-            st.markdown("""
+            with col2:
+        st.markdown("""
             <div class="designer-card" style="transform: rotate(0.5deg);">
                 <h3 class="designer-header" style="font-size: 2rem;">2️⃣ LOCK & LOAD</h3>
                 <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'SAVE'</b> to commit those files to my infinite memory banks.</p>
@@ -1387,36 +1222,46 @@ def show_home_page():
 
     # 3. Content Intelligence
     if 'processing_results' in st.session_state:
-        result = st.session_state.processing_results
+        p_result = st.session_state.processing_results
         col_topics, col_samples = st.columns([2, 1])
         
         with col_topics:
-            if result.get('topics'):
+            if p_result.get('topics'):
                 st.markdown("<h3 class='designer-header'>📚 WEAPONIZED TOPICS</h3>", unsafe_allow_html=True)
-                for idx, topic_data in enumerate(result['topics'][:5], 1):
+                for idx, topic_data in enumerate(p_result['topics'][:5], 1):
                     with st.expander(f"🔴 {topic_data.get('topic', 'Topic').upper()}", expanded=(idx == 1)):
                         if topic_data.get('key_points'):
                             for p in topic_data['key_points'][:3]: st.markdown(f"⚔️ {p}")
         
         with col_samples:
             st.markdown("<h3 class='designer-header'>📄 INTEL SNAPS</h3>", unsafe_allow_html=True)
-            if result.get('chunks'):
-                for chunk in result['chunks'][:2]:
-                    st.markdown(f"""
-                    <div class="designer-card" style="padding: 1rem !important; border-width: 2px;">
-                        <p style="color: #eee; font-style: italic; font-size: 0.95rem; margin: 0;">"{chunk['text'][:150]}..."</p>
+            if p_result.get('flashcard_samples'):
+                with st.expander("📇 SAMPLE CARDS", expanded=True):
+                    for fs in p_result['flashcard_samples'][:2]:
+                        st.markdown(f"""
+                        <div style="background: #111; padding: 1rem; border-left: 4px solid var(--deadpool-red); margin-bottom: 10px; border-radius: 0px;">
+                            <p style="color: #fff; font-size: 0.9rem;"><b>Q:</b> {fs['question']}</p>
+                            <hr style="margin: 5px 0; border-color: #333;">
+                            <p style="color: #aaa; font-size: 0.85rem;"><b>A:</b> {fs['answer']}</p>
+        </div>
+        """, unsafe_allow_html=True)
+            
+            if p_result.get('quiz_samples'):
+                with st.expander("📝 SAMPLE CHALLENGES", expanded=False):
+                    for qs in p_result['quiz_samples'][:2]:
+                        st.markdown(f"""
+                        <div style="background: #111; padding: 1rem; border-left: 4px solid #fff; margin-bottom: 10px; border-radius: 0px;">
+                            <p style="color: #fff; font-size: 0.9rem;">{qs['question']}</p>
         </div>
         """, unsafe_allow_html=True)
 
-    # Thumbs up Deadpool at the bottom for returning users too
-    st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=300)
-
-    # 4. Deadpool Footer EXPANDER
-    with st.expander("💀 THE CHIMICHANGA MANUAL (HELP)", expanded=False):
+    # 4. Pro Tips with Deadpool Flavor
+    st.markdown("<br>", unsafe_allow_html=True)
+    with st.container():
         st.markdown("""
-        <div class="designer-card" style="padding: 2rem !important; border-style: dashed;">
-            <h4 class="designer-header" style="font-size: 2.5rem; margin-top: 0;">DON'T BE A DEGENERATE:</h4>
-            <ul style="color: #fff; font-size: 1.2rem; font-family: 'Oswald', sans-serif; line-height: 1.6;">
+        <div class="designer-card" style="background: rgba(168,0,0,0.05) !important;">
+            <h3 class="designer-header">💀 PRO TIPS FROM THE MERC</h3>
+            <ul style="color: #fff; font-family: 'Oswald', sans-serif;">
                 <li><b>RELOAD:</b> Put new files in the side-slot and hit 'Process' to reload your arsenal.</li>
                 <li><b>EXTRACT:</b> Anki and CSV buttons are in the Cards/Quiz zones. Use 'em.</li>
                 <li><b>EFFORT:</b> If the AI is slow, it's probably thinking about tacos. Give it a sec.</li>
@@ -1442,9 +1287,9 @@ def show_flashcards_page():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">ARSENAL CONFIGURATION</h3>', unsafe_allow_html=True)
         col1, col2, col3 = st.columns([2, 2, 1])
-        with col1:
+    with col1:
             num_flashcards = st.slider("CARD QUANTITY", 5, 30, value=st.session_state.num_flashcards, key="flashcard_slider")
-        with col2:
+    with col2:
             difficulty_mix_label = st.selectbox(
                 "DIFFICULTY MIX",
                 ["Easy + Medium", "Medium + Hard", "Easy + Medium + Hard"],
@@ -1457,10 +1302,10 @@ def show_flashcards_page():
             if st.button("🔄 GENERATE ARSENAL", use_container_width=True, type="primary"):
                 processing_msg = st.info("Deadpool is thinking (mostly about tacos and world peace... nah, just tacos)...")
                 flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards, difficulty_mix=difficulty_mix)
-                processing_msg.empty()
-                st.session_state.flashcards = flashcards
+            processing_msg.empty()
+            st.session_state.flashcards = flashcards
                 trigger_deadpool_balloons(queued=True)
-                st.rerun()
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Load existing flashcards
@@ -1468,7 +1313,7 @@ def show_flashcards_page():
         try:
             flashcards = st.session_state.agent_controller.flashcard_agent.load_flashcards()
             st.session_state.flashcards = flashcards
-        except: pass
+        except Exception: pass
     
     # Display flashcards
     if st.session_state.flashcards:
@@ -1518,22 +1363,22 @@ def show_quizzes_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION BRIEFING CONFIG</h3>', unsafe_allow_html=True)
-        col1, col2, col3 = st.columns([2, 2, 1])
-        with col1:
+    col1, col2, col3 = st.columns([2, 2, 1])
+    with col1:
             difficulty = st.selectbox("INTEL DIFFICULTY", ["easy", "medium", "hard"], index=1)
-        with col2:
+    with col2:
             num_questions = st.slider("TARGET QUESTIONS", 3, 30, value=st.session_state.num_questions, key="quiz_slider")
-        with col3:
+    with col3:
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("🎯 INITIATE QUIZ", use_container_width=True, type="primary"):
                 processing_msg = st.info("Drafting questions... mostly about you failing... and maybe some tacos...")
                 questions = st.session_state.agent_controller.generate_quiz(difficulty, num_questions, True)
-                processing_msg.empty()
+            processing_msg.empty()
                 if questions:
-                    st.session_state.quizzes = questions
-                    st.session_state.quiz_answers = {}
+            st.session_state.quizzes = questions
+            st.session_state.quiz_answers = {}
                     trigger_deadpool_balloons(queued=True)
-                    st.rerun()
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Display quiz
@@ -1563,8 +1408,8 @@ def show_quizzes_page():
             st.markdown('</div>', unsafe_allow_html=True)
         
         if st.button("✅ SUBMIT MISSION INTEL", type="primary", use_container_width=True):
-            result = st.session_state.agent_controller.evaluate_quiz(st.session_state.quizzes, st.session_state.quiz_answers)
-            st.session_state.quiz_result = result
+            q_result = st.session_state.agent_controller.evaluate_quiz(st.session_state.quizzes, st.session_state.quiz_answers)
+            st.session_state.quiz_result = q_result
             
             st.markdown("""
             <div class="designer-card" style="text-align: center; border-width: 6px;">
@@ -1576,35 +1421,40 @@ def show_quizzes_page():
             with c1: 
                 st.markdown(f"""
                 <div class="designer-card" style="text-align: center;">
-                    <h3 class="designer-header" style="margin: 0;">FINAL SCORE</h3>
-                    <p style="font-size: 3.5rem; font-family: 'Bangers'; color: #fff; margin: 0;">{result['score']} / {result['total']}</p>
+                    <h4 class="designer-header" style="font-size: 1.5rem;">SCORE</h4>
+                    <h1 style="font-size: 4rem; color: #28a745; margin: 0;">{q_result['score']}/{q_result['total']}</h1>
                 </div>
                 """, unsafe_allow_html=True)
             with c2:
+                accuracy = (q_result['score']/q_result['total']) * 100
                 st.markdown(f"""
                 <div class="designer-card" style="text-align: center;">
-                    <h3 class="designer-header" style="margin: 0;">ACCURACY</h3>
-                    <p style="font-size: 3.5rem; font-family: 'Bangers'; color: var(--deadpool-red); margin: 0;">{result['accuracy']*100:.1f}%</p>
+                    <h4 class="designer-header" style="font-size: 1.5rem;">ACCURACY</h4>
+                    <h1 style="font-size: 4rem; color: #fff; margin: 0;">{accuracy:.1f}%</h1>
                 </div>
                 """, unsafe_allow_html=True)
             
-            if result['accuracy'] > 0.5:
-                trigger_deadpool_balloons()
-                st.success("🔥 MAXIMUM EFFORT! You're crushing it like a chimichanga!")
-            else:
-                st.error("💀 Ouch. Maybe stick to watching movies? Try again, rookie!")
+            if accuracy >= 50:
+                st.success("🔥 MAXIMUM EFFORT! YOU'RE NOT AS DUMB AS YOU LOOK!")
+                trigger_deadpool_balloons(queued=True)
+                st.rerun()
+    else:
+                st.error("💀 PATHETIC. MY CHIMICHANGA HAS MORE BRAIN CELLS THAN YOU. TRY AGAIN!")
             
-            with st.expander("🔍 INTEL DEBRIEF (VIEW FULL DETAILS)"):
-                for detail in result['details']:
-                    is_correct = detail['is_correct']
-                    icon = "✅" if is_correct else "❌"
-                    color = "#28a745" if is_correct else "#dc3545"
+            with st.expander("📝 REVIEW MISSION ERRORS"):
+                for i, q in enumerate(st.session_state.quizzes):
+                    ans_idx = st.session_state.quiz_answers.get(i, -1)
+                    correct_idx = q['correct_option']
+                    is_correct = ans_idx == correct_idx
+                    
+                    color = "#28a745" if is_correct else "#A80000"
+                    correct_intel_html = f"<p style='color: #28a745;'>Correct Intel: {q['options'][correct_idx]}</p>" if not is_correct else ""
                     st.markdown(f"""
-                    <div style="padding: 1.5rem; border-left: 8px solid {color}; margin-bottom: 15px; background: #111; box-shadow: 4px 4px 0px #000;">
-                        <p style="font-size: 1.1rem; font-family: 'Bangers'; color: {color};"><strong>{icon} Q{detail['question_index']+1}</strong></p>
-                        <p style="color: #fff;"><strong>Your answer:</strong> <span style="color: {color};">{detail.get('user_answer', 'Not answered')}</span></p>
-                        <p style="color: #fff;"><strong>Correct answer:</strong> <span style="color: #28a745;">{detail.get('correct_answer', '')}</span></p>
-                        <p style="font-style: italic; font-size: 0.95rem; color: #aaa; margin-top: 10px;">{detail.get('explanation', '')}</p>
+                    <div style="background: #111; padding: 1.5rem; border-left: 8px solid {color}; margin-bottom: 15px; border-radius: 0px;">
+                        <p style="color: #fff; font-weight: bold;">Q{i+1}: {q['question']}</p>
+                        <p style="color: {'#28a745' if is_correct else '#ffc107'};">Your Intel: {q['options'][ans_idx] if ans_idx != -1 else 'N/A'}</p>
+                        {correct_intel_html}
+                        <p style="color: #aaa; font-style: italic; margin-top: 10px;">{q['explanation']}</p>
                     </div>
                     """, unsafe_allow_html=True)
     else:
@@ -1632,19 +1482,19 @@ def show_planner_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION TIMELINE CONFIG</h3>', unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
-        with col1:
+    col1, col2 = st.columns(2)
+    with col1:
             exam_date = st.date_input("MISSION DEADLINE (EXAM DATE)", value=None)
-        with col2:
+    with col2:
             study_days = st.slider("TRAINING INTENSITY (DAYS/WEEK)", 3, 7, 5)
-        
+    
         if st.button("📅 INITIATE STRATEGIC BATTLE PLAN", type="primary", use_container_width=True):
             processing_msg = st.info("Calculating optimal learning trajectories... trying not to get distracted by tacos...")
-            plan = st.session_state.agent_controller.create_revision_plan(
-                exam_date.strftime('%Y-%m-%d') if exam_date else None,
-                study_days
-            )
-            processing_msg.empty()
+        plan = st.session_state.agent_controller.create_revision_plan(
+            exam_date.strftime('%Y-%m-%d') if exam_date else None,
+            study_days
+        )
+        processing_msg.empty()
             trigger_deadpool_balloons(queued=True)
             st.success(f"✅ Strategic Battle Plan ready with {len(plan)} targets identified!")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -1671,7 +1521,7 @@ def show_planner_page():
             
             upcoming = st.session_state.agent_controller.planner_agent.get_upcoming_revisions(14)
             if upcoming:
-                st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
                 for i, item in enumerate(upcoming):
                     item_topic = item['topic']
                     item_date = item['date']
@@ -1680,15 +1530,15 @@ def show_planner_page():
                     status_color = "#28a745" if status == 'completed' else "#A80000" if status == 'in_progress' else "#333333"
                     status_icon = "✅" if status == 'completed' else "⚔️" if status == 'in_progress' else "📅"
                     
-                    st.markdown(f"""
+            st.markdown(f"""
                     <div style="background: #000; padding: 1.2rem; border: 4px solid var(--deadpool-red); border-left: 15px solid {status_color}; margin-top: 1.5rem; box-shadow: 8px 8px 0px #000; position: relative;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <h4 class="designer-header" style="margin: 0; color: white; font-size: 1.4rem;">{status_icon} {item_date} — {item_topic}</h4>
                             <span style="background: {status_color}; color: white; padding: 0.3rem 1rem; border: 2px solid #000; font-family: 'Bangers'; font-size: 1rem;">{status.upper()}</span>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
                     st.markdown(f'<div class="designer-card" style="margin-top: 0px; border-top: none; padding-top: 10px; border-width: 4px; box-shadow: 8px 8px 0px #000;">', unsafe_allow_html=True)
                     col_info, col_actions = st.columns([3, 2])
                     
@@ -1704,76 +1554,60 @@ def show_planner_page():
                         with c1:
                             if st.button("🚧 ENGAGE", key=f"prog_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'in_progress')
-                        st.rerun()
+                                st.rerun()
                         with c2:
-                            if st.button("✅ NEUTRALIZE", key=f"comp_{item_date}_{item_topic}", use_container_width=True):
+                            if st.button("🏁 DONE", key=f"comp_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'completed')
                                 trigger_deadpool_balloons(queued=True)
                                 st.rerun()
                         
+                        st.markdown("<br>", unsafe_allow_html=True)
                         cc1, cc2 = st.columns(2)
                         with cc1:
-                            if st.button("📇 CARDS", key=f"fbtn_{item_date}_{item_topic}", use_container_width=True):
-                                st.session_state.planner_study_topic = item_topic
+                            if st.button("📇 CARDS", key=f"study_flash_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.planner_study_mode = 'flashcards'
-                                st.session_state.planner_temp_data = st.session_state.agent_controller.generate_flashcards(num_flashcards=5, topic=item_topic)
-                                st.rerun()
-                        with cc2:
-                            if st.button("📝 QUIZ", key=f"qbtn_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.planner_study_topic = item_topic
+                        with cc2:
+                            if st.button("📝 QUIZ", key=f"study_quiz_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.planner_study_mode = 'quiz'
-                                st.session_state.planner_temp_data = st.session_state.agent_controller.generate_quiz(difficulty="medium", num_questions=3, topic=item_topic)
-                                st.session_state.planner_quiz_answers = {}
-                                st.rerun()
+                                st.session_state.planner_study_topic = item_topic
                     
-                    # Study Mode display inside card
-                    if st.session_state.planner_study_topic == item_topic and st.session_state.planner_study_mode:
+                    # Study Area
+                    if st.session_state.planner_study_topic == item_topic:
                         st.markdown('<div style="background: #080808; padding: 1.5rem; border: 3px dashed var(--deadpool-red); margin-top: 15px; box-shadow: inset 0 0 10px rgba(168,0,0,0.3);">', unsafe_allow_html=True)
                         st.markdown(f'<h4 class="designer-header">TRAINING ZONE: {st.session_state.planner_study_mode.upper()}</h4>', unsafe_allow_html=True)
                         
                         if st.session_state.planner_study_mode == 'flashcards':
-                            for j, card in enumerate(st.session_state.get('planner_temp_data', [])):
-                                with st.expander(f"📇 MISSION CARD {j+1}"):
+                            cards = st.session_state.agent_controller.generate_flashcards(5, topic=item_topic)
+                            for j, card in enumerate(cards):
+                                with st.expander(f"CARD #{j+1}"):
                                     st.markdown(f"<p style='color:#fff;'><strong>Q:</strong> {card['question']}</p><hr style='border-color:#444;'><p style='color:#fff;'><strong>A:</strong> {card['answer']}</p>", unsafe_allow_html=True)
-                        elif st.session_state.planner_study_mode == 'quiz':
-                            for j, q in enumerate(st.session_state.get('planner_temp_data', [])):
+    else:
+                            questions = st.session_state.agent_controller.generate_quiz('medium', 3, topic=item_topic)
+                            for j, q in enumerate(questions):
                                 st.markdown(f"<p style='color:#fff; font-weight:bold;'>Q{j+1}: {q['question']}</p>", unsafe_allow_html=True)
-                                opts = q.get('options', [])
-                                sel = st.radio("Options", opts, key=f"pquiz_q{j}_{item_date}_{i}", label_visibility="collapsed")
-                                st.session_state.planner_quiz_answers[j] = opts.index(sel) if sel in opts else -1
-                            if st.button("SUBMIT TRAINING QUIZ", key=f"sub_mini_{item_date}_{i}", type="primary", use_container_width=True):
-                                res = st.session_state.agent_controller.evaluate_quiz(st.session_state.planner_temp_data, st.session_state.planner_quiz_answers)
-                                st.markdown(f"""
-                                <div style="padding: 1rem; background: #111; border: 2px solid var(--deadpool-red); text-align: center; margin-top: 10px;">
-                                    <h3 class="designer-header" style="margin:0;">SCORE: {res['score']}/{res['total']}</h3>
-                                </div>
-                                """, unsafe_allow_html=True)
-                                if res['accuracy'] > 0.5: trigger_deadpool_balloons()
+                                sel = st.radio(f"Select answer for Q{j+1}:", q['options'], key=f"plan_quiz_{item_topic}_{j}", label_visibility="collapsed")
+                                if st.button(f"VERIFY INTEL Q{j+1}", key=f"plan_quiz_btn_{item_topic}_{j}"):
+                                    if q['options'].index(sel) == q['correct_option']:
+                                        st.success("✅ BULLSEYE!")
+                                    else:
+                                        st.error(f"❌ MISSED! Correct Intel: {q['options'][q['correct_option']]}")
+                                    st.info(f"ℹ️ {q['explanation']}")
                         
-                        if st.button("EXIT TRAINING ZONE", key=f"close_{item_date}_{i}", use_container_width=True):
+                        if st.button("❌ CLOSE TRAINING ZONE", key=f"close_study_{item_date}_{item_topic}"):
                             st.session_state.planner_study_mode = None
+                            st.session_state.planner_study_topic = None
                             st.rerun()
                         st.markdown('</div>', unsafe_allow_html=True)
-                    
                     st.markdown('</div>', unsafe_allow_html=True)
-                    st.markdown("<br>", unsafe_allow_html=True)
-        else:
-            st.info("Click 'INITIATE STRATEGIC BATTLE PLAN' to generate your schedule!")
-    except Exception as e:
-        st.info("Create a revision plan to get started!")
+    st.markdown("<br>", unsafe_allow_html=True)
+    except Exception:
+        logger.error("Error in planner")
+        st.info("Initiate a Strategic Battle Plan to track your mission progress!")
 
 def show_chat_page():
     """Chat assistant page with Designer Comic Style"""
     st.markdown('<h1 class="designer-header" style="font-size: 3.5rem;">💬 INTEL CHAT (AI ASSISTANT)</h1>', unsafe_allow_html=True)
-    
-    if not st.session_state.documents_processed:
-        st.markdown("""
-        <div class="designer-card">
-            <h2 class="designer-header">⚠️ NO INTEL FOUND</h2>
-            <p style="font-size: 1.2rem; color: #fff;">Upload some documents and hit 'PROCESS' first, rookie! I can't answer questions about things I haven't sliced and diced yet.</p>
-        </div>
-        """, unsafe_allow_html=True)
-        return
     
     col1, col2 = st.columns([3, 1])
     with col1:
@@ -1858,8 +1692,8 @@ def show_analytics_page():
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
-        if st.session_state.agent_controller.planner_agent:
-            rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
+    if st.session_state.agent_controller.planner_agent:
+        rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
             st.markdown('<div class="designer-card" style="height: 100%; border-left: 15px solid #28a745;">', unsafe_allow_html=True)
             st.markdown('<h3 class="designer-header">📅 REVISION STRATEGY PROGRESS</h3>', unsafe_allow_html=True)
             st.markdown(f"""
