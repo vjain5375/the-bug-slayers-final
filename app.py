@@ -1,3 +1,5 @@
+# pyright: reportMissingImports=false
+# pyright: reportUndefinedVariable=false
 import streamlit as st
 import os
 import pandas as pd
