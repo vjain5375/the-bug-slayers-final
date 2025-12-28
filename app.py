@@ -42,7 +42,7 @@ st.markdown("""
 
     /* Main Container Padding */
     .main .block-container {
-        padding: 0rem !important;
+        padding: 3rem 5rem !important;
         max-width: 100% !important;
     }
 
@@ -364,9 +364,9 @@ st.markdown("""
     .designer-card {
         background: #000 !important;
         border: 5px solid #FFF !important; /* Thick white border like screenshot */
-        padding: 2rem !important;
+        padding: 3rem 4rem !important;
         box-shadow: 15px 15px 0px #000 !important;
-        margin-bottom: 2rem !important;
+        margin-bottom: 4rem !important;
         position: relative;
         overflow: visible !important;
         z-index: 1;
@@ -434,18 +434,18 @@ st.markdown("""
     
     /* Global spacing reduction */
     [data-testid="stVerticalBlock"] {
-        gap: 0.2rem !important;
+        gap: 2.5rem !important;
     }
 
     /* Remove streamlit default top padding */
     .st-emotion-cache-1y4p8pa, .st-emotion-cache-z5fcl4, .st-emotion-cache-uf99v8 { 
-        padding-top: 0px !important; 
-        padding-bottom: 0px !important; 
+        padding-top: 1rem !important; 
+        padding-bottom: 1rem !important; 
     }
     
     /* Remove gaps from columns */
     [data-testid="stHorizontalBlock"] {
-        gap: 0.3rem !important;
+        gap: 2rem !important;
     }
 
     /* Surgical spacing for cards */
@@ -687,7 +687,7 @@ def main():
     
     # Deadpool Branding Header - NOW AT THE VERY TOP
     st.markdown("""
-    <div style="text-align: center; margin-bottom: 3rem; margin-top: -4.5rem; position: relative; z-index: 100;">
+    <div style="text-align: center; margin-bottom: 5rem; margin-top: 2rem; position: relative; z-index: 100;">
         <div style="background: #A80000; padding: 20px 60px; border: 8px solid #fff; transform: rotate(-1.5deg); box-shadow: 15px 15px 0px #000; display: inline-block; white-space: nowrap;">
             <span style="font-family: 'Bangers', cursive !important; font-size: 6rem; color: #ffffff !important; text-shadow: 8px 8px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 3px;">⚔️ THE ARSENAL STUDY HUB</span>
         </div>
@@ -926,8 +926,8 @@ def main():
 <div class="pop-art-label">CLASSIFIED ARCHIVES</div>
 
 <!-- Tactical Header -->
-<div style="display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
-    <div style="background: #A80000; padding: 20px 50px; border: 6px solid #fff; transform: rotate(-3deg); box-shadow: 12px 12px 0px #000; display: inline-block; white-space: nowrap;">
+<div style="display: flex; align-items: center; justify-content: center; margin-bottom: 3rem; margin-top: 2rem;">
+    <div style="background: #A80000; padding: 25px 60px; border: 8px solid #fff; transform: rotate(-2deg); box-shadow: 15px 15px 0px #000; display: inline-block; white-space: nowrap;">
         <span style="font-family: 'Bangers', cursive !important; font-size: 5.5rem; color: #ffffff !important; text-shadow: 6px 6px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 2px;">⚔️ ARSENAL PORTAL</span>
     </div>
 </div>
@@ -1119,17 +1119,19 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
             # Active Page Indicator (Comic Arrow Style) - Height Matched to Buttons
             if is_active:
                 st.markdown("""
-                <div style="text-align: center; margin-bottom: -20px; position: relative; z-index: 100;">
+                <div style="text-align: center; margin-bottom: 5px; position: relative; z-index: 100;">
                     <div style="font-size: 2.5rem; color: white; filter: drop-shadow(0px 4px 2px rgba(0,0,0,0.5)); transform: rotate(90deg) translateX(-5px); display: inline-block;">▶</div>
                 </div>
                 """, unsafe_allow_html=True)
             else:
-                st.markdown("<div style='height: 15px;'></div>", unsafe_allow_html=True)
+                st.markdown("<div style='height: 35px;'></div>", unsafe_allow_html=True)
                 
             nav_button = st.button(button_label, use_container_width=True, key=f"main_nav_{page_name}", type=button_type)
             if nav_button:
                 st.session_state.current_page = page_name
                 st.rerun()
+    
+    st.markdown("<div style='height: 50px;'></div>", unsafe_allow_html=True)
     
     # Main Content Area
     if st.session_state.current_page == "Home":
