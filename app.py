@@ -52,22 +52,22 @@ st.markdown("""
         border: 25px solid var(--deadpool-red) !important;
         outline: 4px dashed rgba(255,255,255,0.6) !important;
         outline-offset: -12px !important;
-        position: relative !important;
     }
 
-    /* Black dot effect (Halftone) on the main app border */
+    /* Simplified Halftone Border Effect */
     .stApp::before {
         content: "";
         position: fixed;
         top: 0; left: 0; right: 0; bottom: 0;
-        background-image: radial-gradient(rgba(0,0,0,0.6) 2.5px, transparent 2.5px);
-        background-size: 10px 10px;
-        z-index: 999999;
+        background-image: radial-gradient(rgba(0,0,0,0.4) 2px, transparent 2px);
+        background-size: 8px 8px;
+        z-index: 1000000;
         pointer-events: none;
-        -webkit-mask: linear-gradient(#fff, #fff) content-box, linear-gradient(#fff, #fff);
-        -webkit-mask-composite: xor;
-        mask-composite: exclude;
-        padding: 25px;
+        /* Only apply to the 25px border area using clip-path */
+        clip-path: polygon(
+            0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%,
+            25px 25px, 25px calc(100% - 25px), calc(100% - 25px) calc(100% - 25px), calc(100% - 25px) 25px, 25px 25px
+        );
     }
 
     /* Halftone Pattern Overlay */
