@@ -232,16 +232,17 @@ st.markdown("""
         background-color: var(--deadpool-red) !important;
         background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.2) 0%, transparent 40%) !important;
         color: white !important;
-        font-size: 2rem !important;
+        font-size: 2.2rem !important;
         font-weight: 900 !important;
+        font-style: italic !important;
         border: 6px solid #FFF !important; /* Thicker white border */
         border-radius: 0px !important;
         padding: 1rem 2rem !important;
         box-shadow: 15px 15px 0px #000 !important; /* Heavier black shadow */
         text-transform: uppercase !important;
-        letter-spacing: 2px !important;
+        letter-spacing: 1.5px !important;
         width: 100% !important;
-        min-height: 85px !important;
+        min-height: 90px !important;
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
@@ -253,7 +254,7 @@ st.markdown("""
         transform: skew(-2deg);
         position: relative !important;
         overflow: hidden !important;
-        text-shadow: 3px 3px 0px #000 !important;
+        text-shadow: 4px 4px 0px #000 !important;
     }
 
     .stButton > button:hover, .stDownloadButton > button:hover {
@@ -272,11 +273,12 @@ st.markdown("""
 
     /* Navigation Grid Specifics - THE "NON-DABBA" LOOK */
     [data-testid="stHorizontalBlock"] div div div .stButton > button {
-        height: 130px !important; 
+        height: 140px !important; 
         background-color: var(--deadpool-red) !important;
         border-width: 6px !important;
-        font-size: 1.6rem !important;
+        font-size: 1.8rem !important;
         font-weight: 900 !important;
+        font-style: italic !important;
         letter-spacing: 1px !important;
         line-height: 1.1 !important;
     }
@@ -300,11 +302,12 @@ st.markdown("""
         text-align: center !important;
         justify-content: center !important;
         padding: 0.5rem 1rem !important;
-        font-size: 2rem !important;
+        font-size: 2.2rem !important;
         font-weight: 900 !important;
+        font-style: italic !important;
         letter-spacing: 1.5px !important;
-        text-shadow: 3px 3px 0px #000 !important;
-        min-height: 85px !important;
+        text-shadow: 4px 4px 0px #000 !important;
+        min-height: 95px !important;
         margin-bottom: 15px !important;
         background-color: var(--deadpool-red) !important;
         background-image: none !important;
@@ -881,14 +884,14 @@ def main():
             col_marker, col_btn = st.columns([2, 8])
             with col_marker:
                 if is_active:
-    st.markdown("""
-                    <div style='height: 85px; display: flex; align-items: center; justify-content: center; margin-right: -10px;'>
-                        <div style="font-size: 3rem; color: white; filter: drop-shadow(4px 4px 0px #000);">▶</div>
-    </div>
-    """, unsafe_allow_html=True)
+                    st.markdown("""
+                    <div style='height: 95px; display: flex; align-items: center; justify-content: center; margin-right: -10px;'>
+                        <div style="font-size: 3.5rem; color: white; filter: drop-shadow(4px 4px 0px #000);">▶</div>
+                    </div>
+                    """, unsafe_allow_html=True)
                 else:
-                    st.markdown("<div style='height: 85px;'></div>", unsafe_allow_html=True)
-            
+                    st.markdown("<div style='height: 95px;'></div>", unsafe_allow_html=True)
+
             with col_btn:
                 # Create a stylized button-like container
                 if st.button(f"{icon} {page_name.upper()}", key=f"side_nav_{page_name}", use_container_width=True, type="secondary" if not is_active else "primary"):
@@ -1111,17 +1114,20 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
         }
         [data-testid="stFileUploader"] button {
             width: 100% !important;
-            height: 100px !important;
+            height: 110px !important;
             background: #A80000 !important;
             color: white !important;
-            font-size: 3rem !important;
+            font-size: 3.5rem !important;
             font-family: 'Bangers' !important;
+            font-weight: 900 !important;
+            font-style: italic !important;
             border: 6px solid #fff !important;
-            box-shadow: 12px 12px 0px #000 !important;
+            box-shadow: 15px 15px 0px #000 !important;
             border-radius: 0px !important;
             text-transform: uppercase !important;
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
             cursor: pointer !important;
+            text-shadow: 4px 4px 0px #000 !important;
         }
         [data-testid="stFileUploader"] button:hover {
             transform: scale(1.05) translateY(-5px) !important;
