@@ -112,17 +112,20 @@ st.markdown("""
     .stButton > button, .stDownloadButton > button {
         font-family: 'Bangers', cursive !important;
         background-color: var(--deadpool-red) !important;
-        background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.2) 0%, transparent 40%) !important;
+        background-image: 
+            linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.05) 75%, transparent 75%, transparent),
+            radial-gradient(circle at 20% 20%, rgba(255,255,255,0.2) 0%, transparent 40%) !important;
+        background-size: 30px 30px, 100% 100% !important;
         color: white !important;
         font-size: 2.2rem !important;
         font-weight: 900 !important;
         font-style: italic !important;
         border: 6px solid #FFF !important; /* Thicker white border */
         border-radius: 0px !important;
-        padding: 1rem 2rem !important;
-        box-shadow: 15px 15px 0px #000 !important; /* Heavier black shadow */
+        padding: 1.2rem 2.5rem !important;
+        box-shadow: 12px 12px 0px #000 !important; /* Heavier black shadow */
         text-transform: uppercase !important;
-        letter-spacing: 1.5px !important;
+        letter-spacing: 2px !important;
         width: 100% !important;
         min-height: 90px !important;
         display: flex !important;
@@ -137,15 +140,42 @@ st.markdown("""
         position: relative !important;
         overflow: hidden !important;
         text-shadow: 4px 4px 0px #000 !important;
+        z-index: 1;
+    }
+
+    /* Animated Shine for Buttons */
+    .stButton > button::before, .stDownloadButton > button::before {
+        content: "";
+        position: absolute;
+        top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(120deg, transparent, rgba(255,255,255,0.3), transparent);
+        transition: all 0.6s !important;
+        z-index: -1;
+    }
+
+    .stButton > button:hover::before, .stDownloadButton > button:hover::before {
+        left: 100%;
     }
 
     .stButton > button:hover, .stDownloadButton > button:hover {
-        background-color: #fff !important;
-        color: var(--deadpool-red) !important;
-        transform: skew(-2deg) translate(-5px, -5px) scale(1.02) !important;
-        box-shadow: 18px 18px 0px #000 !important;
-        border-color: #000 !important;
-        text-shadow: none !important;
+        background-color: var(--deadpool-red) !important;
+        color: white !important;
+        transform: skew(-3deg) translate(-8px, -8px) scale(1.02) !important;
+        box-shadow: 20px 20px 0px #000 !important;
+        border-color: #FFF !important;
+        text-shadow: 6px 6px 0px #000 !important;
+    }
+    
+    /* Special Active State for Navigation and Primary Actions */
+    .stButton > button[kind="primary"] {
+        animation: tactical-pulse 2s infinite !important;
+    }
+    
+    @keyframes tactical-pulse {
+        0% { box-shadow: 12px 12px 0px #000, 0 0 0 0px rgba(168,0,0,0.4); }
+        70% { box-shadow: 12px 12px 0px #000, 0 0 0 15px rgba(168,0,0,0); }
+        100% { box-shadow: 12px 12px 0px #000, 0 0 0 0px rgba(168,0,0,0); }
     }
     
     .stButton > button:active {
@@ -155,14 +185,18 @@ st.markdown("""
 
     /* Navigation Grid Specifics - THE "NON-DABBA" LOOK */
     [data-testid="stHorizontalBlock"] div div div .stButton > button {
-        height: 140px !important; 
+        height: 155px !important; 
         background-color: var(--deadpool-red) !important;
-        border-width: 6px !important;
-        font-size: 1.8rem !important;
+        background-image: linear-gradient(135deg, rgba(255,255,255,0.05) 25%, transparent 25%) !important;
+        background-size: 20px 20px !important;
+        border-width: 8px !important;
+        font-size: 2.4rem !important;
         font-weight: 900 !important;
         font-style: italic !important;
-        letter-spacing: 1px !important;
-        line-height: 1.1 !important;
+        letter-spacing: 2px !important;
+        line-height: 1 !important;
+        box-shadow: 15px 15px 0px #000 !important;
+        transform: rotate(-1.5deg) skew(-2deg) !important;
     }
     
     /* Active Navigation Button - NO MORE WHITE "DABBA" */
@@ -170,9 +204,10 @@ st.markdown("""
         background-color: var(--deadpool-red) !important;
         color: white !important;
         border-color: white !important;
-        transform: skew(-3deg) scale(1.05) !important;
-        box-shadow: 0 0 15px rgba(255,255,255,0.3), 10px 10px 0px #000 !important;
+        transform: rotate(1.5deg) skew(-3deg) scale(1.08) !important;
+        box-shadow: 0 0 30px rgba(168,0,0,0.5), 20px 20px 0px #000 !important;
         z-index: 10 !important;
+        text-shadow: 6px 6px 0px #000 !important;
     }
     
     [data-testid="stHorizontalBlock"] div div div .stButton > button[kind="primary"]::before {
@@ -187,26 +222,28 @@ st.markdown("""
         font-size: 2.2rem !important;
         font-weight: 900 !important;
         font-style: italic !important;
-        letter-spacing: 1.5px !important;
+        letter-spacing: 2px !important;
         text-shadow: 4px 4px 0px #000 !important;
         min-height: 95px !important;
-        margin-bottom: 15px !important;
+        margin-bottom: 20px !important;
         background-color: var(--deadpool-red) !important;
-        background-image: none !important;
+        background-image: linear-gradient(rgba(255,255,255,0.1), transparent) !important;
         border: 6px solid #FFF !important;
         box-shadow: 12px 12px 0px #000 !important;
         color: white !important;
-        transform: none !important;
+        transform: skew(-2deg) !important;
         border-radius: 0px !important;
-        transition: all 0.2s ease !important;
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
     }
     
     [data-testid="stSidebar"] .stButton > button:hover {
         background-color: var(--deadpool-red) !important;
         color: white !important;
         border-color: #FFF !important;
-        transform: translate(-5px, -5px) !important;
-        box-shadow: 15px 15px 0px #000 !important;
+        transform: skew(-4deg) translate(-8px, -8px) !important;
+        box-shadow: 20px 20px 0px #000 !important;
+        text-shadow: 6px 6px 0px #000 !important;
+    }
     }
 
     [data-testid="stSidebar"] .stButton > button:focus, 
@@ -229,7 +266,7 @@ st.markdown("""
     /* Input Labels and Fonts */
     label, .stMarkdown p, .stMarkdown li {
         font-family: 'Oswald', sans-serif !important;
-        font-weight: 700 !important;
+            font-weight: 700 !important;
         text-transform: uppercase !important;
         letter-spacing: 1px !important;
         color: #fff !important;
@@ -629,9 +666,9 @@ def trigger_deadpool_balloons(queued=False):
                 const container = document.getElementById("balloon-container");
                 if (container) container.remove();
             }}, 6000);
-        </script>
+    </script>
     """, unsafe_allow_html=True)
-
+    
 def process_documents():
     """Process all documents using Reader Agent"""
     docs_dir = ensure_documents_directory()
@@ -697,7 +734,7 @@ def main():
         </div>
     </div>
     """, unsafe_allow_html=True)
-
+    
     initialize_components()
     
     # Sidebar - Navigation and Document Management
@@ -947,7 +984,7 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
 """, unsafe_allow_html=True)
 
     # Custom styling for the file uploader to make it look like part of the portal
-    st.markdown("""
+            st.markdown("""
     <style>
         [data-testid="stFileUploader"] {
             background-color: #000 !important;
@@ -998,19 +1035,19 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
     # Upload area in main section - Synced with sidebar
     if 'uploaded_files_shared' not in st.session_state:
         st.session_state.uploaded_files_shared = None
-
-    uploaded_files_main = st.file_uploader(
-        "📎 Choose files to upload",
-        type=['pdf', 'docx', 'doc', 'txt'],
-        accept_multiple_files=True,
-        key="main_uploader",
+    
+        uploaded_files_main = st.file_uploader(
+            "📎 Choose files to upload",
+            type=['pdf', 'docx', 'doc', 'txt'],
+            accept_multiple_files=True,
+            key="main_uploader",
         help="Select one or more study material files (PDF, DOCX, TXT)",
         label_visibility="collapsed"
-    )
+        )
 
-    # Sync with sidebar
-    if uploaded_files_main:
-        st.session_state.uploaded_files_shared = uploaded_files_main
+        # Sync with sidebar
+        if uploaded_files_main:
+            st.session_state.uploaded_files_shared = uploaded_files_main
 
     # Visual status badges
     if uploaded_files_main or st.session_state.uploaded_files_shared:
@@ -1093,7 +1130,7 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
         with st.expander(f"View {len(doc_files)} uploaded document(s)", expanded=False):
             for doc in doc_files:
                 doc_name = Path(doc).name
-                st.markdown(f"📄 **{doc_name}**")
+                    st.markdown(f"📄 **{doc_name}**")
     
     # Top Navigation Grid - Designer Edition
     st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
@@ -1120,11 +1157,11 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
             if is_active:
                 st.markdown("""
                 <div style="text-align: center; margin-bottom: 5px; position: relative; z-index: 100;">
-                    <div style="font-size: 2.5rem; color: white; filter: drop-shadow(0px 4px 2px rgba(0,0,0,0.5)); transform: rotate(90deg) translateX(-5px); display: inline-block;">▶</div>
+                    <div style="font-size: 3rem; color: white; filter: drop-shadow(0px 6px 4px rgba(0,0,0,0.8)); transform: rotate(90deg) translateX(-5px); display: inline-block; font-weight: 900;">▶</div>
                 </div>
                 """, unsafe_allow_html=True)
             else:
-                st.markdown("<div style='height: 35px;'></div>", unsafe_allow_html=True)
+                st.markdown("<div style='height: 45px;'></div>", unsafe_allow_html=True)
                 
             nav_button = st.button(button_label, use_container_width=True, key=f"main_nav_{page_name}", type=button_type)
             if nav_button:
@@ -1158,15 +1195,15 @@ def show_home_page():
     """Deadpool-themed Home page with Designer Visuals"""
     
     # Hero Section with Deadpool Action Grid Style - RED/BLACK/WHITE
-    st.markdown("""
+        st.markdown("""
     <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 4rem 1rem; border: 6px solid #000; box-shadow: 12px 12px 0px var(--deadpool-red); text-align: center; margin-bottom: 2rem; position: relative;">
         <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.65);"></div>
         <div style="position: relative; z-index: 2;">
             <h1 class="designer-header" style="font-size: 3.5rem; text-shadow: 4px 4px 0px #000; margin: 0;">Turn Your Docs into Weaponized Knowledge!</h1>
             <p style="font-family: 'Bangers', cursive; color: #fff; font-size: 1.6rem; background: #000; display: inline-block; padding: 0.5rem 2rem; transform: skew(-10deg); margin-top: 1.5rem; border: 3px solid var(--deadpool-red); box-shadow: 5px 5px 0px #000;">Upload, Analyze, Conquer with AI-Powered Intelligence.</p>
         </div>
-    </div>
-    """, unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
         
     # CASE 1: NEW USER EXPERIENCE (High-Impact Onboarding)
     if not st.session_state.documents_processed:
@@ -1174,7 +1211,7 @@ def show_home_page():
         
         # Journey Cards with Designer Style
         col1, col2 = st.columns(2)
-        with col1:
+            with col1:
             st.markdown("""
             <div class="designer-card" style="transform: rotate(-0.5deg);">
                 <h3 class="designer-header" style="font-size: 2rem;">1️⃣ LOAD UP</h3>
@@ -1185,8 +1222,8 @@ def show_home_page():
                 <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'PROCESS'</b>. My agents will slice and dice your text into pure semantic gold.</p>
             </div>
             """, unsafe_allow_html=True)
-        with col2:
-            st.markdown("""
+            with col2:
+        st.markdown("""
             <div class="designer-card" style="transform: rotate(0.5deg);">
                 <h3 class="designer-header" style="font-size: 2rem;">2️⃣ LOCK & LOAD</h3>
                 <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'SAVE'</b> to commit those files to my infinite memory banks.</p>
@@ -1306,9 +1343,9 @@ def show_flashcards_page():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">ARSENAL CONFIGURATION</h3>', unsafe_allow_html=True)
         col1, col2, col3 = st.columns([2, 2, 1])
-        with col1:
+    with col1:
             num_flashcards = st.slider("CARD QUANTITY", 5, 30, value=st.session_state.num_flashcards, key="flashcard_slider")
-        with col2:
+    with col2:
             difficulty_mix_label = st.selectbox(
                 "DIFFICULTY MIX",
                 ["Easy + Medium", "Medium + Hard", "Easy + Medium + Hard"],
@@ -1321,10 +1358,10 @@ def show_flashcards_page():
             if st.button("🔄 GENERATE ARSENAL", use_container_width=True, type="primary"):
                 processing_msg = st.info("Deadpool is thinking (mostly about tacos and world peace... nah, just tacos)...")
                 flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards, difficulty_mix=difficulty_mix)
-                processing_msg.empty()
-                st.session_state.flashcards = flashcards
+            processing_msg.empty()
+            st.session_state.flashcards = flashcards
                 trigger_deadpool_balloons(queued=True)
-                st.rerun()
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Load existing flashcards
@@ -1382,22 +1419,22 @@ def show_quizzes_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION BRIEFING CONFIG</h3>', unsafe_allow_html=True)
-        col1, col2, col3 = st.columns([2, 2, 1])
-        with col1:
+    col1, col2, col3 = st.columns([2, 2, 1])
+    with col1:
             difficulty = st.selectbox("INTEL DIFFICULTY", ["easy", "medium", "hard"], index=1)
-        with col2:
+    with col2:
             num_questions = st.slider("TARGET QUESTIONS", 3, 30, value=st.session_state.num_questions, key="quiz_slider")
-        with col3:
+    with col3:
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("🎯 INITIATE QUIZ", use_container_width=True, type="primary"):
                 processing_msg = st.info("Drafting questions... mostly about you failing... and maybe some tacos...")
                 questions = st.session_state.agent_controller.generate_quiz(difficulty, num_questions, True)
-                processing_msg.empty()
+            processing_msg.empty()
                 if questions:
-                    st.session_state.quizzes = questions
-                    st.session_state.quiz_answers = {}
+            st.session_state.quizzes = questions
+            st.session_state.quiz_answers = {}
                     trigger_deadpool_balloons(queued=True)
-                    st.rerun()
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Display quiz
@@ -1457,7 +1494,7 @@ def show_quizzes_page():
                 st.success("🔥 MAXIMUM EFFORT! YOU'RE NOT AS DUMB AS YOU LOOK!")
                 trigger_deadpool_balloons(queued=True)
                 st.rerun()
-            else:
+    else:
                 st.error("💀 PATHETIC. MY CHIMICHANGA HAS MORE BRAIN CELLS THAN YOU. TRY AGAIN!")
             
             with st.expander("📝 REVIEW MISSION ERRORS"):
@@ -1501,19 +1538,19 @@ def show_planner_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION TIMELINE CONFIG</h3>', unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
-        with col1:
+    col1, col2 = st.columns(2)
+    with col1:
             exam_date = st.date_input("MISSION DEADLINE (EXAM DATE)", value=None)
-        with col2:
+    with col2:
             study_days = st.slider("TRAINING INTENSITY (DAYS/WEEK)", 3, 7, 5)
-        
+    
         if st.button("📅 INITIATE STRATEGIC BATTLE PLAN", type="primary", use_container_width=True):
             processing_msg = st.info("Calculating optimal learning trajectories... trying not to get distracted by tacos...")
-            plan = st.session_state.agent_controller.create_revision_plan(
-                exam_date.strftime('%Y-%m-%d') if exam_date else None,
-                study_days
-            )
-            processing_msg.empty()
+        plan = st.session_state.agent_controller.create_revision_plan(
+            exam_date.strftime('%Y-%m-%d') if exam_date else None,
+            study_days
+        )
+        processing_msg.empty()
             trigger_deadpool_balloons(queued=True)
             st.success(f"✅ Strategic Battle Plan ready with {len(plan)} targets identified!")
         st.markdown('</div>', unsafe_allow_html=True)
@@ -1540,7 +1577,7 @@ def show_planner_page():
             
             upcoming = st.session_state.agent_controller.planner_agent.get_upcoming_revisions(14)
             if upcoming:
-                st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
                 for i, item in enumerate(upcoming):
                     item_topic = item['topic']
                     item_date = item['date']
@@ -1549,15 +1586,15 @@ def show_planner_page():
                     status_color = "#28a745" if status == 'completed' else "#A80000" if status == 'in_progress' else "#333333"
                     status_icon = "✅" if status == 'completed' else "⚔️" if status == 'in_progress' else "📅"
                     
-                    st.markdown(f"""
+            st.markdown(f"""
                     <div style="background: #000; padding: 1.2rem; border: 4px solid var(--deadpool-red); border-left: 15px solid {status_color}; margin-top: 1.5rem; box-shadow: 8px 8px 0px #000; position: relative;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <h4 class="designer-header" style="margin: 0; color: white; font-size: 1.4rem;">{status_icon} {item_date} — {item_topic}</h4>
                             <span style="background: {status_color}; color: white; padding: 0.3rem 1rem; border: 2px solid #000; font-family: 'Bangers'; font-size: 1rem;">{status.upper()}</span>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
                     st.markdown(f'<div class="designer-card" style="margin-top: 0px; border-top: none; padding-top: 10px; border-width: 4px; box-shadow: 8px 8px 0px #000;">', unsafe_allow_html=True)
                     col_info, col_actions = st.columns([3, 2])
                     
@@ -1601,7 +1638,7 @@ def show_planner_page():
                             for j, card in enumerate(cards):
                                 with st.expander(f"CARD #{j+1}"):
                                     st.markdown(f"<p style='color:#fff;'><strong>Q:</strong> {card['question']}</p><hr style='border-color:#444;'><p style='color:#fff;'><strong>A:</strong> {card['answer']}</p>", unsafe_allow_html=True)
-                        else:
+    else:
                             questions = st.session_state.agent_controller.generate_quiz('medium', 3, topic=item_topic)
                             for j, q in enumerate(questions):
                                 st.markdown(f"<p style='color:#fff; font-weight:bold;'>Q{j+1}: {q['question']}</p>", unsafe_allow_html=True)
@@ -1619,7 +1656,7 @@ def show_planner_page():
                             st.rerun()
                         st.markdown('</div>', unsafe_allow_html=True)
                     st.markdown('</div>', unsafe_allow_html=True)
-                st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
     except Exception:
         logger.error("Error in planner")
         st.info("Initiate a Strategic Battle Plan to track your mission progress!")
@@ -1711,8 +1748,8 @@ def show_analytics_page():
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
-        if st.session_state.agent_controller.planner_agent:
-            rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
+    if st.session_state.agent_controller.planner_agent:
+        rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
             st.markdown('<div class="designer-card" style="height: 100%; border-left: 15px solid #28a745;">', unsafe_allow_html=True)
             st.markdown('<h3 class="designer-header">📅 REVISION STRATEGY PROGRESS</h3>', unsafe_allow_html=True)
             st.markdown(f"""
