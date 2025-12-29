@@ -1526,10 +1526,15 @@ def show_quizzes_page():
 
         if not st.session_state.quiz_submitted:
             if st.button("✅ SUBMIT MISSION INTEL", type="primary", use_container_width=True):
-                q_result = st.session_state.agent_controller.evaluate_quiz(st.session_state.quizzes, st.session_state.quiz_answers)
-                st.session_state.quiz_result = q_result
-                st.session_state.quiz_submitted = True
-                st.rerun()
+                with st.spinner("Analyzing your answers... trying not to laugh..."):
+                    try:
+                        q_result = st.session_state.agent_controller.evaluate_quiz(st.session_state.quizzes, st.session_state.quiz_answers)
+                        st.session_state.quiz_result = q_result
+                        st.session_state.quiz_submitted = True
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"⚠️ Tactical Error during evaluation: {e}")
+                        logger.exception("Quiz evaluation failed")
         
         if st.session_state.quiz_submitted and st.session_state.quiz_result:
             q_result = st.session_state.quiz_result
