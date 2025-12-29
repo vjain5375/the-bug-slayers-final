@@ -1343,7 +1343,25 @@ def show_home_page():
         </div>
         """, unsafe_allow_html=True)
 
-    # 4. Pro Tips with Deadpool Flavor
+        # 4. Detailed Extracted Intel (Chunks)
+        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<h3 class='designer-header'>🧬 DETAILED EXTRACTED INTEL</h3>", unsafe_allow_html=True)
+        if p_result.get('chunks'):
+            with st.expander(f"VIEW {len(p_result['chunks'])} KNOWLEDGE CHUNKS IN DETAIL"):
+                for i, chunk in enumerate(p_result['chunks']):
+                    st.markdown(f"""
+                    <div class="designer-card" style="padding: 1.5rem !important; border-left: 10px solid var(--deadpool-red); margin-bottom: 1.5rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span style="background: var(--deadpool-red); color: white; padding: 2px 10px; font-family: 'Bangers'; font-size: 0.9rem;">CHUNK #{i+1}</span>
+                            <span style="color: #aaa; font-size: 0.8rem; font-family: 'Oswald';">TOPIC: {chunk.get('metadata', {}).get('topic', 'General').upper()}</span>
+                        </div>
+                        <p style="color: #fff; font-family: 'Oswald'; font-size: 1rem; line-height: 1.5; white-space: pre-wrap;">{chunk.get('text', '')}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+        else:
+            st.info("No detailed chunks found. Processing might have failed.")
+
+    # 5. Pro Tips with Deadpool Flavor
     st.markdown("<br>", unsafe_allow_html=True)
     with st.container():
         st.markdown("""

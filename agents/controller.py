@@ -153,11 +153,26 @@ class AgentController:
             self.vector_store.add_documents(chunks)
             self.chat_agent.vector_store = self.vector_store
         
+        # Generate samples for the dashboard
+        flashcard_samples = []
+        if chunks:
+            try:
+                flashcard_samples = self.flashcard_agent.generate_flashcards(chunks[:3], num_flashcards=2)
+            except: pass
+            
+        quiz_samples = []
+        if chunks:
+            try:
+                quiz_samples = self.quiz_agent.generate_quiz(chunks[:3], num_questions=2)
+            except: pass
+
         return {
             'chunks': chunks,
             'topics': topics,
             'total_chunks': len(chunks),
-            'total_topics': len(topics)
+            'total_topics': len(topics),
+            'flashcard_samples': flashcard_samples,
+            'quiz_samples': quiz_samples
         }
     
     def generate_flashcards(
