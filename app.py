@@ -302,21 +302,37 @@ st.markdown("""
     }
     
     [data-testid="stRadio"] label {
-        background: #111 !important;
-        border: 2px solid #333 !important;
-        padding: 10px 15px !important;
-        margin-bottom: 5px !important;
+        background: #000 !important;
+        border: 4px solid #fff !important;
+        padding: 15px 25px !important;
+        margin-bottom: 12px !important;
         width: 100% !important;
-        transition: all 0.2s !important;
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        box-shadow: 8px 8px 0px #000 !important;
+        position: relative !important;
+        overflow: hidden !important;
     }
     
     [data-testid="stRadio"] label:hover {
-        border-color: var(--deadpool-red) !important;
-        background: #1a1a1a !important;
+        background: var(--deadpool-red) !important;
+        border-color: #fff !important;
+        transform: scale(1.03) skew(-2deg) translate(-5px, -5px) !important;
+        box-shadow: 15px 15px 0px #000 !important;
+        z-index: 5 !important;
     }
-    
+
     [data-testid="stRadio"] div[role="radiogroup"] {
-        gap: 0px !important;
+        gap: 5px !important;
+        padding: 10px 0 !important;
+    }
+
+    /* Selected state for radio */
+    [data-testid="stRadio"] label[data-baseweb="radio"] div:first-child {
+        border-color: var(--deadpool-red) !important;
+    }
+    [data-testid="stRadio"] label[data-baseweb="radio"] div:nth-child(2) {
+        color: #fff !important;
+        font-weight: bold !important;
     }
 
     /* Primary Actions */
@@ -398,34 +414,61 @@ st.markdown("""
         max-width: 1200px !important;
     }
 
-    /* Designer Comic Card with Flair */
+    /* Designer Comic Card - OVERHAULED FOR MAXIMUM DEADPOOL STYLE */
     .designer-card {
         background: #000 !important;
-        border: 5px solid #FFF !important; /* Thick white border like screenshot */
-        padding: 3rem 4rem !important;
+        border: 18px solid var(--deadpool-red) !important; /* Even thicker red border */
+        padding: 2.5rem 3rem !important;
         box-shadow: 15px 15px 0px #000 !important;
-        margin-bottom: 4rem !important;
-        position: relative;
+        margin-bottom: 3.5rem !important;
+        position: relative !important;
         overflow: visible !important;
         z-index: 1;
+        /* Outer black stroke */
+        outline: 4px solid #000 !important;
+        outline-offset: 0px !important;
     }
+
+    /* White Internal Frame - Now Solid and Sharp */
+    .designer-card::after {
+        content: "";
+        position: absolute;
+        top: -10px; left: -10px; right: -10px; bottom: -10px;
+        border: 4px solid #ffffff;
+        pointer-events: none;
+        z-index: 3;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    /* Black Halftone Dots on the Red Border - More Visible */
     .designer-card::before {
         content: "";
         position: absolute;
-        top: -50%; left: -50%; width: 200%; height: 200%;
-        background-image: radial-gradient(circle, rgba(168,0,0,0.1) 1px, transparent 1px);
-        background-size: 15px 15px;
-        z-index: -1;
+        top: -18px; left: -18px; right: -18px; bottom: -18px;
+        background-image: radial-gradient(rgba(0,0,0,0.9) 3.5px, transparent 3.5px);
+        background-size: 10px 10px;
         pointer-events: none;
+        z-index: 2;
+        /* Clip to show only on the 18px border area */
+        clip-path: polygon(
+            0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%,
+            18px 18px, 18px calc(100% - 18px), calc(100% - 18px) calc(100% - 18px), calc(100% - 18px) 18px, 18px 18px
+        );
     }
+
     .designer-header {
         font-family: 'Bangers', cursive !important;
-        color: var(--deadpool-red) !important;
-        text-shadow: 2px 2px 0px #000;
-        text-transform: uppercase;
-        transform: rotate(-1deg);
+        font-size: 2.2rem !important;
+        color: #fff !important;
+        background: var(--deadpool-red);
+        padding: 8px 25px;
         display: inline-block;
-        margin-bottom: 1rem !important;
+        transform: rotate(-1.5deg) skew(-5deg);
+        border: 4px solid #fff;
+        box-shadow: 8px 8px 0px #000;
+        margin-bottom: 1.5rem !important;
+        text-shadow: 3px 3px 0px #000;
+        -webkit-text-fill-color: #fff !important;
     }
 
     /* Chat Bubbles */
@@ -1296,13 +1339,13 @@ def show_home_page():
         st.markdown("<h3 class='designer-header'>📊 MISSION INTEL</h3>", unsafe_allow_html=True)
         c1, c2, c3, c4 = st.columns(4)
         with c1: 
-            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1rem !important;"><h4 class="designer-header" style="font-size: 1rem;">TOPICS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0;">{stats["total_topics"]}</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 8px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">TOPICS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0;">{stats["total_topics"]}</p></div>', unsafe_allow_html=True)
         with c2: 
-            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1rem !important;"><h4 class="designer-header" style="font-size: 1rem;">CARDS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0;">{stats["total_flashcards"]}</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 8px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">CARDS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0;">{stats["total_flashcards"]}</p></div>', unsafe_allow_html=True)
         with c3: 
-            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1rem !important;"><h4 class="designer-header" style="font-size: 1rem;">QUIZZES</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0;">{stats["total_quizzes"]}</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 8px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">QUIZZES</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0;">{stats["total_quizzes"]}</p></div>', unsafe_allow_html=True)
         with c4: 
-            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1rem !important;"><h4 class="designer-header" style="font-size: 1rem;">WIN RATE</h4><p style="font-size: 2rem; font-family: Bangers; color: #28a745; margin: 0;">{stats["revision_stats"]["completion_rate"]:.1f}%</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 8px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">WIN RATE</h4><p style="font-size: 2rem; font-family: Bangers; color: #28a745; margin: 0;">{stats["revision_stats"]["completion_rate"]:.1f}%</p></div>', unsafe_allow_html=True)
 
     st.divider()
 
@@ -1435,17 +1478,17 @@ def show_flashcards_page():
         for i, card in enumerate(st.session_state.flashcards):
             with st.container():
                 st.markdown(f"""
-                <div class="designer-card" style="border-left: 12px solid var(--deadpool-red); transform: rotate({(i%2)*0.5 - 0.25}deg);">
-                    <div style="position: relative; z-index: 1;">
-                        <h4 class="designer-header" style="font-size: 1.5rem; margin: 0;">CARD #{i+1} — {card.get('difficulty', 'medium').upper()}</h4>
-                        <p style="font-size: 1.3rem; font-weight: bold; margin: 15px 0; color: #fff; line-height: 1.4;">Q: {card['question']}</p>
+                <div class="designer-card" style="transform: rotate({(i%2)*0.5 - 0.25}deg);">
+                    <div style="position: relative; z-index: 10;">
+                        <h4 class="designer-header">CARD #{i+1} — {card.get('difficulty', 'medium').upper()}</h4>
+                        <p style="font-size: 1.8rem; font-weight: 900; margin: 25px 0; color: #fff; line-height: 1.3; font-family: 'Bangers', cursive !important; text-shadow: 3px 3px 0px #000; letter-spacing: 1px;">Q: {card['question']}</p>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
                 with st.expander("👀 REVEAL CLASSIFIED INTEL (ANSWER)"):
                     st.markdown(f"""
-                    <div style="padding: 1.5rem; background: #111; border: 3px dashed var(--deadpool-red); box-shadow: 5px 5px 0px #000;">
-                        <p style="font-size: 1.2rem; color: #fff; font-family: 'Oswald', sans-serif;">{card['answer']}</p>
+                    <div style="padding: 2.5rem; background: #000; border: 6px solid var(--deadpool-red); outline: 3px solid #fff; outline-offset: -10px; box-shadow: 15px 15px 0px #000; margin-top: 10px;">
+                        <p style="font-size: 1.4rem; color: #fff; font-family: 'Oswald', sans-serif; line-height: 1.6; font-weight: bold;">{card['answer']}</p>
                     </div>
                     """, unsafe_allow_html=True)
     else:
@@ -1495,13 +1538,15 @@ def show_quizzes_page():
         for i, q in enumerate(st.session_state.quizzes):
             st.markdown(f"""
             <div class="designer-card" style="margin-bottom: 0px; border-bottom: none; transform: rotate({(i%2)*-0.3}deg);">
-                <h4 class="designer-header" style="font-size: 1.5rem; margin: 0;">QUESTION #{i+1}</h4>
-                <p style="font-size: 1.2rem; font-weight: bold; margin-top: 15px; color: #fff; line-height: 1.4;">{q['question']}</p>
+                <div style="position: relative; z-index: 10;">
+                    <h4 class="designer-header">QUESTION #{i+1}</h4>
+                    <p style="font-size: 1.8rem; font-weight: 900; margin-top: 15px; color: #fff; line-height: 1.3; font-family: 'Bangers', cursive !important; text-shadow: 3px 3px 0px #000; letter-spacing: 1px;">{q['question']}</p>
+                </div>
             </div>
             """, unsafe_allow_html=True)
             
             # Options in a sub-container
-            st.markdown('<div class="designer-card" style="margin-top: 0px; border-top: 2px dashed var(--deadpool-red); background: #080808 !important; padding: 1rem !important;">', unsafe_allow_html=True)
+            st.markdown('<div class="designer-card" style="margin-top: 0px; border-top: 6px solid #fff; background: #000 !important; padding: 2.5rem !important;">', unsafe_allow_html=True)
             selected = st.radio(
                 f"Options for Q{i+1}:",
                 q['options'],
@@ -1672,15 +1717,15 @@ def show_planner_page():
                     status_icon = "✅" if status == 'completed' else "⚔️" if status == 'in_progress' else "📅"
                     
                     st.markdown(f"""
-                    <div style="background: #000; padding: 1.2rem; border: 4px solid var(--deadpool-red); border-left: 15px solid {status_color}; margin-top: 1.5rem; box-shadow: 8px 8px 0px #000; position: relative;">
+                    <div class="designer-card" style="padding: 1.5rem !important; border-width: 10px !important; margin-bottom: 0px !important; transform: rotate({(i%2)*0.3}deg);">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <h4 class="designer-header" style="margin: 0; color: white; font-size: 1.4rem;">{status_icon} {item_date} — {item_topic}</h4>
-                            <span style="background: {status_color}; color: white; padding: 0.3rem 1rem; border: 2px solid #000; font-family: 'Bangers'; font-size: 1rem;">{status.upper()}</span>
+                            <h4 class="designer-header" style="margin: 0; color: white; font-size: 1.6rem;">{status_icon} {item_date} — {item_topic}</h4>
+                            <span style="background: {status_color}; color: white; padding: 0.5rem 1.5rem; border: 3px solid #fff; font-family: 'Bangers'; font-size: 1.2rem; box-shadow: 5px 5px 0px #000; transform: skew(-10deg);">{status.upper()}</span>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
                     
-                    st.markdown(f'<div class="designer-card" style="margin-top: 0px; border-top: none; padding-top: 10px; border-width: 4px; box-shadow: 8px 8px 0px #000;">', unsafe_allow_html=True)
+                    st.markdown(f'<div class="designer-card" style="margin-top: -10px; border-top: 4px solid #fff; padding: 2rem !important; border-width: 10px !important; background: #080808 !important;">', unsafe_allow_html=True)
                     col_info, col_actions = st.columns([3, 2])
                     
                     with col_info:
