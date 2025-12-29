@@ -990,7 +990,7 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
         [data-testid="stFileUploader"] {
             background-color: #000 !important;
             border: 5px solid #FFF !important;
-            padding: 2.5rem !important;
+            padding: 1.5rem !important;
             box-shadow: 12px 12px 0px #000 !important;
             position: relative !important;
             margin-top: -2rem !important;
@@ -1009,20 +1009,21 @@ DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow
         }
         [data-testid="stFileUploader"] button {
             width: 100% !important;
-            height: 110px !important;
+            height: 85px !important;
             background: #A80000 !important;
             color: white !important;
-            font-size: 3.5rem !important;
+            font-size: 2.2rem !important;
             font-family: 'Bangers' !important;
             font-weight: 900 !important;
             font-style: italic !important;
-            border: 6px solid #fff !important;
-            box-shadow: 15px 15px 0px #000 !important;
+            border: 5px solid #fff !important;
+            box-shadow: 10px 10px 0px #000 !important;
             border-radius: 0px !important;
             text-transform: uppercase !important;
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
             cursor: pointer !important;
-            text-shadow: 4px 4px 0px #000 !important;
+            text-shadow: 3px 3px 0px #000 !important;
+            white-space: nowrap !important;
         }
         [data-testid="stFileUploader"] button:hover {
             transform: scale(1.05) translateY(-5px) !important;
