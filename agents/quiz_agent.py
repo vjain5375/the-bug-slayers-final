@@ -112,50 +112,52 @@ Return ONLY a valid JSON array in this format:
 
 Only return the JSON array, no additional text or markdown formatting."""
             
-        messages = [
-            SystemMessage(content=f"You are a strict educational content generator. You MUST generate exactly {num_questions} questions. Do not stop until you have reached the quota. Format everything as a JSON array."),
-            HumanMessage(content=prompt)
-        ]
-        
-        for _ in range(3): # Maximum Effort Retry Loop
-            try:
-                response = self.llm.invoke(messages)
-                result = response.content.strip()
-                
-                # Extract JSON from response
-                json_match = re.search(r'\[.*\]', result, re.DOTALL)
-                if json_match:
-                    questions = json.loads(json_match.group(0))
-                    # Validate and clean questions
-                    validated = []
-                    for q in questions:
-                        cleaned = self._validate_question_dict(q, difficulty)
-                        if cleaned:
-                            normalized = self._normalize_question(cleaned, difficulty)
-                            if normalized:
-                                validated.append(normalized)
+            messages = [
+                SystemMessage(content=f"You are a strict educational content generator. You MUST generate exactly {num_questions} questions. Do not stop until you have reached the quota. Format everything as a JSON array."),
+                HumanMessage(content=prompt)
+            ]
+            
+            for _ in range(3): # Maximum Effort Retry Loop
+                try:
+                    response = self.llm.invoke(messages)
+                    result = response.content.strip()
+                    
+                    # Extract JSON from response
+                    json_match = re.search(r'\[.*\]', result, re.DOTALL)
+                    if json_match:
+                        questions = json.loads(json_match.group(0))
+                        # Validate and clean questions
+                        validated = []
+                        for q in questions:
+                            cleaned = self._validate_question_dict(q, difficulty)
+                            if cleaned:
+                                normalized = self._normalize_question(cleaned, difficulty)
+                                if normalized:
+                                    validated.append(normalized)
 
-                    # Deduplicate questions by text to avoid repeated items
-                    deduped = []
-                    seen_questions = set()
-                    for item in validated:
-                        qtext = item['question'].strip().lower()
-                        if qtext in seen_questions:
-                            continue
-                        seen_questions.add(qtext)
-                        deduped.append(item)
+                        # Deduplicate questions by text to avoid repeated items
+                        deduped = []
+                        seen_questions = set()
+                        for item in validated:
+                            qtext = item['question'].strip().lower()
+                            if qtext in seen_questions:
+                                continue
+                            seen_questions.add(qtext)
+                            deduped.append(item)
 
-                    if len(deduped) >= num_questions * 0.7: # High quality quota
-                        # Ensure count and difficulty mix by topping up with deterministic cards
-                        if len(deduped) < num_questions:
-                            remaining_count = num_questions - len(deduped)
-                            fallbacks = self._simple_quiz_generation(text_chunks, difficulty, remaining_count)
-                            deduped.extend(fallbacks)
-                        return deduped[:num_questions]
-                    else:
-                        print(f"  → LLM generated too few questions ({len(deduped)}/{num_questions}). Retrying...")
-            except Exception as e:
-                print(f"Error during LLM generation attempt: {e}")
+                        if len(deduped) >= num_questions * 0.7: # High quality quota
+                            # Ensure count and difficulty mix by topping up with deterministic cards
+                            if len(deduped) < num_questions:
+                                remaining_count = num_questions - len(deduped)
+                                fallbacks = self._simple_quiz_generation(text_chunks, difficulty, remaining_count)
+                                deduped.extend(fallbacks)
+                            return deduped[:num_questions]
+                        else:
+                            print(f"  → LLM generated too few questions ({len(deduped)}/{num_questions}). Retrying...")
+                except Exception as e:
+                    print(f"Error during LLM generation attempt: {e}")
+        except Exception as e:
+            print(f"Error preparing quiz generation: {e}")
         
         # Fallback to simple generation if all retries fail
         return self._simple_quiz_generation(text_chunks, difficulty, num_questions)
