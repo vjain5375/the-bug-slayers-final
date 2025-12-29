@@ -635,27 +635,27 @@ if 'session_initialized' not in st.session_state:
     st.session_state.session_initialized = True
 
 def trigger_maximum_effort_strike(queued=False):
-    """Trigger a comic-style burst of 'MAXIMUM EFFORT' and 'KAPOW' badges. Light and robust."""
+    """Trigger a readable comic-style burst of badges. Optimized for impact and clarity."""
     if queued:
         st.session_state.strike_queued = True
         return
 
     strike_html = ""
-    badges = ["MAXIMUM EFFORT!", "KAPOW!", "SHIK-SHIK!", "CHIMICHANGA!", "BOOM!", "DEADPOOL-APPROVED!"]
+    badges = ["MAXIMUM EFFORT!", "KAPOW!", "CHIMICHANGA!", "DEADPOOL-APPROVED!", "BULLSEYE!"]
     
     import random
-    for i in range(12):
+    for i in range(5): # Reduced count for less chaos
         text = random.choice(badges)
-        left = random.randint(10, 85)
-        top = random.randint(15, 80)
-        rotation = random.randint(-20, 20)
-        delay = random.uniform(0, 0.8)
+        left = random.randint(15, 75)
+        top = random.randint(20, 70)
+        rotation = random.randint(-15, 15)
+        delay = i * 0.4 # Staggered entry
         
         strike_html += f"""
         <div class="strike-badge" style="
             left: {left}vw; 
             top: {top}vh; 
-            animation: strikePop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) {delay}s both;
+            animation: strikePop 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) {delay}s both;
             transform: rotate({rotation}deg);
         ">
             {text}
@@ -664,22 +664,23 @@ def trigger_maximum_effort_strike(queued=False):
     st.markdown(f"""
         <style>
             @keyframes strikePop {{
-                0% {{ transform: scale(0) rotate(-45deg); opacity: 0; }}
-                50% {{ transform: scale(1.2) rotate(10deg); opacity: 1; }}
-                100% {{ transform: scale(1) rotate(var(--rot)); opacity: 0; }}
+                0% {{ transform: scale(0) rotate(-30deg); opacity: 0; }}
+                10% {{ transform: scale(1.2) rotate(5deg); opacity: 1; }}
+                80% {{ transform: scale(1) rotate(0deg); opacity: 1; }}
+                100% {{ transform: scale(0.8) translateY(-20px); opacity: 0; }}
             }}
             .strike-badge {{
                 position: fixed;
-                padding: 15px 25px;
+                padding: 20px 35px;
                 background: var(--deadpool-red);
                 color: white;
                 font-family: 'Bangers', cursive;
-                font-size: 2.2rem;
-                border: 4px solid white;
-                box-shadow: 10px 10px 0px #000;
+                font-size: 2.8rem;
+                border: 6px solid white;
+                box-shadow: 15px 15px 0px #000;
                 z-index: 999999;
                 pointer-events: none;
-                text-shadow: 3px 3px 0px #000;
+                text-shadow: 4px 4px 0px #000;
                 white-space: nowrap;
             }}
         </style>
@@ -690,7 +691,7 @@ def trigger_maximum_effort_strike(queued=False):
             setTimeout(() => {{
                 const container = document.getElementById("strike-container");
                 if (container) container.remove();
-            }}, 4000);
+            }}, 6000);
         </script>
     """, unsafe_allow_html=True)
 
