@@ -341,23 +341,48 @@ st.markdown("""
         box-shadow: 5px 5px 0px var(--deadpool-red) !important;
     }
 
-    /* Surgical uploader fix */
+    /* SURGICAL UPLOADER FIX - MAXIMUM BEAUTY */
     [data-testid="stFileUploader"] {
-        border: 3px dashed var(--deadpool-red) !important;
-        background-color: #080808 !important;
-        padding: 1rem !important;
+        border: 10px solid #fff !important;
+        background-color: var(--deadpool-red) !important;
+        background-image: radial-gradient(rgba(0,0,0,0.6) 3px, transparent 3px) !important;
+        background-size: 12px 12px !important;
+        padding: 2rem !important;
         border-radius: 0px !important;
-        box-shadow: inset 0 0 10px rgba(168,0,0,0.2) !important;
+        box-shadow: 15px 15px 0px #000 !important;
+        margin-bottom: 2rem !important;
+        position: relative !important;
     }
     
     [data-testid="stFileUploader"] section {
-        padding: 0 !important;
+        background: rgba(0,0,0,0.8) !important;
+        border: 4px dashed #fff !important;
+        padding: 20px !important;
     }
     
     [data-testid="stFileUploader"] label {
-        color: var(--deadpool-red) !important;
+        color: #fff !important;
         font-family: 'Bangers' !important;
-        font-size: 1.5rem !important;
+        font-size: 2.5rem !important;
+        text-shadow: 3px 3px 0px #000 !important;
+        margin-bottom: 1rem !important;
+    }
+
+    [data-testid="stFileUploader"] button {
+        background: var(--deadpool-red) !important;
+        color: white !important;
+        font-family: 'Bangers' !important;
+        border: 4px solid #fff !important;
+        font-size: 1.8rem !important;
+        padding: 10px 25px !important;
+        box-shadow: 8px 8px 0px #000 !important;
+        text-transform: uppercase !important;
+    }
+
+    [data-testid="stFileUploader"] div[data-testid="text-file-types"] {
+        color: #fff !important;
+        font-family: 'Oswald' !important;
+        font-weight: bold !important;
     }
 
     /* Markdown Text */
@@ -390,25 +415,28 @@ st.markdown("""
         position: relative !important;
         overflow: visible !important;
         z-index: 1;
-        /* Outer black stroke */
         outline: 4px solid #000 !important;
         outline-offset: 0px !important;
-        /* Halftone Dot Border Effect */
-        background-image: 
-            linear-gradient(to right, white 4px, transparent 4px),
-            linear-gradient(to bottom, white 4px, transparent 4px),
-            linear-gradient(to left, white 4px, transparent 4px),
-            linear-gradient(to top, white 4px, transparent 4px),
-            radial-gradient(circle at center, rgba(0,0,0,0.8) 2.5px, transparent 2.5px) !important;
-        background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 10px 10px !important;
-        background-position: 0 0, 0 0, 100% 0, 0 100%, center !important;
-        background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat !important;
-        background-origin: border-box !important;
-        background-clip: border-box !important;
     }
 
-    /* White Internal Frame - Solid and Sharp */
-    .designer-card::after {
+    /* RED HALFTONE CARD - FOR FLASHCARDS, QUIZZES, ETC. */
+    .designer-card-red {
+        background: var(--deadpool-red) !important;
+        background-image: radial-gradient(rgba(0,0,0,0.6) 3px, transparent 3px) !important;
+        background-size: 12px 12px !important;
+        border: 10px solid #fff !important;
+        padding: 2.5rem 3rem !important;
+        box-shadow: 15px 15px 0px #000 !important;
+        margin-bottom: 3.5rem !important;
+        position: relative !important;
+        overflow: visible !important;
+        z-index: 1;
+        outline: 4px solid #000 !important;
+        outline-offset: 0px !important;
+    }
+
+    /* White Internal Frame for both */
+    .designer-card::after, .designer-card-red::after {
         content: "";
         position: absolute;
         top: -8px; left: -8px; right: -8px; bottom: -8px;
@@ -417,7 +445,7 @@ st.markdown("""
         z-index: 3;
     }
 
-    /* Red Halftone Base for Border */
+    /* Dot pattern for black card border */
     .designer-card::before {
         content: "";
         position: absolute;
@@ -933,7 +961,7 @@ def main():
             st.metric("INDEXED CHUNKS", count)
         
         st.divider()
-        
+    
     # Main Content Area
     if st.session_state.current_page == "Home":
         show_home_page()
@@ -977,24 +1005,24 @@ def show_home_page():
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("""
-            <div class="designer-card" style="transform: rotate(-0.5deg);">
+            <div class="designer-card-red" style="transform: rotate(-0.5deg);">
                 <h3 class="designer-header" style="font-size: 2rem;">1️⃣ LOAD UP</h3>
-                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Drop your PDFs, DOCX, or Text notes into the side-feed.</p>
+                <p style="color: #fff; font-size: 1.2rem; font-weight: 900; font-family: 'Oswald', sans-serif; text-shadow: 2px 2px 0px #000;">Drop your PDFs, DOCX, or Text notes into the side-feed.</p>
             </div>
-            <div class="designer-card" style="transform: rotate(0.5deg);">
+            <div class="designer-card-red" style="transform: rotate(0.5deg);">
                 <h3 class="designer-header" style="font-size: 2rem;">3️⃣ EXTRACT</h3>
-                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'PROCESS'</b>. My agents will slice and dice your text into pure semantic gold.</p>
+                <p style="color: #fff; font-size: 1.2rem; font-weight: 900; font-family: 'Oswald', sans-serif; text-shadow: 2px 2px 0px #000;">Hit <b>'PROCESS'</b>. My agents will slice and dice your text into pure semantic gold.</p>
             </div>
             """, unsafe_allow_html=True)
         with col2:
             st.markdown("""
-            <div class="designer-card" style="transform: rotate(0.5deg);">
+            <div class="designer-card-red" style="transform: rotate(0.5deg);">
                 <h3 class="designer-header" style="font-size: 2rem;">2️⃣ LOCK & LOAD</h3>
-                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'SAVE'</b> to commit those files to my infinite memory banks.</p>
+                <p style="color: #fff; font-size: 1.2rem; font-weight: 900; font-family: 'Oswald', sans-serif; text-shadow: 2px 2px 0px #000;">Hit <b>'SAVE'</b> to commit those files to my infinite memory banks.</p>
             </div>
-            <div class="designer-card" style="transform: rotate(-0.5deg);">
+            <div class="designer-card-red" style="transform: rotate(-0.5deg);">
                 <h3 class="designer-header" style="font-size: 2rem;">4️⃣ DOMINATE</h3>
-                <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now operational.</p>
+                <p style="color: #fff; font-size: 1.2rem; font-weight: 900; font-family: 'Oswald', sans-serif; text-shadow: 2px 2px 0px #000;">Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now operational.</p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -1002,15 +1030,20 @@ def show_home_page():
         # Add the thumbs up Deadpool image
         st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=350)
         
-        # Upload area in main section
+        # Arsenal Portal (Upload Zone)
         st.markdown("""
         <div class="sexy-drop-zone">
-        <div class="tactical-border"></div>
-        <div class="command-center">
-        <div class="pop-art-label">CLASSIFIED ARCHIVES</div>
-        <p style="font-family: 'Bangers'; font-size: 2rem; color: #fff; letter-spacing: 3px; margin: 1.5rem 0;">DROP YOUR BRAIN JUICE HERE!</p>
-        <div class="moving-danger-stripes"></div>
-        </div>
+            <div class="tactical-border"></div>
+            <div class="command-center">
+                <div class="pop-art-label">CLASSIFIED ARCHIVES</div>
+                <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; margin-top: 1rem;">
+                    <div style="background: #A80000; padding: 10px 30px; border: 6px solid #fff; transform: rotate(-1.5deg); box-shadow: 12px 12px 0px #000; display: inline-block; max-width: 90%;">
+                        <span style="font-family: 'Bangers', cursive !important; font-size: 3.0rem; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 1.5px;">⚔️ ARSENAL PORTAL</span>
+                    </div>
+                </div>
+                <p style="font-family: 'Bangers'; font-size: 2.2rem; color: #fff; letter-spacing: 3px; margin: 1.5rem 0; text-shadow: 3px 3px 0px #A80000;">DROP YOUR BRAIN JUICE HERE!</p>
+                <div class="moving-danger-stripes"></div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
         
@@ -1018,12 +1051,48 @@ def show_home_page():
             "📎 Choose files to upload",
             type=['pdf', 'docx', 'doc', 'txt'],
             accept_multiple_files=True,
-            key="main_uploader",
+            key="main_uploader_onboarding",
             label_visibility="collapsed"
         )
+        
+        # Save and Process logic for onboarding
         if uploaded_files_main:
             st.session_state.uploaded_files_shared = uploaded_files_main
-            st.rerun()
+            
+            f_count = len(uploaded_files_main)
+            st.markdown(f"""
+            <div style="background: #A80000; color: white; padding: 10px; border: 3px solid #000; text-align: center; font-family: 'Bangers'; transform: rotate(2deg); box-shadow: 5px 5px 0px #000; margin-bottom: 1rem;">
+                ✅ {f_count} TARGETS LOCKED! READY FOR SLICING!
+            </div>
+            """, unsafe_allow_html=True)
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("💾 SAVE TARGETS", use_container_width=True, type="primary", key="save_main_onboard"):
+                    docs_dir = ensure_documents_directory()
+                    saved = 0
+                    for f in uploaded_files_main:
+                        file_path = docs_dir / f.name
+                        if not file_path.exists():
+                            with open(file_path, "wb") as pf:
+                                pf.write(f.getbuffer())
+                            saved += 1
+                    if saved > 0:
+                        st.success(f"✅ Saved {saved} files!")
+                        st.session_state.documents_processed = False
+                        st.rerun()
+            with col2:
+                if st.button("🔄 PROCESS MISSION", use_container_width=True, type="primary", key="process_main_onboard"):
+                    # Save first
+                    docs_dir = ensure_documents_directory()
+                    for f in uploaded_files_main:
+                        file_path = docs_dir / f.name
+                        if not file_path.exists():
+                            with open(file_path, "wb") as pf:
+                                pf.write(f.getbuffer())
+                    if process_documents():
+                        st.session_state.uploaded_files_shared = None
+                        st.rerun()
         return
     
     # CASE 2: RETURNING USER (Pro Dashboard)
@@ -1048,6 +1117,52 @@ def show_home_page():
     with col5:
         if st.button("📊 ANALYTICS", use_container_width=True, key="dash_analytics"):
             st.session_state.current_page = "Analytics"; st.rerun()
+            
+    # Add Mission Portal to Command Center for completeness
+    st.markdown("<br>", unsafe_allow_html=True)
+    with st.expander("🛠️ ARSENAL PORTAL (UPLOAD & MANAGE)", expanded=False):
+        uploaded_files_dash = st.file_uploader(
+            "📎 Add more intel to your arsenal",
+            type=['pdf', 'docx', 'doc', 'txt'],
+            accept_multiple_files=True,
+            key="dash_uploader",
+            label_visibility="collapsed"
+        )
+        if uploaded_files_dash:
+            st.session_state.uploaded_files_shared = uploaded_files_dash
+            f_count = len(uploaded_files_dash)
+            st.markdown(f"""
+            <div style="background: #A80000; color: white; padding: 10px; border: 3px solid #000; text-align: center; font-family: 'Bangers'; transform: rotate(1deg); box-shadow: 5px 5px 0px #000; margin-bottom: 1rem;">
+                ✅ {f_count} NEW TARGETS DETECTED!
+            </div>
+            """, unsafe_allow_html=True)
+            
+            c1, c2 = st.columns(2)
+            with c1:
+                if st.button("💾 SAVE NEW INTEL", use_container_width=True, type="primary", key="save_dash"):
+                    docs_dir = ensure_documents_directory()
+                    saved = 0
+                    for f in uploaded_files_dash:
+                        file_path = docs_dir / f.name
+                        if not file_path.exists():
+                            with open(file_path, "wb") as pf:
+                                pf.write(f.getbuffer())
+                            saved += 1
+                    if saved > 0:
+                        st.success(f"✅ Saved {saved} files!")
+                        st.session_state.documents_processed = False
+                        st.rerun()
+            with c2:
+                if st.button("🔄 RE-PROCESS MISSION", use_container_width=True, type="primary", key="process_dash"):
+                    docs_dir = ensure_documents_directory()
+                    for f in uploaded_files_dash:
+                        file_path = docs_dir / f.name
+                        if not file_path.exists():
+                            with open(file_path, "wb") as pf:
+                                pf.write(f.getbuffer())
+                    if process_documents():
+                        st.session_state.uploaded_files_shared = None
+                        st.rerun()
     
     st.markdown("<br>", unsafe_allow_html=True)
     
@@ -1057,13 +1172,13 @@ def show_home_page():
         st.markdown("<h3 class='designer-header'>📊 MISSION INTEL</h3>", unsafe_allow_html=True)
         c1, c2, c3, c4 = st.columns(4)
         with c1: 
-            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 10px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">TOPICS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_topics"]}</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card-red" style="text-align: center; padding: 1.5rem !important; border-width: 6px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">TOPICS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_topics"]}</p></div>', unsafe_allow_html=True)
         with c2: 
-            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 10px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">CARDS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_flashcards"]}</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card-red" style="text-align: center; padding: 1.5rem !important; border-width: 6px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">CARDS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_flashcards"]}</p></div>', unsafe_allow_html=True)
         with c3: 
-            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 10px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">QUIZZES</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_quizzes"]}</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card-red" style="text-align: center; padding: 1.5rem !important; border-width: 6px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">QUIZZES</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_quizzes"]}</p></div>', unsafe_allow_html=True)
         with c4: 
-            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 10px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">WIN RATE</h4><p style="font-size: 2rem; font-family: Bangers; color: #28a745; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["revision_stats"]["completion_rate"]:.1f}%</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card-red" style="text-align: center; padding: 1.5rem !important; border-width: 6px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">WIN RATE</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["revision_stats"]["completion_rate"]:.1f}%</p></div>', unsafe_allow_html=True)
 
     st.divider()
 
@@ -1090,8 +1205,8 @@ def show_home_page():
                             <p style="color: #fff; font-size: 0.9rem;"><b>Q:</b> {fs['question']}</p>
                             <hr style="margin: 5px 0; border-color: #333;">
                             <p style="color: #aaa; font-size: 0.85rem;"><b>A:</b> {fs['answer']}</p>
-                        </div>
-                        """, unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
             
             if p_result.get('quiz_samples'):
                 with st.expander("📝 SAMPLE CHALLENGES", expanded=False):
@@ -1099,8 +1214,8 @@ def show_home_page():
                         st.markdown(f"""
                         <div style="background: #111; padding: 1rem; border-left: 4px solid #fff; margin-bottom: 10px; border-radius: 0px;">
                             <p style="color: #fff; font-size: 0.9rem;">{qs['question']}</p>
-                        </div>
-                        """, unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
 
         # 4. Detailed Extracted Intel (Chunks)
         st.markdown("<br>", unsafe_allow_html=True)
@@ -1195,9 +1310,9 @@ def show_flashcards_page():
         for i, card in enumerate(st.session_state.flashcards):
             with st.container():
                 st.markdown(f"""
-                <div class="designer-card" style="transform: rotate({(i%2)*0.5 - 0.25}deg); border-width: 12px !important; padding: 2rem !important; margin-bottom: 1rem !important;">
+                <div class="designer-card-red" style="transform: rotate({(i%2)*0.5 - 0.25}deg); border-width: 8px !important; padding: 2rem !important; margin-bottom: 1rem !important;">
                     <div style="position: relative; z-index: 10;">
-                        <h4 class="designer-header">CARD #{i+1} — {card.get('difficulty', 'medium').upper()}</h4>
+                        <h4 class="designer-header" style="font-size: 1.5rem !important; padding: 5px 15px !important;">CARD #{i+1} — {card.get('difficulty', 'medium').upper()}</h4>
                         <p style="font-size: 1.8rem; font-weight: 900; margin: 20px 0; color: #fff; line-height: 1.3; font-family: 'Bangers', cursive !important; text-shadow: 3px 3px 0px #000; letter-spacing: 1px;">Q: {card['question']}</p>
                     </div>
                 </div>
@@ -1254,7 +1369,7 @@ def show_quizzes_page():
         
         for i, q in enumerate(st.session_state.quizzes):
             st.markdown(f"""
-            <div class="designer-card" style="margin-bottom: 0px; border-bottom: none; transform: rotate({(i%2)*-0.3}deg); border-width: 12px !important; padding: 2rem !important;">
+            <div class="designer-card-red" style="margin-bottom: 0px; border-bottom: none; transform: rotate({(i%2)*-0.3}deg); border-width: 8px !important; padding: 2rem !important;">
                 <div style="position: relative; z-index: 10;">
                     <h4 class="designer-header" style="font-size: 1.5rem !important; padding: 5px 15px !important;">QUESTION #{i+1}</h4>
                     <p style="font-size: 1.8rem; font-weight: 900; margin-top: 15px; color: #fff; line-height: 1.3; font-family: 'Bangers', cursive !important; text-shadow: 3px 3px 0px #000; letter-spacing: 1px;">{q['question']}</p>
@@ -1364,6 +1479,126 @@ def show_quizzes_page():
                 st.rerun()
     else:
         st.info("Click 'INITIATE QUIZ' to create a quiz from your arsenal!")
+    
+    # Display quiz
+    if st.session_state.quizzes:
+        st.markdown(f'<h3 class="designer-header">📋 {len(st.session_state.quizzes)} CHALLENGES STANDING BETWEEN YOU AND VICTORY</h3>', unsafe_allow_html=True)
+        
+        csv_data = st.session_state.agent_controller.quiz_agent.export_to_csv(st.session_state.quizzes)
+        st.download_button(label="📥 DOWNLOAD MISSION DEBRIEF (CSV)", data=csv_data, file_name="quiz_questions.csv", mime="text/csv", use_container_width=True)
+        
+        for i, q in enumerate(st.session_state.quizzes):
+            st.markdown(f"""
+            <div class="designer-card-red" style="margin-bottom: 0px; border-bottom: none; transform: rotate({(i%2)*-0.3}deg); border-width: 8px !important; padding: 2rem !important;">
+                <div style="position: relative; z-index: 10;">
+                    <h4 class="designer-header" style="font-size: 1.5rem !important; padding: 5px 15px !important;">QUESTION #{i+1}</h4>
+                    <p style="font-size: 1.8rem; font-weight: 900; margin-top: 15px; color: #fff; line-height: 1.3; font-family: 'Bangers', cursive !important; text-shadow: 3px 3px 0px #000; letter-spacing: 1px;">{q['question']}</p>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            # Options in a stylish sub-container
+            st.markdown(f"""
+            <div class="designer-card" style="margin-top: -5px; border-top: 6px solid #fff; background: #080808 !important; padding: 2rem !important; border-width: 12px !important; box-shadow: 10px 10px 0px #000 !important; transform: rotate({(i%2)*0.2}deg);">
+            """, unsafe_allow_html=True)
+            
+            selected = st.radio(
+                f"Options for Q{i+1}:",
+                q['options'],
+                key=f"quiz_q{i}",
+                label_visibility="collapsed"
+            )
+            st.session_state.quiz_answers[i] = q['options'].index(selected) if selected in q['options'] else -1
+            st.markdown('</div><div style="height: 30px;"></div>', unsafe_allow_html=True)
+        
+        # Persistence for quiz results
+        if 'quiz_submitted' not in st.session_state:
+            st.session_state.quiz_submitted = False
+        if 'quiz_result' not in st.session_state:
+            st.session_state.quiz_result = None
+
+        if not st.session_state.quiz_submitted:
+            if st.button("✅ SUBMIT MISSION INTEL", type="primary", use_container_width=True):
+                with st.spinner("Analyzing your answers... trying not to laugh..."):
+                    try:
+                        q_result = st.session_state.agent_controller.evaluate_quiz(st.session_state.quizzes, st.session_state.quiz_answers)
+                        st.session_state.quiz_result = q_result
+                        st.session_state.quiz_submitted = True
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"⚠️ Tactical Error during evaluation: {e}")
+                        logger.exception("Quiz evaluation failed")
+        
+        if st.session_state.quiz_submitted and st.session_state.quiz_result:
+            q_result = st.session_state.quiz_result
+            
+            st.markdown("""
+            <div class="designer-card" style="text-align: center; border-width: 6px;">
+                <h1 class="designer-header" style="font-size: 3rem; border: none; margin: 0;">📊 MISSION RESULTS</h1>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            c1, c2 = st.columns(2)
+            accuracy = (q_result['score']/q_result['total']) * 100 if q_result['total'] > 0 else 0
+            
+            with c1: 
+                st.markdown(f"""
+                <div class="designer-card" style="text-align: center;">
+                    <h4 class="designer-header" style="font-size: 1.5rem;">SCORE</h4>
+                    <h1 style="font-size: 4rem; color: #28a745; margin: 0;">{q_result['score']}/{q_result['total']}</h1>
+                </div>
+                """, unsafe_allow_html=True)
+            with c2:
+                st.markdown(f"""
+                <div class="designer-card" style="text-align: center;">
+                    <h4 class="designer-header" style="font-size: 1.5rem;">ACCURACY</h4>
+                    <h1 style="font-size: 4rem; color: #fff; margin: 0;">{accuracy:.1f}%</h1>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            if accuracy >= 50:
+                st.success("🔥 MAXIMUM EFFORT! YOU'RE NOT AS DUMB AS YOU LOOK!")
+                if st.session_state.quiz_submitted and not st.session_state.get('strike_triggered', False):
+                    trigger_maximum_effort_strike(queued=False)
+                    st.session_state.strike_triggered = True
+    else:
+                st.error("💀 PATHETIC. MY CHIMICHANGA HAS MORE BRAIN CELLS THAN YOU. TRY AGAIN!")
+            
+            with st.expander("📝 REVIEW MISSION ERRORS", expanded=True):
+                for i, q in enumerate(st.session_state.quizzes):
+                    ans_idx = st.session_state.quiz_answers.get(i, -1)
+                    # Correctly resolve the index (ensure it's an int)
+                    raw_correct = q.get('correct_index', q.get('correct_option', 0))
+                    try:
+                        correct_idx = int(raw_correct)
+                    except:
+                        correct_idx = 0
+                        
+                    is_correct = ans_idx == correct_idx
+                    
+                    color = "#28a745" if is_correct else "#A80000"
+                    
+                    # Safety check for option list length
+                    correct_text = q['options'][correct_idx] if 0 <= correct_idx < len(q['options']) else "N/A"
+                    your_text = q['options'][ans_idx] if 0 <= ans_idx < len(q['options']) else "Not Answered"
+                    
+                    correct_intel_html = f"<p style='color: #28a745;'>Correct Intel: {correct_text}</p>" if not is_correct else ""
+                    st.markdown(f"""
+                    <div style="background: #111; padding: 1.5rem; border-left: 8px solid {color}; margin-bottom: 15px; border-radius: 0px;">
+                        <p style="color: #fff; font-weight: bold;">Q{i+1}: {q['question']}</p>
+                        <p style="color: {'#28a745' if is_correct else '#ffc107'};">Your Intel: {your_text}</p>
+                        {correct_intel_html}
+                        <p style="color: #aaa; font-style: italic; margin-top: 10px;">{q['explanation']}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+            
+            if st.button("🔄 RETAKE MISSION", use_container_width=True):
+                st.session_state.quiz_submitted = False
+                st.session_state.quiz_result = None
+                st.session_state.balloons_triggered = False
+                st.rerun()
+    else:
+        st.info("Click 'INITIATE QUIZ' to create a quiz from your arsenal!")
 
 def show_planner_page():
     """Revision planner page with Designer Comic Style"""
@@ -1387,19 +1622,19 @@ def show_planner_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION TIMELINE CONFIG</h3>', unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
-        with col1:
+    col1, col2 = st.columns(2)
+    with col1:
             exam_date = st.date_input("MISSION DEADLINE (EXAM DATE)", value=None)
-        with col2:
+    with col2:
             study_days = st.slider("TRAINING INTENSITY (DAYS/WEEK)", 3, 7, 5)
-        
+    
         if st.button("📅 INITIATE STRATEGIC BATTLE PLAN", type="primary", use_container_width=True):
             processing_msg = st.info("Calculating optimal learning trajectories... trying not to get distracted by tacos...")
-            plan = st.session_state.agent_controller.create_revision_plan(
-                exam_date.strftime('%Y-%m-%d') if exam_date else None,
-                study_days
-            )
-            processing_msg.empty()
+        plan = st.session_state.agent_controller.create_revision_plan(
+            exam_date.strftime('%Y-%m-%d') if exam_date else None,
+            study_days
+        )
+        processing_msg.empty()
             st.success(f"✅ Strategic Battle Plan ready with {len(plan)} targets identified!")
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
@@ -1459,7 +1694,7 @@ def show_planner_page():
                         with c1:
                             if st.button("🚧 ENGAGE", key=f"prog_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'in_progress')
-                                st.rerun()
+                        st.rerun()
                         with c2:
                             if st.button("🏁 DONE", key=f"comp_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'completed')
@@ -1528,7 +1763,7 @@ def show_chat_page():
         if isinstance(chat, tuple):
             q, a = chat
             s = []
-        else:
+            else:
             q = chat.get('question', '')
             a = chat.get('answer', '')
             s = chat.get('sources', [])
@@ -1544,7 +1779,7 @@ def show_chat_page():
     
     # Input area
     with st.container():
-        st.markdown('<div class="designer-card" style="border-width: 6px;">', unsafe_allow_html=True)
+        st.markdown('<div class="designer-card-red" style="border-width: 6px; padding: 2rem !important;">', unsafe_allow_html=True)
         q_input = st.text_input("💭 INTERROGATE THE SYSTEM (ASK ANYTHING):", placeholder="e.g., Explain the primary directives of the mission...")
         if st.button("🔍 INITIATE INTERROGATION", type="primary", use_container_width=True):
             if q_input:
@@ -1595,8 +1830,8 @@ def show_analytics_page():
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
-        if st.session_state.agent_controller.planner_agent:
-            rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
+    if st.session_state.agent_controller.planner_agent:
+        rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
             st.markdown('<div class="designer-card" style="height: 100%; border-left: 15px solid #28a745;">', unsafe_allow_html=True)
             st.markdown('<h3 class="designer-header">📅 REVISION STRATEGY PROGRESS</h3>', unsafe_allow_html=True)
             st.markdown(f"""
