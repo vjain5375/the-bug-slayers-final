@@ -417,7 +417,7 @@ st.markdown("""
     /* Designer Comic Card - OVERHAULED FOR MAXIMUM DEADPOOL STYLE */
     .designer-card {
         background: #000 !important;
-        border: 18px solid var(--deadpool-red) !important; /* Even thicker red border */
+        border: 15px solid var(--deadpool-red) !important;
         padding: 2.5rem 3rem !important;
         box-shadow: 15px 15px 0px #000 !important;
         margin-bottom: 3.5rem !important;
@@ -427,33 +427,40 @@ st.markdown("""
         /* Outer black stroke */
         outline: 4px solid #000 !important;
         outline-offset: 0px !important;
+        /* Halftone Dot Border Effect */
+        background-image: 
+            linear-gradient(to right, white 4px, transparent 4px),
+            linear-gradient(to bottom, white 4px, transparent 4px),
+            linear-gradient(to left, white 4px, transparent 4px),
+            linear-gradient(to top, white 4px, transparent 4px),
+            radial-gradient(circle at center, rgba(0,0,0,0.8) 2.5px, transparent 2.5px) !important;
+        background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 10px 10px !important;
+        background-position: 0 0, 0 0, 100% 0, 0 100%, center !important;
+        background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, repeat !important;
+        background-origin: border-box !important;
+        background-clip: border-box !important;
     }
 
-    /* White Internal Frame - Now Solid and Sharp */
+    /* White Internal Frame - Solid and Sharp */
     .designer-card::after {
         content: "";
         position: absolute;
-        top: -10px; left: -10px; right: -10px; bottom: -10px;
+        top: -8px; left: -8px; right: -8px; bottom: -8px;
         border: 4px solid #ffffff;
         pointer-events: none;
         z-index: 3;
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
     }
 
-    /* Black Halftone Dots on the Red Border - More Visible */
+    /* Red Halftone Base for Border */
     .designer-card::before {
         content: "";
         position: absolute;
-        top: -18px; left: -18px; right: -18px; bottom: -18px;
-        background-image: radial-gradient(rgba(0,0,0,0.9) 3.5px, transparent 3.5px);
-        background-size: 10px 10px;
-        pointer-events: none;
-        z-index: 2;
-        /* Clip to show only on the 18px border area */
-        clip-path: polygon(
-            0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%,
-            18px 18px, 18px calc(100% - 18px), calc(100% - 18px) calc(100% - 18px), calc(100% - 18px) 18px, 18px 18px
-        );
+        top: -15px; left: -15px; right: -15px; bottom: -15px;
+        background: var(--deadpool-red) !important;
+        background-image: radial-gradient(rgba(0,0,0,0.6) 2.5px, transparent 2.5px) !important;
+        background-size: 10px 10px !important;
+        z-index: -1;
+        border: 4px solid #000;
     }
 
     .designer-header {
@@ -1339,13 +1346,13 @@ def show_home_page():
         st.markdown("<h3 class='designer-header'>📊 MISSION INTEL</h3>", unsafe_allow_html=True)
         c1, c2, c3, c4 = st.columns(4)
         with c1: 
-            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 8px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">TOPICS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0;">{stats["total_topics"]}</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 10px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">TOPICS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_topics"]}</p></div>', unsafe_allow_html=True)
         with c2: 
-            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 8px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">CARDS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0;">{stats["total_flashcards"]}</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 10px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">CARDS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_flashcards"]}</p></div>', unsafe_allow_html=True)
         with c3: 
-            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 8px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">QUIZZES</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0;">{stats["total_quizzes"]}</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 10px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">QUIZZES</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_quizzes"]}</p></div>', unsafe_allow_html=True)
         with c4: 
-            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 8px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">WIN RATE</h4><p style="font-size: 2rem; font-family: Bangers; color: #28a745; margin: 0;">{stats["revision_stats"]["completion_rate"]:.1f}%</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card" style="text-align: center; padding: 1.5rem !important; border-width: 10px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">WIN RATE</h4><p style="font-size: 2rem; font-family: Bangers; color: #28a745; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["revision_stats"]["completion_rate"]:.1f}%</p></div>', unsafe_allow_html=True)
 
     st.divider()
 
@@ -1478,19 +1485,20 @@ def show_flashcards_page():
         for i, card in enumerate(st.session_state.flashcards):
             with st.container():
                 st.markdown(f"""
-                <div class="designer-card" style="transform: rotate({(i%2)*0.5 - 0.25}deg);">
+                <div class="designer-card" style="transform: rotate({(i%2)*0.5 - 0.25}deg); border-width: 12px !important; padding: 2rem !important; margin-bottom: 1rem !important;">
                     <div style="position: relative; z-index: 10;">
-                        <h4 class="designer-header">CARD #{i+1} — {card.get('difficulty', 'medium').upper()}</h4>
-                        <p style="font-size: 1.8rem; font-weight: 900; margin: 25px 0; color: #fff; line-height: 1.3; font-family: 'Bangers', cursive !important; text-shadow: 3px 3px 0px #000; letter-spacing: 1px;">Q: {card['question']}</p>
+                        <h4 class="designer-header" style="font-size: 1.5rem !important; padding: 5px 15px !important;">CARD #{i+1} — {card.get('difficulty', 'medium').upper()}</h4>
+                        <p style="font-size: 1.8rem; font-weight: 900; margin: 20px 0; color: #fff; line-height: 1.3; font-family: 'Bangers', cursive !important; text-shadow: 3px 3px 0px #000; letter-spacing: 1px;">Q: {card['question']}</p>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
                 with st.expander("👀 REVEAL CLASSIFIED INTEL (ANSWER)"):
                     st.markdown(f"""
-                    <div style="padding: 2.5rem; background: #000; border: 6px solid var(--deadpool-red); outline: 3px solid #fff; outline-offset: -10px; box-shadow: 15px 15px 0px #000; margin-top: 10px;">
-                        <p style="font-size: 1.4rem; color: #fff; font-family: 'Oswald', sans-serif; line-height: 1.6; font-weight: bold;">{card['answer']}</p>
+                    <div class="designer-card" style="padding: 2rem !important; background: #080808 !important; border: 8px solid var(--deadpool-red) !important; outline: 4px solid #fff !important; margin-top: 5px; box-shadow: 10px 10px 0px #000 !important;">
+                        <p style="font-size: 1.4rem; color: #fff; font-family: 'Oswald', sans-serif; line-height: 1.6; font-weight: bold; margin: 0;">{card['answer']}</p>
                     </div>
                     """, unsafe_allow_html=True)
+                st.markdown('<div style="height: 30px;"></div>', unsafe_allow_html=True)
     else:
         st.info("Click 'GENERATE' to create flashcards from your study materials!")
 
@@ -1537,16 +1545,19 @@ def show_quizzes_page():
         
         for i, q in enumerate(st.session_state.quizzes):
             st.markdown(f"""
-            <div class="designer-card" style="margin-bottom: 0px; border-bottom: none; transform: rotate({(i%2)*-0.3}deg);">
+            <div class="designer-card" style="margin-bottom: 0px; border-bottom: none; transform: rotate({(i%2)*-0.3}deg); border-width: 12px !important; padding: 2rem !important;">
                 <div style="position: relative; z-index: 10;">
-                    <h4 class="designer-header">QUESTION #{i+1}</h4>
+                    <h4 class="designer-header" style="font-size: 1.5rem !important; padding: 5px 15px !important;">QUESTION #{i+1}</h4>
                     <p style="font-size: 1.8rem; font-weight: 900; margin-top: 15px; color: #fff; line-height: 1.3; font-family: 'Bangers', cursive !important; text-shadow: 3px 3px 0px #000; letter-spacing: 1px;">{q['question']}</p>
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
-            # Options in a sub-container
-            st.markdown('<div class="designer-card" style="margin-top: 0px; border-top: 6px solid #fff; background: #000 !important; padding: 2.5rem !important;">', unsafe_allow_html=True)
+            # Options in a stylish sub-container
+            st.markdown(f"""
+            <div class="designer-card" style="margin-top: -5px; border-top: 6px solid #fff; background: #080808 !important; padding: 2rem !important; border-width: 12px !important; box-shadow: 10px 10px 0px #000 !important; transform: rotate({(i%2)*0.2}deg);">
+            """, unsafe_allow_html=True)
+            
             selected = st.radio(
                 f"Options for Q{i+1}:",
                 q['options'],
@@ -1554,7 +1565,7 @@ def show_quizzes_page():
                 label_visibility="collapsed"
             )
             st.session_state.quiz_answers[i] = q['options'].index(selected) if selected in q['options'] else -1
-            st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('</div><div style="height: 30px;"></div>', unsafe_allow_html=True)
         
         # Persistence for quiz results
         if 'quiz_submitted' not in st.session_state:
