@@ -193,6 +193,11 @@ st.markdown("""
     .designer-card-red > * {
         position: relative;
         z-index: 1;
+        color: #fff !important; /* Force all direct children to white text */
+    }
+    
+    .designer-card-red h1, .designer-card-red h2, .designer-card-red h3, .designer-card-red h4, .designer-card-red p, .designer-card-red span {
+        color: #fff !important;
     }
 
     /* Chat Bubbles - COMIC BOOK STYLE */
@@ -1190,7 +1195,7 @@ def show_home_page():
         st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=350)
         
         # Arsenal Portal (Upload Zone)
-        st.markdown("""
+    st.markdown("""
         <div class="sexy-drop-zone">
             <div class="tactical-border"></div>
             <div class="command-center">
@@ -1203,9 +1208,9 @@ def show_home_page():
                 <p style="font-family: 'Bangers'; font-size: 2.2rem; color: #fff; letter-spacing: 3px; margin: 1.5rem 0; text-shadow: 3px 3px 0px #A80000;">DROP YOUR BRAIN JUICE HERE!</p>
                 <div class="moving-danger-stripes"></div>
             </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
+    </div>
+    """, unsafe_allow_html=True)
+    
         uploaded_files_main = st.file_uploader(
             "📎 Choose files to upload",
             type=['pdf', 'docx', 'doc', 'txt'],
@@ -1226,32 +1231,32 @@ def show_home_page():
             """, unsafe_allow_html=True)
             
             col1, col2 = st.columns(2)
-            with col1:
+        with col1:
                 if st.button("💾 SAVE TARGETS", use_container_width=True, type="primary", key="save_main_onboard"):
-                    docs_dir = ensure_documents_directory()
-                    saved = 0
+                docs_dir = ensure_documents_directory()
+                saved = 0
                     for f in uploaded_files_main:
                         file_path = docs_dir / f.name
-                        if not file_path.exists():
+                    if not file_path.exists():
                             with open(file_path, "wb") as pf:
                                 pf.write(f.getbuffer())
-                            saved += 1
-                    if saved > 0:
+                        saved += 1
+                if saved > 0:
                         st.success(f"✅ Saved {saved} files!")
-                        st.session_state.documents_processed = False
-                        st.rerun()
-            with col2:
+                    st.session_state.documents_processed = False
+                    st.rerun()
+        with col2:
                 if st.button("🔄 PROCESS MISSION", use_container_width=True, type="primary", key="process_main_onboard"):
                     # Save first
-                    docs_dir = ensure_documents_directory()
+                docs_dir = ensure_documents_directory()
                     for f in uploaded_files_main:
                         file_path = docs_dir / f.name
-                        if not file_path.exists():
+                    if not file_path.exists():
                             with open(file_path, "wb") as pf:
                                 pf.write(f.getbuffer())
-                    if process_documents():
+                if process_documents():
                         st.session_state.uploaded_files_shared = None
-                        st.rerun()
+                    st.rerun()
         return
     
     # CASE 2: RETURNING USER (Pro Dashboard)
@@ -1259,10 +1264,10 @@ def show_home_page():
     
     # 1. High-Impact Quick Access Grid
     col1, col2, col3 = st.columns(3)
-    with col1:
+                with col1:
         if st.button("📇 MISSION CARDS", use_container_width=True, key="dash_flash"):
             st.session_state.current_page = "Flashcards"; st.rerun()
-    with col2:
+                with col2:
         if st.button("📝 TACTICAL QUIZ", use_container_width=True, key="dash_quiz"):
             st.session_state.current_page = "Quizzes"; st.rerun()
     with col3:
@@ -1298,9 +1303,9 @@ def show_home_page():
             st.markdown(f"""
             <div style="background: var(--deadpool-red); color: white; padding: 15px; border: 4px solid #fff; text-align: center; font-family: 'Bangers'; transform: rotate(1deg); box-shadow: 8px 8px 0px #000; margin: 1rem 0;">
                 ✅ {f_count} NEW TARGETS DETECTED! PREPARE TO SLICE!
-            </div>
-            """, unsafe_allow_html=True)
-            
+        </div>
+        """, unsafe_allow_html=True)
+        
             c1, c2 = st.columns(2)
             with c1:
                 if st.button("💾 LOCK & LOAD", use_container_width=True, type="primary", key="save_dash"):
@@ -1399,7 +1404,7 @@ def show_home_page():
                         <p style="color: #fff; font-family: 'Oswald'; font-size: 1rem; line-height: 1.5; white-space: pre-wrap;">{chunk.get('text', '')}</p>
                     </div>
                     """, unsafe_allow_html=True)
-        else:
+                    else:
             st.info("No detailed chunks found. Processing might have failed.")
 
     # 5. Pro Tips with Deadpool Flavor
@@ -1439,9 +1444,9 @@ def show_flashcards_page():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">ARSENAL CONFIGURATION</h3>', unsafe_allow_html=True)
         col1, col2, col3 = st.columns([2, 2, 1])
-        with col1:
+    with col1:
             num_flashcards = st.slider("CARD QUANTITY", 5, 30, value=st.session_state.num_flashcards, key="flashcard_slider")
-        with col2:
+    with col2:
             difficulty_mix_label = st.selectbox(
                 "DIFFICULTY MIX",
                 ["Easy + Medium", "Medium + Hard", "Easy + Medium + Hard"],
@@ -1454,9 +1459,9 @@ def show_flashcards_page():
             if st.button("🔄 GENERATE ARSENAL", use_container_width=True, type="primary"):
                 processing_msg = st.info("Deadpool is thinking (mostly about tacos and world peace... nah, just tacos)...")
                 flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards, difficulty_mix=difficulty_mix)
-                processing_msg.empty()
-                st.session_state.flashcards = flashcards
-                st.rerun()
+            processing_msg.empty()
+            st.session_state.flashcards = flashcards
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Load existing flashcards
@@ -1516,21 +1521,21 @@ def show_quizzes_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION BRIEFING CONFIG</h3>', unsafe_allow_html=True)
-        col1, col2, col3 = st.columns([2, 2, 1])
-        with col1:
+    col1, col2, col3 = st.columns([2, 2, 1])
+    with col1:
             difficulty = st.selectbox("INTEL DIFFICULTY", ["easy", "medium", "hard"], index=1)
-        with col2:
+    with col2:
             num_questions = st.slider("TARGET QUESTIONS", 3, 30, value=st.session_state.num_questions, key="quiz_slider")
-        with col3:
+    with col3:
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("🎯 INITIATE QUIZ", use_container_width=True, type="primary"):
                 processing_msg = st.info("Drafting questions... mostly about you failing... and maybe some tacos...")
                 questions = st.session_state.agent_controller.generate_quiz(difficulty, num_questions, True)
-                processing_msg.empty()
+            processing_msg.empty()
                 if questions:
-                    st.session_state.quizzes = questions
-                    st.session_state.quiz_answers = {}
-                    st.rerun()
+            st.session_state.quizzes = questions
+            st.session_state.quiz_answers = {}
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Display quiz
@@ -1738,7 +1743,7 @@ def show_quizzes_page():
                 if st.session_state.quiz_submitted and not st.session_state.get('strike_triggered', False):
                     trigger_maximum_effort_strike(queued=False)
                     st.session_state.strike_triggered = True
-            else:
+    else:
                 st.error("💀 PATHETIC. MY CHIMICHANGA HAS MORE BRAIN CELLS THAN YOU. TRY AGAIN!")
             
             with st.expander("📝 REVIEW MISSION ERRORS", expanded=True):
@@ -1799,19 +1804,19 @@ def show_planner_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION TIMELINE CONFIG</h3>', unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
-        with col1:
+    col1, col2 = st.columns(2)
+    with col1:
             exam_date = st.date_input("MISSION DEADLINE (EXAM DATE)", value=None)
-        with col2:
+    with col2:
             study_days = st.slider("TRAINING INTENSITY (DAYS/WEEK)", 3, 7, 5)
-        
+    
         if st.button("📅 INITIATE STRATEGIC BATTLE PLAN", type="primary", use_container_width=True):
             processing_msg = st.info("Calculating optimal learning trajectories... trying not to get distracted by tacos...")
-            plan = st.session_state.agent_controller.create_revision_plan(
-                exam_date.strftime('%Y-%m-%d') if exam_date else None,
-                study_days
-            )
-            processing_msg.empty()
+        plan = st.session_state.agent_controller.create_revision_plan(
+            exam_date.strftime('%Y-%m-%d') if exam_date else None,
+            study_days
+        )
+        processing_msg.empty()
             st.success(f"✅ Strategic Battle Plan ready with {len(plan)} targets identified!")
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
@@ -1940,7 +1945,7 @@ def show_chat_page():
         if isinstance(chat, tuple):
             q, a = chat
             s = []
-        else:
+            else:
             q = chat.get('question', '')
             a = chat.get('answer', '')
             s = chat.get('sources', [])
@@ -2007,8 +2012,8 @@ def show_analytics_page():
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
-        if st.session_state.agent_controller.planner_agent:
-            rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
+    if st.session_state.agent_controller.planner_agent:
+        rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
             st.markdown('<div class="designer-card" style="height: 100%; border-left: 15px solid #28a745;">', unsafe_allow_html=True)
             st.markdown('<h3 class="designer-header">📅 REVISION STRATEGY PROGRESS</h3>', unsafe_allow_html=True)
             st.markdown(f"""
