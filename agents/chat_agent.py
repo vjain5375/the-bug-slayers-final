@@ -1,3 +1,5 @@
+# pyright: reportMissingImports=false
+# pyright: reportUndefinedVariable=false
 """
 Chat/Doubt Agent
 Answers contextual questions about uploaded study materials

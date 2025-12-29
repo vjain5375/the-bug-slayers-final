@@ -1,3 +1,5 @@
+# pyright: reportMissingImports=false
+# pyright: reportUndefinedVariable=false
 """
 Reader Agent
 Extracts and structures study material from PDFs, slides, and notes

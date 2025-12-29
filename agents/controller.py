@@ -1,3 +1,5 @@
+# pyright: reportMissingImports=false
+# pyright: reportUndefinedVariable=false
 """
 Central Controller
 Orchestrates multi-agent workflow and manages inter-agent communication

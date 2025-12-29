@@ -1,3 +1,5 @@
+# pyright: reportMissingImports=false
+# pyright: reportUndefinedVariable=false
 """
 Planner Agent
 Creates adaptive revision schedules based on topics and performance

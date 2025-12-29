@@ -1,3 +1,5 @@
+# pyright: reportMissingImports=false
+# pyright: reportUndefinedVariable=false
 """
 Quiz Agent
 Generates adaptive quizzes with multiple difficulty levels

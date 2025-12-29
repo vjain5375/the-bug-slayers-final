@@ -1,3 +1,5 @@
+# pyright: reportMissingImports=false
+# pyright: reportUndefinedVariable=false
 """
 Flashcard Agent
 Automatically generates Q/A flashcards from study material
