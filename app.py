@@ -742,9 +742,9 @@ def trigger_maximum_effort_strike(queued=False):
                 const container = document.getElementById("strike-container");
                 if (container) container.remove();
             }}, 6000);
-        </script>
+    </script>
     """, unsafe_allow_html=True)
-
+    
 def process_documents():
     """Process all documents using Reader Agent"""
     docs_dir = ensure_documents_directory()
@@ -1062,7 +1062,7 @@ DROP YOUR <span style="color: #ffffff !important; font-size: clamp(1.5rem, 6vw, 
 """, unsafe_allow_html=True)
 
     # Custom styling for the file uploader to make it look like part of the portal
-    st.markdown("""
+            st.markdown("""
     <style>
         [data-testid="stFileUploader"] {
             background-color: #000 !important;
@@ -1115,18 +1115,18 @@ DROP YOUR <span style="color: #ffffff !important; font-size: clamp(1.5rem, 6vw, 
     if 'uploaded_files_shared' not in st.session_state:
         st.session_state.uploaded_files_shared = None
     
-    uploaded_files_main = st.file_uploader(
-        "📎 Choose files to upload",
-        type=['pdf', 'docx', 'doc', 'txt'],
-        accept_multiple_files=True,
-        key="main_uploader",
+        uploaded_files_main = st.file_uploader(
+            "📎 Choose files to upload",
+            type=['pdf', 'docx', 'doc', 'txt'],
+            accept_multiple_files=True,
+            key="main_uploader",
         help="Select one or more study material files (PDF, DOCX, TXT)",
         label_visibility="collapsed"
-    )
+        )
 
-    # Sync with sidebar
-    if uploaded_files_main:
-        st.session_state.uploaded_files_shared = uploaded_files_main
+        # Sync with sidebar
+        if uploaded_files_main:
+            st.session_state.uploaded_files_shared = uploaded_files_main
 
     # Visual status badges
     if uploaded_files_main or st.session_state.uploaded_files_shared:
@@ -1212,44 +1212,6 @@ DROP YOUR <span style="color: #ffffff !important; font-size: clamp(1.5rem, 6vw, 
                 doc_name = Path(doc).name
                 st.markdown(f"📄 <span style='color: #fff; font-size: 1.1rem;'>{doc_name}</span>", unsafe_allow_html=True)
     
-    # Top Navigation Grid - Designer Edition
-    st.markdown("<div style='height: 30px;'></div>", unsafe_allow_html=True)
-    st.markdown("<p style='font-family: \"Bangers\"; font-size: 1.4rem; color: var(--deadpool-red); margin-bottom: 0.2rem; text-shadow: 2px 2px 0px #000;'>🎯 NAVIGATION</p>", unsafe_allow_html=True)
-    
-    nav_options = {
-        "Home": "🏠",
-        "Flashcards": "📇",
-        "Quizzes": "📝",
-        "Revision Planner": "📅",
-        "Chat Assistant": "💬",
-        "Analytics": "📊"
-    }
-    
-    nav_cols = st.columns(6)
-    for idx, (page_name, icon) in enumerate(nav_options.items()):
-        with nav_cols[idx]:
-            is_active = st.session_state.current_page == page_name
-            button_type = "primary" if is_active else "secondary"
-            # Format text: Icon and Name on separate lines, but don't split words
-            button_label = f"{icon}\n{page_name}"
-            
-            # Active Page Indicator (Comic Arrow Style) - Height Matched to Buttons
-            if is_active:
-                st.markdown("""
-                <div style="text-align: center; margin-bottom: 5px; position: relative; z-index: 100;">
-                    <div style="font-size: 3rem; color: white; filter: drop-shadow(0px 6px 4px rgba(0,0,0,0.8)); transform: rotate(90deg) translateX(-5px); display: inline-block; font-weight: 900;">▶</div>
-                </div>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown("<div style='height: 45px;'></div>", unsafe_allow_html=True)
-                
-            nav_button = st.button(button_label, use_container_width=True, key=f"main_nav_{page_name}", type=button_type)
-            if nav_button:
-                st.session_state.current_page = page_name
-                st.rerun()
-    
-    st.markdown("<div style='height: 50px;'></div>", unsafe_allow_html=True)
-    
     # Main Content Area
     if st.session_state.current_page == "Home":
         show_home_page()
@@ -1275,7 +1237,7 @@ def show_home_page():
     """Deadpool-themed Home page with Designer Visuals"""
     
     # Hero Section with Deadpool Action Grid Style - RED/BLACK/WHITE
-    st.markdown("""
+        st.markdown("""
     <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 4rem 1rem; border: 6px solid #000; box-shadow: 12px 12px 0px var(--deadpool-red); text-align: center; margin-bottom: 2rem; position: relative;">
         <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.65);"></div>
         <div style="position: relative; z-index: 2;">
@@ -1291,7 +1253,7 @@ def show_home_page():
         
         # Journey Cards with Designer Style
         col1, col2 = st.columns(2)
-        with col1:
+            with col1:
             st.markdown("""
             <div class="designer-card" style="transform: rotate(-0.5deg);">
                 <h3 class="designer-header" style="font-size: 2rem;">1️⃣ LOAD UP</h3>
@@ -1302,8 +1264,8 @@ def show_home_page():
                 <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'PROCESS'</b>. My agents will slice and dice your text into pure semantic gold.</p>
             </div>
             """, unsafe_allow_html=True)
-        with col2:
-            st.markdown("""
+            with col2:
+        st.markdown("""
             <div class="designer-card" style="transform: rotate(0.5deg);">
                 <h3 class="designer-header" style="font-size: 2rem;">2️⃣ LOCK & LOAD</h3>
                 <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'SAVE'</b> to commit those files to my infinite memory banks.</p>
@@ -1323,8 +1285,8 @@ def show_home_page():
     # CASE 2: RETURNING USER (Pro Dashboard)
     st.markdown("<h2 class='designer-header' style='font-size: 2.5rem;'>⚡ COMMAND CENTER</h2>", unsafe_allow_html=True)
     
-    # 1. High-Impact Quick Access
-    col1, col2, col3, col4 = st.columns(4)
+    # 1. High-Impact Quick Access Grid
+    col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("📇 CARDS", use_container_width=True, key="dash_flash"):
             st.session_state.current_page = "Flashcards"; st.rerun()
@@ -1334,9 +1296,14 @@ def show_home_page():
     with col3:
         if st.button("📅 PLAN", use_container_width=True, key="dash_plan"):
             st.session_state.current_page = "Revision Planner"; st.rerun()
+    
+    col4, col5 = st.columns(2)
     with col4:
-        if st.button("💬 CHAT", use_container_width=True, key="dash_chat"):
+        if st.button("💬 CHAT ASSISTANT", use_container_width=True, key="dash_chat"):
             st.session_state.current_page = "Chat Assistant"; st.rerun()
+    with col5:
+        if st.button("📊 ANALYTICS", use_container_width=True, key="dash_analytics"):
+            st.session_state.current_page = "Analytics"; st.rerun()
     
     st.markdown("<br>", unsafe_allow_html=True)
     
@@ -1441,9 +1408,9 @@ def show_flashcards_page():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">ARSENAL CONFIGURATION</h3>', unsafe_allow_html=True)
         col1, col2, col3 = st.columns([2, 2, 1])
-        with col1:
+    with col1:
             num_flashcards = st.slider("CARD QUANTITY", 5, 30, value=st.session_state.num_flashcards, key="flashcard_slider")
-        with col2:
+    with col2:
             difficulty_mix_label = st.selectbox(
                 "DIFFICULTY MIX",
                 ["Easy + Medium", "Medium + Hard", "Easy + Medium + Hard"],
@@ -1456,10 +1423,10 @@ def show_flashcards_page():
             if st.button("🔄 GENERATE ARSENAL", use_container_width=True, type="primary"):
                 processing_msg = st.info("Deadpool is thinking (mostly about tacos and world peace... nah, just tacos)...")
                 flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards, difficulty_mix=difficulty_mix)
-                processing_msg.empty()
-                st.session_state.flashcards = flashcards
+            processing_msg.empty()
+            st.session_state.flashcards = flashcards
                 trigger_maximum_effort_strike(queued=True)
-                st.rerun()
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Load existing flashcards
@@ -1518,22 +1485,22 @@ def show_quizzes_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION BRIEFING CONFIG</h3>', unsafe_allow_html=True)
-        col1, col2, col3 = st.columns([2, 2, 1])
-        with col1:
+    col1, col2, col3 = st.columns([2, 2, 1])
+    with col1:
             difficulty = st.selectbox("INTEL DIFFICULTY", ["easy", "medium", "hard"], index=1)
-        with col2:
+    with col2:
             num_questions = st.slider("TARGET QUESTIONS", 3, 30, value=st.session_state.num_questions, key="quiz_slider")
-        with col3:
+    with col3:
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("🎯 INITIATE QUIZ", use_container_width=True, type="primary"):
                 processing_msg = st.info("Drafting questions... mostly about you failing... and maybe some tacos...")
                 questions = st.session_state.agent_controller.generate_quiz(difficulty, num_questions, True)
-                processing_msg.empty()
+            processing_msg.empty()
                 if questions:
-                    st.session_state.quizzes = questions
-                    st.session_state.quiz_answers = {}
+            st.session_state.quizzes = questions
+            st.session_state.quiz_answers = {}
                 trigger_maximum_effort_strike(queued=True)
-                st.rerun()
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Display quiz
@@ -1617,7 +1584,7 @@ def show_quizzes_page():
                 if st.session_state.quiz_submitted and not st.session_state.get('strike_triggered', False):
                     trigger_maximum_effort_strike(queued=False)
                     st.session_state.strike_triggered = True
-            else:
+    else:
                 st.error("💀 PATHETIC. MY CHIMICHANGA HAS MORE BRAIN CELLS THAN YOU. TRY AGAIN!")
             
             with st.expander("📝 REVIEW MISSION ERRORS", expanded=True):
@@ -1678,10 +1645,10 @@ def show_planner_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION TIMELINE CONFIG</h3>', unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
-        with col1:
+    col1, col2 = st.columns(2)
+    with col1:
             exam_date = st.date_input("MISSION DEADLINE (EXAM DATE)", value=None)
-        with col2:
+    with col2:
             study_days = st.slider("TRAINING INTENSITY (DAYS/WEEK)", 3, 7, 5)
     
     if st.button("📅 INITIATE STRATEGIC BATTLE PLAN", type="primary", use_container_width=True):
@@ -1718,7 +1685,7 @@ def show_planner_page():
             
             upcoming = st.session_state.agent_controller.planner_agent.get_upcoming_revisions(14)
             if upcoming:
-                st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
                 for i, item in enumerate(upcoming):
                     item_topic = item['topic']
                     item_date = item['date']
@@ -1727,15 +1694,15 @@ def show_planner_page():
                     status_color = "#28a745" if status == 'completed' else "#A80000" if status == 'in_progress' else "#333333"
                     status_icon = "✅" if status == 'completed' else "⚔️" if status == 'in_progress' else "📅"
                     
-                    st.markdown(f"""
+            st.markdown(f"""
                     <div class="designer-card" style="padding: 1.5rem !important; border-width: 10px !important; margin-bottom: 0px !important; transform: rotate({(i%2)*0.3}deg);">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <h4 class="designer-header" style="margin: 0; color: white; font-size: 1.6rem;">{status_icon} {item_date} — {item_topic}</h4>
                             <span style="background: {status_color}; color: white; padding: 0.5rem 1.5rem; border: 3px solid #fff; font-family: 'Bangers'; font-size: 1.2rem; box-shadow: 5px 5px 0px #000; transform: skew(-10deg);">{status.upper()}</span>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
-                    
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+            
                     st.markdown(f'<div class="designer-card" style="margin-top: -10px; border-top: 4px solid #fff; padding: 2rem !important; border-width: 10px !important; background: #080808 !important;">', unsafe_allow_html=True)
                     col_info, col_actions = st.columns([3, 2])
                     
@@ -1779,7 +1746,7 @@ def show_planner_page():
                             for j, card in enumerate(cards):
                                 with st.expander(f"CARD #{j+1}"):
                                     st.markdown(f"<p style='color:#fff;'><strong>Q:</strong> {card['question']}</p><hr style='border-color:#444;'><p style='color:#fff;'><strong>A:</strong> {card['answer']}</p>", unsafe_allow_html=True)
-                        else:
+    else:
                             questions = st.session_state.agent_controller.generate_quiz('medium', 3, topic=item_topic)
                             for j, q in enumerate(questions):
                                 st.markdown(f"<p style='color:#fff; font-weight:bold;'>Q{j+1}: {q['question']}</p>", unsafe_allow_html=True)
@@ -1797,7 +1764,7 @@ def show_planner_page():
                             st.rerun()
                         st.markdown('</div>', unsafe_allow_html=True)
                     st.markdown('</div>', unsafe_allow_html=True)
-                st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
     except Exception:
         logger.error("Error in planner")
         st.info("Initiate a Strategic Battle Plan to track your mission progress!")
@@ -1889,8 +1856,8 @@ def show_analytics_page():
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
-        if st.session_state.agent_controller.planner_agent:
-            rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
+    if st.session_state.agent_controller.planner_agent:
+        rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
             st.markdown('<div class="designer-card" style="height: 100%; border-left: 15px solid #28a745;">', unsafe_allow_html=True)
             st.markdown('<h3 class="designer-header">📅 REVISION STRATEGY PROGRESS</h3>', unsafe_allow_html=True)
             st.markdown(f"""
