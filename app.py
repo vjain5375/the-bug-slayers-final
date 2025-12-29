@@ -58,7 +58,7 @@ def cleanup_session():
             except: pass
             
     # 3. Reset Vector Store
-    if st.session_state.vector_store:
+    if 'vector_store' in st.session_state and st.session_state.vector_store:
         try:
             st.session_state.vector_store.client.delete_collection("study_materials")
             st.session_state.vector_store = VectorStore() # Re-init
