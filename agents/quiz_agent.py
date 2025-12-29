@@ -80,10 +80,10 @@ class QuizAgent:
             prompt = f"""You are a high-quality educational quiz generator. Your goal is to create exactly {num_questions} diverse, challenging, and meaningful multiple-choice questions based on the provided study material.
 
 Study Material Context:
-{context[:15000]}  # Increased context size
+{context[:15000]}
 
 Instructions:
-1. Create EXACTLY {num_questions} multiple-choice questions with {difficulty} difficulty. This is a strict requirement.
+1. Create EXACTLY {num_questions} multiple-choice questions with {difficulty} difficulty. This is a strict requirement. If the context is limited, generate multiple distinct questions from the same sections but focusing on different details.
 2. {difficulty_guidance.get(difficulty, '')}
 3. VARIETY IS CRITICAL: Do NOT use the same question pattern (like "Which of the following is true...") for every question. 
 4. DO NOT use section headers or repetitive phrases as options. Each option must be a meaningful, distinct statement or value.
@@ -261,59 +261,74 @@ Only return the JSON array, no additional text or markdown formatting."""
     def _simple_quiz_generation(self, text_chunks: List[Dict], difficulty: str, num_questions: int) -> List[Dict]:
         """Simple fallback quiz generation when LLM is unavailable"""
         questions = []
-        
+        if not text_chunks:
+            return []
+            
         # Mix up the chunks for variety
         shuffled_chunks = list(text_chunks)
         random.shuffle(shuffled_chunks)
         
-        for chunk in shuffled_chunks[:num_questions]:
-            text = chunk.get('text', '').strip()
-            topic = chunk.get('metadata', {}).get('topic', 'General')
-            
-            if not text:
-                continue
+        # Loop until we reach the target number of questions
+        attempts = 0
+        max_attempts = num_questions * 2
+        
+        while len(questions) < num_questions and attempts < max_attempts:
+            for chunk in shuffled_chunks:
+                if len(questions) >= num_questions:
+                    break
+                    
+                attempts += 1
+                text = chunk.get('text', '').strip()
+                topic = chunk.get('metadata', {}).get('topic', 'General')
+                
+                if not text:
+                    continue
 
-            # Better fallback: try to find a meaningful sentence for a question
-            sentences = [s.strip() for s in text.split('.') if len(s.strip()) > 30]
-            if len(sentences) >= 2:
-                # Use a random sentence (except the first one maybe) for the question content
-                target_idx = random.randint(0, len(sentences) - 2)
-                context_sentence = sentences[target_idx]
-                fact_sentence = sentences[target_idx + 1]
+                # Better fallback: try to find a meaningful sentence for a question
+                sentences = [s.strip() for s in text.split('.') if len(s.strip()) > 30]
                 
-                question = f"Based on the section about {topic}, what is mentioned regarding: '{context_sentence[:60]}...'?"
-                correct_answer = fact_sentence[:120]
+                # If we've already used this chunk, try to find a different sentence
+                start_sentence_idx = (attempts // len(shuffled_chunks)) % max(1, len(sentences))
                 
-                # Create more varied dummy distractors
-                distractors = [
-                    f"A concept unrelated to {topic}",
-                    "The opposite of what was described in the text",
-                    f"A different aspect of {topic} not mentioned in this specific context"
-                ]
-                
-                options = [correct_answer] + distractors
-                random.shuffle(options)
-                
-                questions.append({
-                    'question': question,
-                    'options': options,
-                    'correct_answer': correct_answer,
-                    'correct_index': options.index(correct_answer),
-                    'topic': topic,
-                    'difficulty': difficulty,
-                    'explanation': f"This information is directly stated in the study material for {topic}."
-                })
-            else:
-                # Ultimate fallback for very short chunks
-                questions.append({
-                    'question': f"What is the main focus of the following text: '{text[:50]}...'?",
-                    'options': [topic, "Another topic", "General knowledge", "Not mentioned"],
-                    'correct_answer': topic,
-                    'correct_index': 0,
-                    'topic': topic,
-                    'difficulty': difficulty,
-                    'explanation': "The topic is derived from the metadata of the provided text chunk."
-                })
+                if len(sentences) >= 2:
+                    # Use a random sentence for the question content
+                    fact_idx = (start_sentence_idx + 1) % len(sentences)
+                    context_sentence = sentences[start_sentence_idx]
+                    fact_sentence = sentences[fact_idx]
+                    
+                    question = f"Based on the section about {topic}, what is mentioned regarding: '{context_sentence[:60]}...'?"
+                    correct_answer = fact_sentence[:120]
+                    
+                    # Create more varied dummy distractors
+                    distractors = [
+                        f"A concept unrelated to {topic}",
+                        "The opposite of what was described in the text",
+                        f"A different aspect of {topic} not mentioned in this specific context"
+                    ]
+                    
+                    options = [correct_answer] + distractors
+                    random.shuffle(options)
+                    
+                    questions.append({
+                        'question': question,
+                        'options': options,
+                        'correct_answer': correct_answer,
+                        'correct_index': options.index(correct_answer),
+                        'topic': topic,
+                        'difficulty': difficulty,
+                        'explanation': f"This information is directly stated in the study material for {topic}."
+                    })
+                elif len(text) > 50:
+                    # Ultimate fallback for very short chunks
+                    questions.append({
+                        'question': f"What is the main focus of the following text: '{text[:50]}...'?",
+                        'options': [topic, "A related detail", "General knowledge", "None of these"],
+                        'correct_answer': topic,
+                        'correct_index': 0,
+                        'topic': topic,
+                        'difficulty': difficulty,
+                        'explanation': "The topic is derived from the metadata of the provided text chunk."
+                    })
         
         return questions[:num_questions]
     

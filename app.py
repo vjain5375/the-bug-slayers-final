@@ -506,6 +506,8 @@ st.markdown("""
 def initialize_components():
     """Initialize vector store and agent controller with robust error handling"""
     api_key = load_api_key()
+    if api_key:
+        os.environ["GOOGLE_API_KEY"] = api_key
     
     if st.session_state.vector_store is None:
         # Show static loading message
@@ -546,10 +548,13 @@ def initialize_components():
             st.session_state.agent_controller = AgentController(st.session_state.vector_store)
 
 def load_api_key():
-    """Load API key from environment"""
+    """Load API key from environment or Streamlit secrets"""
     from dotenv import load_dotenv
     load_dotenv()
-    return os.getenv("GOOGLE_API_KEY")
+    key = os.getenv("GOOGLE_API_KEY")
+    if not key and "GOOGLE_API_KEY" in st.secrets:
+        key = st.secrets["GOOGLE_API_KEY"]
+    return key
 
 def ensure_documents_directory():
     """Ensure the documents directory exists"""
@@ -1519,12 +1524,14 @@ def show_quizzes_page():
         if 'quiz_result' not in st.session_state:
             st.session_state.quiz_result = None
 
-        if st.button("✅ SUBMIT MISSION INTEL", type="primary", use_container_width=True) or st.session_state.quiz_submitted:
-            if not st.session_state.quiz_submitted:
+        if not st.session_state.quiz_submitted:
+            if st.button("✅ SUBMIT MISSION INTEL", type="primary", use_container_width=True):
                 q_result = st.session_state.agent_controller.evaluate_quiz(st.session_state.quizzes, st.session_state.quiz_answers)
                 st.session_state.quiz_result = q_result
                 st.session_state.quiz_submitted = True
-            
+                st.rerun()
+        
+        if st.session_state.quiz_submitted and st.session_state.quiz_result:
             q_result = st.session_state.quiz_result
             
             st.markdown("""
