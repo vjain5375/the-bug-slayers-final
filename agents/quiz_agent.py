@@ -50,11 +50,14 @@ class QuizAgent:
         
         # Select chunks more intelligently - sample across the document if many chunks
         selected_chunks = []
-        if len(text_chunks) <= 10:
+        # Use more chunks if more questions are requested (approx 1.5 chunks per question)
+        num_chunks_needed = min(max(10, int(num_questions * 1.5)), 25)
+        
+        if len(text_chunks) <= num_chunks_needed:
             selected_chunks = text_chunks
         else:
-            # Sample 10 chunks across the document
-            indices = sorted(random.sample(range(len(text_chunks)), min(10, len(text_chunks))))
+            # Sample across the document
+            indices = sorted(random.sample(range(len(text_chunks)), num_chunks_needed))
             selected_chunks = [text_chunks[i] for i in indices]
 
         context_parts = []
@@ -75,10 +78,10 @@ class QuizAgent:
             prompt = f"""You are a high-quality educational quiz generator. Your goal is to create diverse, challenging, and meaningful multiple-choice questions based on the provided study material.
 
 Study Material Context:
-{context[:6000]}
+{context[:10000]}  # Increased context size
 
 Instructions:
-1. Create exactly {num_questions} multiple-choice questions with {difficulty} difficulty.
+1. Create EXACTLY {num_questions} multiple-choice questions with {difficulty} difficulty. This is a strict requirement.
 2. {difficulty_guidance.get(difficulty, '')}
 3. VARIETY IS CRITICAL: Do NOT use the same question pattern (like "Which of the following is true...") for every question. 
 4. DO NOT use section headers or repetitive phrases as options. Each option must be a meaningful, distinct statement or value.

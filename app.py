@@ -1503,7 +1503,7 @@ def show_quizzes_page():
             with st.expander("📝 REVIEW MISSION ERRORS"):
                 for i, q in enumerate(st.session_state.quizzes):
                     ans_idx = st.session_state.quiz_answers.get(i, -1)
-                    correct_idx = q['correct_option']
+                    correct_idx = q.get('correct_index', q.get('correct_option', 0))
                     is_correct = ans_idx == correct_idx
                     
                     color = "#28a745" if is_correct else "#A80000"
