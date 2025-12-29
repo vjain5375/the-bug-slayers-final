@@ -751,8 +751,9 @@ def main():
     # Deadpool Branding Header - NOW AT THE VERY TOP
     st.markdown("""
     <div style="text-align: center; margin-bottom: 2.5rem; margin-top: 1rem; position: relative; z-index: 100;">
-        <div style="background: #A80000; padding: 10px 35px; border: 6px solid #fff; transform: rotate(-1deg); box-shadow: 12px 12px 0px #000; display: inline-block; max-width: 95%;">
-            <span style="font-family: 'Bangers', cursive !important; font-size: clamp(1.5rem, 8vw, 3.0rem); color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 1.5px; white-space: nowrap;">⚔️ ARSENAL STUDY HUB</span>
+        <div style="background: #A80000; padding: 15px 35px; border: 6px solid #fff; transform: rotate(-1deg); box-shadow: 12px 12px 0px #000; display: inline-block; max-width: 95%; text-align: center;">
+            <div style="font-family: 'Bangers', cursive !important; font-size: 2.8rem; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 2px; line-height: 1; margin-bottom: 5px;">⚔️ ARSENAL</div>
+            <div style="font-family: 'Bangers', cursive !important; font-size: 2.2rem; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 2px; line-height: 1;">STUDY HUB</div>
         </div>
         <br>
         <div style="background: #A80000; color: #ffffff !important; font-family: 'Bangers', cursive !important; font-size: clamp(1rem, 4vw, 1.4rem); padding: 8px 25px; display: inline-block; transform: skew(-10deg); border: 4px solid #fff; margin-top: 20px; box-shadow: 8px 8px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; white-space: nowrap;">
@@ -990,8 +991,9 @@ def main():
 
 <!-- Tactical Header -->
 <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; margin-top: 1rem;">
-    <div style="background: #A80000; padding: 10px 30px; border: 6px solid #fff; transform: rotate(-1.5deg); box-shadow: 12px 12px 0px #000; display: inline-block; max-width: 95%;">
-        <span style="font-family: 'Bangers', cursive !important; font-size: clamp(1.5rem, 10vw, 3.0rem); color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 1.5px; white-space: nowrap;">⚔️ ARSENAL PORTAL</span>
+    <div style="background: #A80000; padding: 15px 35px; border: 6px solid #fff; transform: rotate(-1.5deg); box-shadow: 12px 12px 0px #000; display: inline-block; text-align: center; max-width: 90%;">
+        <div style="font-family: 'Bangers', cursive !important; font-size: 2.8rem; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 2px; line-height: 1; margin-bottom: 5px;">⚔️ ARSENAL</div>
+        <div style="font-family: 'Bangers', cursive !important; font-size: 2.2rem; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 2px; line-height: 1;">PORTAL</div>
     </div>
 </div>
 
