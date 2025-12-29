@@ -634,76 +634,66 @@ if 'session_initialized' not in st.session_state:
     # 3. Mark session as initialized
     st.session_state.session_initialized = True
 
-def trigger_deadpool_balloons(queued=False):
-    """Trigger custom red, black, and white balloons. If queued=True, sets a flag for next render."""
+def trigger_maximum_effort_strike(queued=False):
+    """Trigger a comic-style burst of 'MAXIMUM EFFORT' and 'KAPOW' badges. Light and robust."""
     if queued:
-        st.session_state.balloons_queued = True
+        st.session_state.strike_queued = True
         return
 
-    import random
-    balloons_html = ""
-    # Strictly Red, Black, White
-    colors = ["#A80000", "#000000", "#FFFFFF"] 
-    border_colors = ["#000000", "#A80000", "#000000"]
+    strike_html = ""
+    badges = ["MAXIMUM EFFORT!", "KAPOW!", "SHIK-SHIK!", "CHIMICHANGA!", "BOOM!", "DEADPOOL-APPROVED!"]
     
-    for i in range(50): # Even more balloons!
-        idx = random.randint(0, 2)
-        color = colors[idx]
-        border = border_colors[idx]
-        left = random.randint(0, 95)
-        duration = random.uniform(2.0, 4.0) # Faster and punchier
-        delay = random.uniform(0, 1.2) # Spread them out more
-        size = random.randint(80, 120) # MASSIVE BALLOONS as requested
+    import random
+    for i in range(12):
+        text = random.choice(badges)
+        left = random.randint(10, 85)
+        top = random.randint(15, 80)
+        rotation = random.randint(-20, 20)
+        delay = random.uniform(0, 0.8)
         
-        balloons_html += f"""
-        <div class="deadpool-balloon-instance" style="
+        strike_html += f"""
+        <div class="strike-badge" style="
             left: {left}vw; 
-            animation: floatUpAnim {duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) {delay}s forwards;
-            background: {color};
-            border: 5px solid {border};
-            width: {size}px;
-            height: {size*1.3}px;
-            box-shadow: inset -10px -10px 20px rgba(0,0,0,0.4), 10px 10px 0px rgba(0,0,0,0.2);
+            top: {top}vh; 
+            animation: strikePop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) {delay}s both;
+            transform: rotate({rotation}deg);
         ">
-            <div style="position: absolute; top: 15%; left: 15%; width: 25%; height: 20%; background: rgba(255,255,255,0.3); border-radius: 50%;"></div>
+            {text}
         </div>"""
     
     st.markdown(f"""
         <style>
-            @keyframes floatUpAnim {{
-                0% {{ transform: translateY(0) rotate(0deg); opacity: 1; }}
-                100% {{ transform: translateY(-120vh) rotate(360deg); opacity: 0; }}
+            @keyframes strikePop {{
+                0% {{ transform: scale(0) rotate(-45deg); opacity: 0; }}
+                50% {{ transform: scale(1.2) rotate(10deg); opacity: 1; }}
+                100% {{ transform: scale(1) rotate(var(--rot)); opacity: 0; }}
             }}
-            .deadpool-balloon-instance {{
+            .strike-badge {{
                 position: fixed;
-                bottom: -150px;
-                border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+                padding: 15px 25px;
+                background: var(--deadpool-red);
+                color: white;
+                font-family: 'Bangers', cursive;
+                font-size: 2.2rem;
+                border: 4px solid white;
+                box-shadow: 10px 10px 0px #000;
                 z-index: 999999;
                 pointer-events: none;
-                box-shadow: inset -5px -5px 10px rgba(0,0,0,0.3);
-            }}
-            /* Add a string to the balloon */
-            .deadpool-balloon-instance::after {{
-                content: "";
-                position: absolute;
-                bottom: -20px;
-                left: 50%;
-                width: 2px;
-                height: 20px;
-                background: #666;
+                text-shadow: 3px 3px 0px #000;
+                white-space: nowrap;
             }}
         </style>
-        <div id="balloon-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999999;">
-            {balloons_html}
+        <div id="strike-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 999999;">
+            {strike_html}
         </div>
         <script>
             setTimeout(() => {{
-                const container = document.getElementById("balloon-container");
+                const container = document.getElementById("strike-container");
                 if (container) container.remove();
-            }}, 6000);
-    </script>
+            }}, 4000);
+        </script>
     """, unsafe_allow_html=True)
-    
+
 def process_documents():
     """Process all documents using Reader Agent"""
     docs_dir = ensure_documents_directory()
@@ -743,7 +733,7 @@ def process_documents():
         st.session_state.processing_results = result
         st.session_state.last_processed_signature = signature
         processing_msg.empty()
-        trigger_deadpool_balloons(queued=True)
+        trigger_maximum_effort_strike(queued=True)
         return True
     else:
         processing_msg.empty()
@@ -752,10 +742,10 @@ def process_documents():
 
 def main():
     """Main application"""
-    # Trigger any queued balloons first
-    if st.session_state.get('balloons_queued', False):
-        trigger_deadpool_balloons()
-        st.session_state.balloons_queued = False
+    # Trigger any queued strikes first
+    if st.session_state.get('strike_queued', False):
+        trigger_maximum_effort_strike()
+        st.session_state.strike_queued = False
     
     # Deadpool Branding Header - NOW AT THE VERY TOP
     st.markdown("""
@@ -1415,7 +1405,7 @@ def show_flashcards_page():
                 flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards, difficulty_mix=difficulty_mix)
                 processing_msg.empty()
                 st.session_state.flashcards = flashcards
-                trigger_deadpool_balloons(queued=True)
+                trigger_maximum_effort_strike(queued=True)
                 st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
@@ -1488,8 +1478,8 @@ def show_quizzes_page():
                 if questions:
                     st.session_state.quizzes = questions
                     st.session_state.quiz_answers = {}
-                    trigger_deadpool_balloons(queued=True)
-                    st.rerun()
+                trigger_maximum_effort_strike(queued=True)
+                st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Display quiz
@@ -1565,9 +1555,9 @@ def show_quizzes_page():
             
             if accuracy >= 50:
                 st.success("🔥 MAXIMUM EFFORT! YOU'RE NOT AS DUMB AS YOU LOOK!")
-                if st.session_state.quiz_submitted and not st.session_state.get('balloons_triggered', False):
-                    trigger_deadpool_balloons(queued=False)
-                    st.session_state.balloons_triggered = True
+                if st.session_state.quiz_submitted and not st.session_state.get('strike_triggered', False):
+                    trigger_maximum_effort_strike(queued=False)
+                    st.session_state.strike_triggered = True
             else:
                 st.error("💀 PATHETIC. MY CHIMICHANGA HAS MORE BRAIN CELLS THAN YOU. TRY AGAIN!")
             
@@ -1642,7 +1632,7 @@ def show_planner_page():
             study_days
         )
         processing_msg.empty()
-        trigger_deadpool_balloons(queued=True)
+        trigger_maximum_effort_strike(queued=True)
         st.success(f"✅ Strategic Battle Plan ready with {len(plan)} targets identified!")
         st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
@@ -1706,7 +1696,7 @@ def show_planner_page():
                         with c2:
                             if st.button("🏁 DONE", key=f"comp_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'completed')
-                                trigger_deadpool_balloons(queued=True)
+                                trigger_maximum_effort_strike(queued=True)
                                 st.rerun()
                         
                         st.markdown("<br>", unsafe_allow_html=True)
