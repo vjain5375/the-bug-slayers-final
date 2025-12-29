@@ -512,6 +512,8 @@ def initialize_components():
         loading_msg = st.info("Initializing vector store...")
         try:
             st.session_state.vector_store = VectorStore()
+            # Clear any old persistent data on fresh session
+            st.session_state.vector_store.clear_collection()
             loading_msg.empty()
             # Log successful initialization
             backend = st.session_state.vector_store.embedding_backend
@@ -599,6 +601,31 @@ if 'latest_document' not in st.session_state:
     st.session_state.latest_document = None
 if 'balloons_queued' not in st.session_state:
     st.session_state.balloons_queued = False
+
+# --- FRESH SESSION CLEANUP (Run once per website refresh) ---
+if 'session_initialized' not in st.session_state:
+    # 1. Clear documents directory
+    docs_dir = Path("documents")
+    if docs_dir.exists():
+        for f in docs_dir.glob("*"):
+            if f.is_file():
+                try: f.unlink()
+                except: pass
+    else:
+        docs_dir.mkdir(exist_ok=True)
+    
+    # 2. Clear output directory
+    outputs_dir = Path("outputs")
+    if outputs_dir.exists():
+        for f in outputs_dir.glob("*"):
+            if f.is_file():
+                try: f.unlink()
+                except: pass
+    else:
+        outputs_dir.mkdir(exist_ok=True)
+        
+    # 3. Mark session as initialized
+    st.session_state.session_initialized = True
 
 def trigger_deadpool_balloons(queued=False):
     """Trigger custom red, black, and white balloons. If queued=True, sets a flag for next render."""
