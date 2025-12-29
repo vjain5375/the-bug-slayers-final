@@ -50,8 +50,8 @@ class QuizAgent:
         
         # Select chunks more intelligently - sample across the document if many chunks
         selected_chunks = []
-        # Use more chunks if more questions are requested (approx 1.5 chunks per question)
-        num_chunks_needed = min(max(10, int(num_questions * 1.5)), 25)
+        # Use more chunks if more questions are requested (approx 2 chunks per question)
+        num_chunks_needed = min(max(15, int(num_questions * 2.0)), 40)
         
         if len(text_chunks) <= num_chunks_needed:
             selected_chunks = text_chunks
@@ -75,10 +75,10 @@ class QuizAgent:
         }
         
         try:
-            prompt = f"""You are a high-quality educational quiz generator. Your goal is to create diverse, challenging, and meaningful multiple-choice questions based on the provided study material.
+            prompt = f"""You are a high-quality educational quiz generator. Your goal is to create exactly {num_questions} diverse, challenging, and meaningful multiple-choice questions based on the provided study material.
 
 Study Material Context:
-{context[:10000]}  # Increased context size
+{context[:15000]}  # Increased context size
 
 Instructions:
 1. Create EXACTLY {num_questions} multiple-choice questions with {difficulty} difficulty. This is a strict requirement.
@@ -90,19 +90,20 @@ Instructions:
 7. STRUCTURE:
    - A clear, specific question.
    - 4 distinct, meaningful options (A, B, C, D).
-   - One clearly correct answer.
+   - One clearly correct answer (must be a string matching one of the options).
+   - The index of the correct answer (0-3).
    - An explanation that clarifies why the answer is correct and why others are not.
 
 Return ONLY a valid JSON array in this format:
 [
   {{
     "question": "A specific, well-formulated question?",
-    "options": ["Distinct Option A", "Distinct Option B", "Distinct Option C", "Distinct Option D"],
-    "correct_answer": "Exactly one of the options",
+    "options": ["Option 0", "Option 1", "Option 2", "Option 3"],
+    "correct_answer": "The string value of the correct option",
     "correct_index": 0,
     "topic": "Relevant topic from context",
     "difficulty": "{difficulty}",
-    "explanation": "A detailed explanation of the concept and why this specific answer is correct."
+    "explanation": "A detailed explanation."
   }},
   ...
 ]
@@ -110,7 +111,7 @@ Return ONLY a valid JSON array in this format:
 Only return the JSON array, no additional text or markdown formatting."""
             
             messages = [
-                SystemMessage(content="You are an expert at creating educational quizzes. Generate clear, well-structured multiple-choice questions."),
+                SystemMessage(content=f"You are a strict educational content generator. You MUST generate exactly {num_questions} questions. Do not stop until you have reached the quota. Format everything as a JSON array."),
                 HumanMessage(content=prompt)
             ]
             

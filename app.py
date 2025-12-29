@@ -1513,9 +1513,19 @@ def show_quizzes_page():
             st.session_state.quiz_answers[i] = q['options'].index(selected) if selected in q['options'] else -1
             st.markdown('</div>', unsafe_allow_html=True)
         
-        if st.button("✅ SUBMIT MISSION INTEL", type="primary", use_container_width=True):
-            q_result = st.session_state.agent_controller.evaluate_quiz(st.session_state.quizzes, st.session_state.quiz_answers)
-            st.session_state.quiz_result = q_result
+        # Persistence for quiz results
+        if 'quiz_submitted' not in st.session_state:
+            st.session_state.quiz_submitted = False
+        if 'quiz_result' not in st.session_state:
+            st.session_state.quiz_result = None
+
+        if st.button("✅ SUBMIT MISSION INTEL", type="primary", use_container_width=True) or st.session_state.quiz_submitted:
+            if not st.session_state.quiz_submitted:
+                q_result = st.session_state.agent_controller.evaluate_quiz(st.session_state.quizzes, st.session_state.quiz_answers)
+                st.session_state.quiz_result = q_result
+                st.session_state.quiz_submitted = True
+            
+            q_result = st.session_state.quiz_result
             
             st.markdown("""
             <div class="designer-card" style="text-align: center; border-width: 6px;">
@@ -1524,6 +1534,8 @@ def show_quizzes_page():
             """, unsafe_allow_html=True)
             
             c1, c2 = st.columns(2)
+            accuracy = (q_result['score']/q_result['total']) * 100 if q_result['total'] > 0 else 0
+            
             with c1: 
                 st.markdown(f"""
                 <div class="designer-card" style="text-align: center;">
@@ -1532,7 +1544,6 @@ def show_quizzes_page():
                 </div>
                 """, unsafe_allow_html=True)
             with c2:
-                accuracy = (q_result['score']/q_result['total']) * 100
                 st.markdown(f"""
                 <div class="designer-card" style="text-align: center;">
                     <h4 class="designer-header" style="font-size: 1.5rem;">ACCURACY</h4>
@@ -1542,27 +1553,45 @@ def show_quizzes_page():
             
             if accuracy >= 50:
                 st.success("🔥 MAXIMUM EFFORT! YOU'RE NOT AS DUMB AS YOU LOOK!")
-                trigger_deadpool_balloons(queued=True)
-                st.rerun()
+                if st.session_state.quiz_submitted and not st.session_state.get('balloons_triggered', False):
+                    trigger_deadpool_balloons(queued=False)
+                    st.session_state.balloons_triggered = True
             else:
                 st.error("💀 PATHETIC. MY CHIMICHANGA HAS MORE BRAIN CELLS THAN YOU. TRY AGAIN!")
             
-            with st.expander("📝 REVIEW MISSION ERRORS"):
+            with st.expander("📝 REVIEW MISSION ERRORS", expanded=True):
                 for i, q in enumerate(st.session_state.quizzes):
                     ans_idx = st.session_state.quiz_answers.get(i, -1)
-                    correct_idx = q.get('correct_index', q.get('correct_option', 0))
+                    # Correctly resolve the index (ensure it's an int)
+                    raw_correct = q.get('correct_index', q.get('correct_option', 0))
+                    try:
+                        correct_idx = int(raw_correct)
+                    except:
+                        correct_idx = 0
+                        
                     is_correct = ans_idx == correct_idx
                     
                     color = "#28a745" if is_correct else "#A80000"
-                    correct_intel_html = f"<p style='color: #28a745;'>Correct Intel: {q['options'][correct_idx]}</p>" if not is_correct else ""
+                    
+                    # Safety check for option list length
+                    correct_text = q['options'][correct_idx] if 0 <= correct_idx < len(q['options']) else "N/A"
+                    your_text = q['options'][ans_idx] if 0 <= ans_idx < len(q['options']) else "Not Answered"
+                    
+                    correct_intel_html = f"<p style='color: #28a745;'>Correct Intel: {correct_text}</p>" if not is_correct else ""
                     st.markdown(f"""
                     <div style="background: #111; padding: 1.5rem; border-left: 8px solid {color}; margin-bottom: 15px; border-radius: 0px;">
                         <p style="color: #fff; font-weight: bold;">Q{i+1}: {q['question']}</p>
-                        <p style="color: {'#28a745' if is_correct else '#ffc107'};">Your Intel: {q['options'][ans_idx] if ans_idx != -1 else 'N/A'}</p>
+                        <p style="color: {'#28a745' if is_correct else '#ffc107'};">Your Intel: {your_text}</p>
                         {correct_intel_html}
                         <p style="color: #aaa; font-style: italic; margin-top: 10px;">{q['explanation']}</p>
                     </div>
                     """, unsafe_allow_html=True)
+            
+            if st.button("🔄 RETAKE MISSION", use_container_width=True):
+                st.session_state.quiz_submitted = False
+                st.session_state.quiz_result = None
+                st.session_state.balloons_triggered = False
+                st.rerun()
     else:
         st.info("Click 'INITIATE QUIZ' to create a quiz from your arsenal!")
 
