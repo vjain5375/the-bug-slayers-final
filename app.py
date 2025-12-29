@@ -760,11 +760,11 @@ def main():
     # Deadpool Branding Header - NOW AT THE VERY TOP
     st.markdown("""
     <div style="text-align: center; margin-bottom: 2.5rem; margin-top: 1rem; position: relative; z-index: 100;">
-        <div style="background: #A80000; padding: 10px 35px; border: 6px solid #fff; transform: rotate(-1deg); box-shadow: 12px 12px 0px #000; display: inline-block; max-width: 90%;">
-            <span style="font-family: 'Bangers', cursive !important; font-size: 3.0rem; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 1.5px;">⚔️ THE ARSENAL STUDY HUB</span>
+        <div style="background: #A80000; padding: 10px 35px; border: 6px solid #fff; transform: rotate(-1deg); box-shadow: 12px 12px 0px #000; display: inline-block; max-width: 95%;">
+            <span style="font-family: 'Bangers', cursive !important; font-size: clamp(1.5rem, 8vw, 3.0rem); color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 1.5px; white-space: nowrap;">⚔️ ARSENAL STUDY HUB</span>
         </div>
         <br>
-        <div style="background: #A80000; color: #ffffff !important; font-family: 'Bangers', cursive !important; font-size: 1.4rem; padding: 8px 25px; display: inline-block; transform: skew(-10deg); border: 4px solid #fff; margin-top: 20px; box-shadow: 8px 8px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900;">
+        <div style="background: #A80000; color: #ffffff !important; font-family: 'Bangers', cursive !important; font-size: clamp(1rem, 4vw, 1.4rem); padding: 8px 25px; display: inline-block; transform: skew(-10deg); border: 4px solid #fff; margin-top: 20px; box-shadow: 8px 8px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; white-space: nowrap;">
             MAXIMUM EFFORT ONLY! NO ROOKIES ALLOWED!
         </div>
     </div>
@@ -960,7 +960,7 @@ def main():
 .command-center {
     position: relative;
     z-index: 1;
-    padding: 3rem;
+    padding: 2rem 1.5rem; /* More responsive padding */
     text-align: center;
     background: #000;
     border: 6px solid #fff;
@@ -999,8 +999,8 @@ def main():
 
 <!-- Tactical Header -->
 <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; margin-top: 1rem;">
-    <div style="background: #A80000; padding: 10px 30px; border: 6px solid #fff; transform: rotate(-1.5deg); box-shadow: 12px 12px 0px #000; display: inline-block; max-width: 90%;">
-        <span style="font-family: 'Bangers', cursive !important; font-size: 3.0rem; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 1.5px;">⚔️ ARSENAL PORTAL</span>
+    <div style="background: #A80000; padding: 10px 30px; border: 6px solid #fff; transform: rotate(-1.5deg); box-shadow: 12px 12px 0px #000; display: inline-block; max-width: 95%;">
+        <span style="font-family: 'Bangers', cursive !important; font-size: clamp(1.5rem, 10vw, 3.0rem); color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 1.5px; white-space: nowrap;">⚔️ ARSENAL PORTAL</span>
     </div>
 </div>
 
@@ -1009,8 +1009,8 @@ def main():
 <img src="https://i.pinimg.com/originals/e0/61/8c/e0618c66e92b34a413d90708573138b7.png" style="width: 150px; filter: drop-shadow(8px 8px 0px #000);">
 </div>
 
-<p style="font-family: 'Bangers'; font-size: 2rem; color: #fff; letter-spacing: 3px; margin: 1.5rem 0;">
-DROP YOUR <span style="color: #ffffff !important; font-size: 2.5rem; text-shadow: 3px 3px 0px #A80000; -webkit-text-fill-color: #ffffff !important;">BRAIN JUICE</span> HERE!
+<p style="font-family: 'Bangers'; font-size: clamp(1.2rem, 5vw, 2rem); color: #fff; letter-spacing: 3px; margin: 1.5rem 0; white-space: normal;">
+DROP YOUR <span style="color: #ffffff !important; font-size: clamp(1.5rem, 6vw, 2.5rem); text-shadow: 3px 3px 0px #A80000; -webkit-text-fill-color: #ffffff !important; white-space: nowrap;">BRAIN JUICE</span> HERE!
 </p>
 
 <div class="moving-danger-stripes"></div>
