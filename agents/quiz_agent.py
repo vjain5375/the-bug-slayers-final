@@ -175,7 +175,8 @@ Only return the JSON array, no additional text or markdown formatting."""
             if not opt:
                 continue
             clean = str(opt).strip()
-            if not clean or len(clean) < 3 or len(clean) > 180:
+            # Basic validation
+            if not clean or len(clean) < 2 or len(clean) > 250:
                 continue
             key = clean.lower()
             if key in seen:
@@ -183,13 +184,17 @@ Only return the JSON array, no additional text or markdown formatting."""
             seen.add(key)
             options.append(clean)
         
-        # Ensure we have 4 options by adding generic distractors if needed
+        # Ensure we have 4 options by adding varied distractors if needed
         generic_distractors = [
-            "Partially correct but incomplete.",
-            "Related concept but not the right answer.",
-            "Common misconception about this topic.",
-            "Unrelated detail to the question."
+            "Partially correct but incomplete description.",
+            "A related concept but incorrect in this specific context.",
+            "A common misconception often associated with this topic.",
+            "An unrelated detail that doesn't answer the core question.",
+            "A secondary factor that is not the primary focus here.",
+            "Information mentioned elsewhere but not applicable to this question."
         ]
+        random.shuffle(generic_distractors)
+        
         for gd in generic_distractors:
             if len(options) >= 4:
                 break
@@ -217,10 +222,10 @@ Only return the JSON array, no additional text or markdown formatting."""
             idx = correct_index
             correct_answer = options[idx]
         
-        # If still not found, default to the first option to avoid broken indices
+        # If still not found, default to a random option to avoid bias towards first option
         if idx is None and options:
-            idx = 0
-            correct_answer = options[0]
+            idx = random.randint(0, len(options)-1)
+            correct_answer = options[idx]
         
         if idx is None:
             return None
@@ -243,22 +248,30 @@ Only return the JSON array, no additional text or markdown formatting."""
         }
 
     def _normalize_question(self, q: Dict, default_difficulty: str) -> Optional[Dict]:
-        """Final pass to ensure options are unique and structure is correct."""
+        """Final pass to ensure options are randomized and structure is correct."""
         question = q.get('question', '').strip()
         options = q.get('options', [])
         correct_answer = q.get('correct_answer', '')
-        correct_index = q.get('correct_index', 0)
         
-        # Final shuffle for variety
-        indexed_opts = list(enumerate(options))
-        random.shuffle(indexed_opts)
-        shuffled = [opt for _, opt in indexed_opts]
+        if not options:
+            return None
+            
+        # FORCE RANDOMIZATION: Shuffle all options
+        shuffled = list(options)
+        random.shuffle(shuffled)
         
+        # Re-locate correct answer index after shuffle
         try:
+            # Try exact match first
             new_correct_index = shuffled.index(correct_answer)
         except ValueError:
+            # Try case-insensitive if exact match fails
             new_correct_index = 0
-            correct_answer = shuffled[0]
+            for i, opt in enumerate(shuffled):
+                if opt.lower() == correct_answer.lower():
+                    new_correct_index = i
+                    correct_answer = shuffled[i]
+                    break
             
         return {
             'question': question,
@@ -332,11 +345,14 @@ Only return the JSON array, no additional text or markdown formatting."""
                     })
                 elif len(text) > 50:
                     # Ultimate fallback for very short chunks
+                    options = [topic, "A related detail", "General knowledge", "None of these"]
+                    random.shuffle(options)
+                    
                     questions.append({
                         'question': f"What is the main focus of the following text: '{text[:50]}...'?",
-                        'options': [topic, "A related detail", "General knowledge", "None of these"],
+                        'options': options,
                         'correct_answer': topic,
-                        'correct_index': 0,
+                        'correct_index': options.index(topic),
                         'topic': topic,
                         'difficulty': difficulty,
                         'explanation': "The topic is derived from the metadata of the provided text chunk."

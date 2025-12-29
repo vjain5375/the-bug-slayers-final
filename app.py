@@ -1,8 +1,6 @@
 # pyright: reportMissingImports=false
 # pyright: reportUndefinedVariable=false
 # FORCE REDEPLOY: 2025-12-28-V1
-# pyright: reportMissingImports=false
-# pyright: reportUndefinedVariable=false
 import streamlit as st
 import os
 import pandas as pd
@@ -184,37 +182,6 @@ st.markdown("""
         box-shadow: 2px 2px 0px #000 !important;
     }
 
-    /* Navigation Grid Specifics - THE "NON-DABBA" LOOK */
-    [data-testid="stHorizontalBlock"] div div div .stButton > button {
-        height: 155px !important; 
-        background-color: var(--deadpool-red) !important;
-        background-image: linear-gradient(135deg, rgba(255,255,255,0.05) 25%, transparent 25%) !important;
-        background-size: 20px 20px !important;
-        border-width: 8px !important;
-        font-size: 2.4rem !important;
-        font-weight: 900 !important;
-        font-style: italic !important;
-        letter-spacing: 2px !important;
-        line-height: 1 !important;
-        box-shadow: 15px 15px 0px #000 !important;
-        transform: rotate(-1.5deg) skew(-2deg) !important;
-    }
-    
-    /* Active Navigation Button - NO MORE WHITE "DABBA" */
-    [data-testid="stHorizontalBlock"] div div div .stButton > button[kind="primary"] {
-        background-color: var(--deadpool-red) !important;
-        color: white !important;
-        border-color: white !important;
-        transform: rotate(1.5deg) skew(-3deg) scale(1.08) !important;
-        box-shadow: 0 0 30px rgba(168,0,0,0.5), 20px 20px 0px #000 !important;
-        z-index: 10 !important;
-        text-shadow: 6px 6px 0px #000 !important;
-    }
-    
-    [data-testid="stHorizontalBlock"] div div div .stButton > button[kind="primary"]::before {
-        border-color: rgba(255,255,255,0.6);
-    }
-
     /* Sidebar Fancy Navigation Buttons - SYNCED WITH BROWSE BUTTON */
     [data-testid="stSidebar"] .stButton > button {
         text-align: center !important;
@@ -245,7 +212,6 @@ st.markdown("""
         box-shadow: 20px 20px 0px #000 !important;
         text-shadow: 6px 6px 0px #000 !important;
     }
-    }
 
     [data-testid="stSidebar"] .stButton > button:focus, 
     [data-testid="stSidebar"] .stButton > button:active {
@@ -267,7 +233,7 @@ st.markdown("""
     /* Input Labels and Fonts */
     label, .stMarkdown p, .stMarkdown li {
         font-family: 'Oswald', sans-serif !important;
-            font-weight: 700 !important;
+        font-weight: 700 !important;
         text-transform: uppercase !important;
         letter-spacing: 1px !important;
         color: #fff !important;
@@ -587,15 +553,13 @@ def initialize_components():
                - `GOOGLE_API_KEY` for Gemini (if supported)
             
             2. For local embeddings, ensure `torch>=2.0.0` is installed:
-               ```bash
-               pip install torch --index-url https://download.pytorch.org/whl/cpu
-               ```
+               - `pip install torch --index-url https://download.pytorch.org/whl/cpu`
             
             3. Check the logs for detailed error information.
             """)
     
     if st.session_state.agent_controller is None:
-            st.session_state.agent_controller = AgentController(st.session_state.vector_store)
+        st.session_state.agent_controller = AgentController(st.session_state.vector_store)
 
 def load_api_key():
     """Load API key from environment or Streamlit secrets"""
@@ -656,8 +620,8 @@ if 'document_upload_order' not in st.session_state:
     st.session_state.document_upload_order = []
 if 'latest_document' not in st.session_state:
     st.session_state.latest_document = None
-if 'balloons_queued' not in st.session_state:
-    st.session_state.balloons_queued = False
+if 'strike_queued' not in st.session_state:
+    st.session_state.strike_queued = False
 
 # --- FRESH SESSION CLEANUP (Run once per website refresh) ---
 if 'session_initialized' not in st.session_state:
@@ -691,21 +655,23 @@ def trigger_maximum_effort_strike(queued=False):
         return
 
     strike_html = ""
-    badges = ["MAXIMUM EFFORT!", "KAPOW!", "CHIMICHANGA!", "DEADPOOL-APPROVED!", "BULLSEYE!"]
+    badges = ["MAXIMUM EFFORT!", "KAPOW!", "CHIMICHANGA!", "DEADPOOL-APPROVED!", "BULLSEYE!", "MAXIMUM INTEL!", "MISSION ACCOMPLISHED!"]
     
     import random
-    for i in range(5): # Reduced count for less chaos
-        text = random.choice(badges)
+    badge_count = random.randint(2, 3) # Strictly 2-3 badges as requested
+    selected_badges = random.sample(badges, badge_count) # Ensure unique text/context
+    
+    for i, text in enumerate(selected_badges):
         left = random.randint(15, 75)
         top = random.randint(20, 70)
         rotation = random.randint(-15, 15)
-        delay = i * 0.4 # Staggered entry
+        delay = i * 0.8 # Staggered entry for readability
         
         strike_html += f"""
         <div class="strike-badge" style="
             left: {left}vw; 
             top: {top}vh; 
-            animation: strikePop 2.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) {delay}s both;
+            animation: strikePop 3s cubic-bezier(0.175, 0.885, 0.32, 1.275) {delay}s both;
             transform: rotate({rotation}deg);
         ">
             {text}
@@ -968,250 +934,6 @@ def main():
         
         st.divider()
         
-    # Upload Section in Main Dashboard - SEXY EDITION
-        st.markdown("""
-<style>
-@keyframes tactical-glow {
-    0% { box-shadow: 0 0 10px rgba(168,0,0,0.4), inset 0 0 10px rgba(168,0,0,0.2); }
-    50% { box-shadow: 0 0 30px rgba(168,0,0,0.8), inset 0 0 20px rgba(168,0,0,0.4); }
-    100% { box-shadow: 0 0 10px rgba(168,0,0,0.4), inset 0 0 10px rgba(168,0,0,0.2); }
-}
-@keyframes stripes-move {
-    from { background-position: 0 0; }
-    to { background-position: 40px 0; }
-}
-.sexy-drop-zone {
-    position: relative;
-    margin-bottom: 3rem;
-    overflow: visible;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.sexy-drop-zone:hover {
-    transform: scale(1.02) rotate(-0.5deg);
-}
-.tactical-border {
-    position: absolute;
-    top: -15px; left: -15px; right: -15px; bottom: -15px;
-    background-color: #A80000;
-    background-image: radial-gradient(#000 20%, transparent 20%);
-    background-size: 8px 8px;
-    z-index: 0;
-    border: 4px solid #000;
-    box-shadow: 15px 15px 0px #000;
-}
-.command-center {
-    position: relative;
-    z-index: 1;
-    padding: 2rem 1.5rem; /* More responsive padding */
-    text-align: center;
-    background: #000;
-    border: 6px solid #fff;
-    animation: tactical-glow 3s infinite;
-}
-.moving-danger-stripes {
-    height: 25px;
-    width: 100%;
-    background: repeating-linear-gradient(45deg, #A80000, #A80000 20px, #000 20px, #000 40px);
-    background-size: 40px 100%;
-    animation: stripes-move 1s linear infinite;
-    border: 3px solid #fff;
-    margin: 1.5rem 0;
-}
-.pop-art-label {
-    font-family: 'Bangers';
-    font-size: 1.5rem;
-    color: #fff;
-    background: #A80000;
-    padding: 5px 15px;
-    border: 3px solid #000;
-    display: inline-block;
-    transform: rotate(-3deg);
-    position: absolute;
-    top: -20px;
-    left: 20px;
-    box-shadow: 5px 5px 0px #000;
-    z-index: 5;
-}
-</style>
-
-<div class="sexy-drop-zone">
-<div class="tactical-border"></div>
-<div class="command-center">
-<div class="pop-art-label">CLASSIFIED ARCHIVES</div>
-
-<!-- Tactical Header -->
-<div style="display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; margin-top: 1rem;">
-    <div style="background: #A80000; padding: 15px 35px; border: 6px solid #fff; transform: rotate(-1.5deg); box-shadow: 12px 12px 0px #000; display: inline-block; text-align: center; max-width: 90%;">
-        <div style="font-family: 'Bangers', cursive !important; font-size: 2.8rem; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 2px; line-height: 1; margin-bottom: 5px;">⚔️ ARSENAL</div>
-        <div style="font-family: 'Bangers', cursive !important; font-size: 2.2rem; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 2px; line-height: 1;">PORTAL</div>
-    </div>
-</div>
-
-<!-- Deadpool Interactive Sticker -->
-<div style="position: absolute; right: -50px; bottom: -40px; z-index: 10; transform: rotate(-10deg); transition: all 0.3s;">
-<img src="https://i.pinimg.com/originals/e0/61/8c/e0618c66e92b34a413d90708573138b7.png" style="width: 150px; filter: drop-shadow(8px 8px 0px #000);">
-</div>
-
-<p style="font-family: 'Bangers'; font-size: clamp(1.2rem, 5vw, 2rem); color: #fff; letter-spacing: 3px; margin: 1.5rem 0; white-space: normal;">
-DROP YOUR <span style="color: #ffffff !important; font-size: clamp(1.5rem, 6vw, 2.5rem); text-shadow: 3px 3px 0px #A80000; -webkit-text-fill-color: #ffffff !important; white-space: nowrap;">BRAIN JUICE</span> HERE!
-</p>
-
-<div class="moving-danger-stripes"></div>
-</div>
-</div>
-""", unsafe_allow_html=True)
-
-    # Custom styling for the file uploader to make it look like part of the portal
-            st.markdown("""
-    <style>
-        [data-testid="stFileUploader"] {
-            background-color: #000 !important;
-            border: 5px solid #FFF !important;
-            padding: 1.5rem !important;
-            box-shadow: 12px 12px 0px #000 !important;
-            position: relative !important;
-            margin-top: -2rem !important;
-        }
-        /* Surgical precision: Hide only the boring parts, KEEP THE BUTTON */
-        [data-testid="stFileUploader"] section > div:first-child {
-            display: none !important;
-        }
-        [data-testid="stFileUploader"] section {
-            padding: 0 !important;
-            border: none !important;
-            background: transparent !important;
-        }
-        [data-testid="stFileUploader"] label {
-            display: none !important;
-        }
-        [data-testid="stFileUploader"] button {
-            width: 100% !important;
-            height: 80px !important;
-            background: #A80000 !important;
-            color: white !important;
-            font-size: 2.0rem !important;
-            font-family: 'Bangers' !important;
-            font-weight: 900 !important;
-            font-style: italic !important;
-            border: 5px solid #fff !important;
-            box-shadow: 10px 10px 0px #000 !important;
-            border-radius: 0px !important;
-            text-transform: uppercase !important;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-            cursor: pointer !important;
-            text-shadow: 3px 3px 0px #000 !important;
-            white-space: nowrap !important;
-        }
-        [data-testid="stFileUploader"] button:hover {
-            transform: scale(1.05) translateY(-5px) !important;
-            background: #fff !important;
-            color: #A80000 !important;
-            box-shadow: 18px 18px 0px #000 !important;
-        }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    # Upload area in main section - Synced with sidebar
-    if 'uploaded_files_shared' not in st.session_state:
-        st.session_state.uploaded_files_shared = None
-    
-        uploaded_files_main = st.file_uploader(
-            "📎 Choose files to upload",
-            type=['pdf', 'docx', 'doc', 'txt'],
-            accept_multiple_files=True,
-            key="main_uploader",
-        help="Select one or more study material files (PDF, DOCX, TXT)",
-        label_visibility="collapsed"
-        )
-
-        # Sync with sidebar
-        if uploaded_files_main:
-            st.session_state.uploaded_files_shared = uploaded_files_main
-
-    # Visual status badges
-    if uploaded_files_main or st.session_state.uploaded_files_shared:
-        f_count = len(uploaded_files_main) if uploaded_files_main else len(st.session_state.uploaded_files_shared)
-        st.markdown(f"""
-        <div style="background: #A80000; color: white; padding: 10px; border: 3px solid #000; text-align: center; font-family: 'Bangers'; transform: rotate(2deg); box-shadow: 5px 5px 0px #000; margin-bottom: 1rem;">
-            ✅ {f_count} TARGETS LOCKED! READY FOR SLICING!
-        </div>
-        """, unsafe_allow_html=True)
-    
-    # Use shared uploaded files if main uploader is empty but sidebar has files
-    files_to_process = uploaded_files_main if uploaded_files_main else st.session_state.uploaded_files_shared
-    
-    # Save and Process buttons
-    if files_to_process:
-        col1, col2, col3 = st.columns([1, 1, 2])
-        with col1:
-            if st.button("💾 SAVE", use_container_width=True, type="primary", key="save_main_files"):
-                docs_dir = ensure_documents_directory()
-                saved = 0
-                saved_files = []
-                for uploaded_file in files_to_process:
-                    file_path = docs_dir / uploaded_file.name
-                    if not file_path.exists():
-                        with open(file_path, "wb") as f:
-                            f.write(uploaded_file.getbuffer())
-                        saved += 1
-                        saved_files.append(uploaded_file.name)
-                        # Track upload order
-                        if uploaded_file.name not in st.session_state.document_upload_order:
-                            st.session_state.document_upload_order.append(uploaded_file.name)
-                        else:
-                            # Move to end if already exists (re-upload)
-                            st.session_state.document_upload_order.remove(uploaded_file.name)
-                            st.session_state.document_upload_order.append(uploaded_file.name)
-                
-                if saved > 0:
-                    # Update latest document
-                    if saved_files:
-                        st.session_state.latest_document = saved_files[-1]  # Most recently saved
-                    st.success(f"✅ Saved {saved} document(s)!")
-                    st.session_state.documents_processed = False
-                    st.session_state.uploaded_files_shared = None  # Clear after saving
-                    st.rerun()
-                else:
-                    st.info("Files already exist or no new files to save.")
-        
-        with col2:
-            if st.button("🔄 PROCESS", use_container_width=True, type="primary", key="process_main_files"):
-                # First save files if not saved
-                docs_dir = ensure_documents_directory()
-                saved_files = []
-                for uploaded_file in files_to_process:
-                    file_path = docs_dir / uploaded_file.name
-                    if not file_path.exists():
-                        with open(file_path, "wb") as f:
-                            f.write(uploaded_file.getbuffer())
-                        saved_files.append(uploaded_file.name)
-                        # Track upload order
-                        if uploaded_file.name not in st.session_state.document_upload_order:
-                            st.session_state.document_upload_order.append(uploaded_file.name)
-                        else:
-                            # Move to end if already exists (re-upload)
-                            st.session_state.document_upload_order.remove(uploaded_file.name)
-                            st.session_state.document_upload_order.append(uploaded_file.name)
-                
-                # Update latest document before processing
-                if saved_files:
-                    st.session_state.latest_document = saved_files[-1]
-                
-                # Then process
-                if process_documents():
-                    st.session_state.uploaded_files_shared = None  # Clear after processing
-                    st.rerun()
-    
-    # Show existing documents
-    doc_files = get_document_files()
-    if doc_files:
-        st.markdown("<div style='margin-top: 3rem;'></div>", unsafe_allow_html=True)
-        st.markdown("<h3 class='designer-header' style='font-size: 2rem;'>📁 YOUR DOCUMENTS</h3>", unsafe_allow_html=True)
-        with st.expander(f"VIEW {len(doc_files)} TARGET INTEL FILES", expanded=False):
-            for doc in doc_files:
-                doc_name = Path(doc).name
-                st.markdown(f"📄 <span style='color: #fff; font-size: 1.1rem;'>{doc_name}</span>", unsafe_allow_html=True)
-    
     # Main Content Area
     if st.session_state.current_page == "Home":
         show_home_page()
@@ -1237,15 +959,15 @@ def show_home_page():
     """Deadpool-themed Home page with Designer Visuals"""
     
     # Hero Section with Deadpool Action Grid Style - RED/BLACK/WHITE
-        st.markdown("""
+    st.markdown("""
     <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 4rem 1rem; border: 6px solid #000; box-shadow: 12px 12px 0px var(--deadpool-red); text-align: center; margin-bottom: 2rem; position: relative;">
         <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.65);"></div>
         <div style="position: relative; z-index: 2;">
             <h1 class="designer-header" style="font-size: 3.5rem; text-shadow: 4px 4px 0px #000; margin: 0;">Turn Your Docs into Weaponized Knowledge!</h1>
             <p style="font-family: 'Bangers', cursive; color: #fff; font-size: 1.6rem; background: #000; display: inline-block; padding: 0.5rem 2rem; transform: skew(-10deg); margin-top: 1.5rem; border: 3px solid var(--deadpool-red); box-shadow: 5px 5px 0px #000;">Upload, Analyze, Conquer with AI-Powered Intelligence.</p>
         </div>
-        </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
         
     # CASE 1: NEW USER EXPERIENCE (High-Impact Onboarding)
     if not st.session_state.documents_processed:
@@ -1253,7 +975,7 @@ def show_home_page():
         
         # Journey Cards with Designer Style
         col1, col2 = st.columns(2)
-            with col1:
+        with col1:
             st.markdown("""
             <div class="designer-card" style="transform: rotate(-0.5deg);">
                 <h3 class="designer-header" style="font-size: 2rem;">1️⃣ LOAD UP</h3>
@@ -1264,8 +986,8 @@ def show_home_page():
                 <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'PROCESS'</b>. My agents will slice and dice your text into pure semantic gold.</p>
             </div>
             """, unsafe_allow_html=True)
-            with col2:
-        st.markdown("""
+        with col2:
+            st.markdown("""
             <div class="designer-card" style="transform: rotate(0.5deg);">
                 <h3 class="designer-header" style="font-size: 2rem;">2️⃣ LOCK & LOAD</h3>
                 <p style="color: #fff; font-size: 1.2rem; font-weight: 600; font-family: 'Oswald', sans-serif;">Hit <b>'SAVE'</b> to commit those files to my infinite memory banks.</p>
@@ -1280,6 +1002,28 @@ def show_home_page():
         # Add the thumbs up Deadpool image
         st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=350)
         
+        # Upload area in main section
+        st.markdown("""
+        <div class="sexy-drop-zone">
+        <div class="tactical-border"></div>
+        <div class="command-center">
+        <div class="pop-art-label">CLASSIFIED ARCHIVES</div>
+        <p style="font-family: 'Bangers'; font-size: 2rem; color: #fff; letter-spacing: 3px; margin: 1.5rem 0;">DROP YOUR BRAIN JUICE HERE!</p>
+        <div class="moving-danger-stripes"></div>
+        </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        uploaded_files_main = st.file_uploader(
+            "📎 Choose files to upload",
+            type=['pdf', 'docx', 'doc', 'txt'],
+            accept_multiple_files=True,
+            key="main_uploader",
+            label_visibility="collapsed"
+        )
+        if uploaded_files_main:
+            st.session_state.uploaded_files_shared = uploaded_files_main
+            st.rerun()
         return
     
     # CASE 2: RETURNING USER (Pro Dashboard)
@@ -1296,7 +1040,7 @@ def show_home_page():
     with col3:
         if st.button("📅 PLAN", use_container_width=True, key="dash_plan"):
             st.session_state.current_page = "Revision Planner"; st.rerun()
-    
+            
     col4, col5 = st.columns(2)
     with col4:
         if st.button("💬 CHAT ASSISTANT", use_container_width=True, key="dash_chat"):
@@ -1346,8 +1090,8 @@ def show_home_page():
                             <p style="color: #fff; font-size: 0.9rem;"><b>Q:</b> {fs['question']}</p>
                             <hr style="margin: 5px 0; border-color: #333;">
                             <p style="color: #aaa; font-size: 0.85rem;"><b>A:</b> {fs['answer']}</p>
-        </div>
-        """, unsafe_allow_html=True)
+                        </div>
+                        """, unsafe_allow_html=True)
             
             if p_result.get('quiz_samples'):
                 with st.expander("📝 SAMPLE CHALLENGES", expanded=False):
@@ -1355,8 +1099,8 @@ def show_home_page():
                         st.markdown(f"""
                         <div style="background: #111; padding: 1rem; border-left: 4px solid #fff; margin-bottom: 10px; border-radius: 0px;">
                             <p style="color: #fff; font-size: 0.9rem;">{qs['question']}</p>
-        </div>
-        """, unsafe_allow_html=True)
+                        </div>
+                        """, unsafe_allow_html=True)
 
         # 4. Detailed Extracted Intel (Chunks)
         st.markdown("<br>", unsafe_allow_html=True)
@@ -1408,9 +1152,9 @@ def show_flashcards_page():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">ARSENAL CONFIGURATION</h3>', unsafe_allow_html=True)
         col1, col2, col3 = st.columns([2, 2, 1])
-    with col1:
+        with col1:
             num_flashcards = st.slider("CARD QUANTITY", 5, 30, value=st.session_state.num_flashcards, key="flashcard_slider")
-    with col2:
+        with col2:
             difficulty_mix_label = st.selectbox(
                 "DIFFICULTY MIX",
                 ["Easy + Medium", "Medium + Hard", "Easy + Medium + Hard"],
@@ -1423,10 +1167,9 @@ def show_flashcards_page():
             if st.button("🔄 GENERATE ARSENAL", use_container_width=True, type="primary"):
                 processing_msg = st.info("Deadpool is thinking (mostly about tacos and world peace... nah, just tacos)...")
                 flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards, difficulty_mix=difficulty_mix)
-            processing_msg.empty()
-            st.session_state.flashcards = flashcards
-                trigger_maximum_effort_strike(queued=True)
-            st.rerun()
+                processing_msg.empty()
+                st.session_state.flashcards = flashcards
+                st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Load existing flashcards
@@ -1454,7 +1197,7 @@ def show_flashcards_page():
                 st.markdown(f"""
                 <div class="designer-card" style="transform: rotate({(i%2)*0.5 - 0.25}deg); border-width: 12px !important; padding: 2rem !important; margin-bottom: 1rem !important;">
                     <div style="position: relative; z-index: 10;">
-                        <h4 class="designer-header" style="font-size: 1.5rem !important; padding: 5px 15px !important;">CARD #{i+1} — {card.get('difficulty', 'medium').upper()}</h4>
+                        <h4 class="designer-header">CARD #{i+1} — {card.get('difficulty', 'medium').upper()}</h4>
                         <p style="font-size: 1.8rem; font-weight: 900; margin: 20px 0; color: #fff; line-height: 1.3; font-family: 'Bangers', cursive !important; text-shadow: 3px 3px 0px #000; letter-spacing: 1px;">Q: {card['question']}</p>
                     </div>
                 </div>
@@ -1485,22 +1228,21 @@ def show_quizzes_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION BRIEFING CONFIG</h3>', unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([2, 2, 1])
-    with col1:
+        col1, col2, col3 = st.columns([2, 2, 1])
+        with col1:
             difficulty = st.selectbox("INTEL DIFFICULTY", ["easy", "medium", "hard"], index=1)
-    with col2:
+        with col2:
             num_questions = st.slider("TARGET QUESTIONS", 3, 30, value=st.session_state.num_questions, key="quiz_slider")
-    with col3:
+        with col3:
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("🎯 INITIATE QUIZ", use_container_width=True, type="primary"):
                 processing_msg = st.info("Drafting questions... mostly about you failing... and maybe some tacos...")
                 questions = st.session_state.agent_controller.generate_quiz(difficulty, num_questions, True)
-            processing_msg.empty()
+                processing_msg.empty()
                 if questions:
-            st.session_state.quizzes = questions
-            st.session_state.quiz_answers = {}
-                trigger_maximum_effort_strike(queued=True)
-            st.rerun()
+                    st.session_state.quizzes = questions
+                    st.session_state.quiz_answers = {}
+                st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Display quiz
@@ -1584,7 +1326,7 @@ def show_quizzes_page():
                 if st.session_state.quiz_submitted and not st.session_state.get('strike_triggered', False):
                     trigger_maximum_effort_strike(queued=False)
                     st.session_state.strike_triggered = True
-    else:
+            else:
                 st.error("💀 PATHETIC. MY CHIMICHANGA HAS MORE BRAIN CELLS THAN YOU. TRY AGAIN!")
             
             with st.expander("📝 REVIEW MISSION ERRORS", expanded=True):
@@ -1645,22 +1387,21 @@ def show_planner_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION TIMELINE CONFIG</h3>', unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
-    with col1:
+        col1, col2 = st.columns(2)
+        with col1:
             exam_date = st.date_input("MISSION DEADLINE (EXAM DATE)", value=None)
-    with col2:
+        with col2:
             study_days = st.slider("TRAINING INTENSITY (DAYS/WEEK)", 3, 7, 5)
-    
-    if st.button("📅 INITIATE STRATEGIC BATTLE PLAN", type="primary", use_container_width=True):
-        processing_msg = st.info("Calculating optimal learning trajectories... trying not to get distracted by tacos...")
-        plan = st.session_state.agent_controller.create_revision_plan(
-            exam_date.strftime('%Y-%m-%d') if exam_date else None,
-            study_days
-        )
-        processing_msg.empty()
-        trigger_maximum_effort_strike(queued=True)
-        st.success(f"✅ Strategic Battle Plan ready with {len(plan)} targets identified!")
-        st.rerun()
+        
+        if st.button("📅 INITIATE STRATEGIC BATTLE PLAN", type="primary", use_container_width=True):
+            processing_msg = st.info("Calculating optimal learning trajectories... trying not to get distracted by tacos...")
+            plan = st.session_state.agent_controller.create_revision_plan(
+                exam_date.strftime('%Y-%m-%d') if exam_date else None,
+                study_days
+            )
+            processing_msg.empty()
+            st.success(f"✅ Strategic Battle Plan ready with {len(plan)} targets identified!")
+            st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Load and display plan
@@ -1685,7 +1426,7 @@ def show_planner_page():
             
             upcoming = st.session_state.agent_controller.planner_agent.get_upcoming_revisions(14)
             if upcoming:
-    st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("<br>", unsafe_allow_html=True)
                 for i, item in enumerate(upcoming):
                     item_topic = item['topic']
                     item_date = item['date']
@@ -1694,14 +1435,14 @@ def show_planner_page():
                     status_color = "#28a745" if status == 'completed' else "#A80000" if status == 'in_progress' else "#333333"
                     status_icon = "✅" if status == 'completed' else "⚔️" if status == 'in_progress' else "📅"
                     
-            st.markdown(f"""
+                    st.markdown(f"""
                     <div class="designer-card" style="padding: 1.5rem !important; border-width: 10px !important; margin-bottom: 0px !important; transform: rotate({(i%2)*0.3}deg);">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <h4 class="designer-header" style="margin: 0; color: white; font-size: 1.6rem;">{status_icon} {item_date} — {item_topic}</h4>
                             <span style="background: {status_color}; color: white; padding: 0.5rem 1.5rem; border: 3px solid #fff; font-family: 'Bangers'; font-size: 1.2rem; box-shadow: 5px 5px 0px #000; transform: skew(-10deg);">{status.upper()}</span>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
             
                     st.markdown(f'<div class="designer-card" style="margin-top: -10px; border-top: 4px solid #fff; padding: 2rem !important; border-width: 10px !important; background: #080808 !important;">', unsafe_allow_html=True)
                     col_info, col_actions = st.columns([3, 2])
@@ -1722,7 +1463,6 @@ def show_planner_page():
                         with c2:
                             if st.button("🏁 DONE", key=f"comp_{item_date}_{item_topic}", use_container_width=True):
                                 st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, 'completed')
-                                trigger_maximum_effort_strike(queued=True)
                                 st.rerun()
                         
                         st.markdown("<br>", unsafe_allow_html=True)
@@ -1746,7 +1486,7 @@ def show_planner_page():
                             for j, card in enumerate(cards):
                                 with st.expander(f"CARD #{j+1}"):
                                     st.markdown(f"<p style='color:#fff;'><strong>Q:</strong> {card['question']}</p><hr style='border-color:#444;'><p style='color:#fff;'><strong>A:</strong> {card['answer']}</p>", unsafe_allow_html=True)
-    else:
+                        else:
                             questions = st.session_state.agent_controller.generate_quiz('medium', 3, topic=item_topic)
                             for j, q in enumerate(questions):
                                 st.markdown(f"<p style='color:#fff; font-weight:bold;'>Q{j+1}: {q['question']}</p>", unsafe_allow_html=True)
@@ -1764,7 +1504,6 @@ def show_planner_page():
                             st.rerun()
                         st.markdown('</div>', unsafe_allow_html=True)
                     st.markdown('</div>', unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
     except Exception:
         logger.error("Error in planner")
         st.info("Initiate a Strategic Battle Plan to track your mission progress!")
@@ -1856,8 +1595,8 @@ def show_analytics_page():
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
-    if st.session_state.agent_controller.planner_agent:
-        rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
+        if st.session_state.agent_controller.planner_agent:
+            rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
             st.markdown('<div class="designer-card" style="height: 100%; border-left: 15px solid #28a745;">', unsafe_allow_html=True)
             st.markdown('<h3 class="designer-header">📅 REVISION STRATEGY PROGRESS</h3>', unsafe_allow_html=True)
             st.markdown(f"""
