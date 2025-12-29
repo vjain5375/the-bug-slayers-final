@@ -1258,7 +1258,7 @@ def show_home_page():
                         st.session_state.uploaded_files_shared = None
                     st.rerun()
         return
-    
+
     # CASE 2: RETURNING USER (Pro Dashboard)
     st.markdown("<h2 class='designer-header' style='font-size: 3rem; background: var(--deadpool-red); border-color: #fff;'>⚡ COMMAND CENTER</h2>", unsafe_allow_html=True)
     
@@ -1266,22 +1266,27 @@ def show_home_page():
     col1, col2, col3 = st.columns(3)
                 with col1:
         if st.button("📇 MISSION CARDS", use_container_width=True, key="dash_flash"):
-            st.session_state.current_page = "Flashcards"; st.rerun()
+            st.session_state.current_page = "Flashcards"
+            st.rerun()
                 with col2:
         if st.button("📝 TACTICAL QUIZ", use_container_width=True, key="dash_quiz"):
-            st.session_state.current_page = "Quizzes"; st.rerun()
+            st.session_state.current_page = "Quizzes"
+                            st.rerun()
     with col3:
         if st.button("📅 BATTLE PLAN", use_container_width=True, key="dash_plan"):
-            st.session_state.current_page = "Revision Planner"; st.rerun()
+            st.session_state.current_page = "Revision Planner"
+            st.rerun()
             
     col4, col5 = st.columns(2)
     with col4:
         if st.button("💬 INTEL CHAT", use_container_width=True, key="dash_chat"):
-            st.session_state.current_page = "Chat Assistant"; st.rerun()
+            st.session_state.current_page = "Chat Assistant"
+            st.rerun()
     with col5:
         if st.button("📊 MISSION STATS", use_container_width=True, key="dash_analytics"):
-            st.session_state.current_page = "Analytics"; st.rerun()
-            
+            st.session_state.current_page = "Analytics"
+                st.rerun()
+    
     # Add Mission Portal to Command Center for completeness
     st.markdown("<br>", unsafe_allow_html=True)
     with st.expander("🛠️ ARSENAL PORTAL (UPLOAD & MANAGE INTEL)", expanded=False):
@@ -1404,7 +1409,7 @@ def show_home_page():
                         <p style="color: #fff; font-family: 'Oswald'; font-size: 1rem; line-height: 1.5; white-space: pre-wrap;">{chunk.get('text', '')}</p>
                     </div>
                     """, unsafe_allow_html=True)
-                    else:
+        else:
             st.info("No detailed chunks found. Processing might have failed.")
 
     # 5. Pro Tips with Deadpool Flavor
@@ -1444,9 +1449,9 @@ def show_flashcards_page():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">ARSENAL CONFIGURATION</h3>', unsafe_allow_html=True)
         col1, col2, col3 = st.columns([2, 2, 1])
-    with col1:
+        with col1:
             num_flashcards = st.slider("CARD QUANTITY", 5, 30, value=st.session_state.num_flashcards, key="flashcard_slider")
-    with col2:
+        with col2:
             difficulty_mix_label = st.selectbox(
                 "DIFFICULTY MIX",
                 ["Easy + Medium", "Medium + Hard", "Easy + Medium + Hard"],
@@ -1459,9 +1464,9 @@ def show_flashcards_page():
             if st.button("🔄 GENERATE ARSENAL", use_container_width=True, type="primary"):
                 processing_msg = st.info("Deadpool is thinking (mostly about tacos and world peace... nah, just tacos)...")
                 flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards, difficulty_mix=difficulty_mix)
-            processing_msg.empty()
-            st.session_state.flashcards = flashcards
-            st.rerun()
+                processing_msg.empty()
+                st.session_state.flashcards = flashcards
+                st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Load existing flashcards
@@ -1521,144 +1526,22 @@ def show_quizzes_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION BRIEFING CONFIG</h3>', unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([2, 2, 1])
-    with col1:
+        col1, col2, col3 = st.columns([2, 2, 1])
+        with col1:
             difficulty = st.selectbox("INTEL DIFFICULTY", ["easy", "medium", "hard"], index=1)
-    with col2:
+        with col2:
             num_questions = st.slider("TARGET QUESTIONS", 3, 30, value=st.session_state.num_questions, key="quiz_slider")
-    with col3:
+        with col3:
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("🎯 INITIATE QUIZ", use_container_width=True, type="primary"):
                 processing_msg = st.info("Drafting questions... mostly about you failing... and maybe some tacos...")
                 questions = st.session_state.agent_controller.generate_quiz(difficulty, num_questions, True)
-            processing_msg.empty()
+                processing_msg.empty()
                 if questions:
-            st.session_state.quizzes = questions
-            st.session_state.quiz_answers = {}
-            st.rerun()
+                    st.session_state.quizzes = questions
+                    st.session_state.quiz_answers = {}
+                    st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Display quiz
-    if st.session_state.quizzes:
-        st.markdown(f'<h3 class="designer-header" style="font-size: 2.5rem;">📋 {len(st.session_state.quizzes)} CHALLENGES STANDING BETWEEN YOU AND VICTORY</h3>', unsafe_allow_html=True)
-        
-        csv_data = st.session_state.agent_controller.quiz_agent.export_to_csv(st.session_state.quizzes)
-        st.download_button(label="📥 DOWNLOAD MISSION DEBRIEF (CSV)", data=csv_data, file_name="quiz_questions.csv", mime="text/csv", use_container_width=True)
-        
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        for i, q in enumerate(st.session_state.quizzes):
-            st.markdown(f"""
-            <div class="designer-card-red" style="margin-bottom: 0px; border-bottom: none; transform: rotate({(i%2)*-0.6}deg); border-width: 10px !important; padding: 3rem !important; box-shadow: 15px 15px 0px #000 !important;">
-                <div style="position: relative; z-index: 10;">
-                    <h4 class="designer-header" style="font-size: 1.8rem !important; padding: 5px 20px !important; background: #000; border: 4px solid #fff;">QUESTION #{i+1}</h4>
-                    <p style="font-size: 2.2rem; font-weight: 900; margin-top: 20px; color: #fff; line-height: 1.2; font-family: 'Bangers', cursive !important; text-shadow: 4px 4px 0px #000; letter-spacing: 1.5px;">{q['question']}</p>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Options in a stylish sub-container
-            st.markdown(f"""
-            <div style="margin-top: -10px; background: #fff !important; border: 10px solid #000; outline: 5px solid var(--deadpool-red) !important; padding: 2.5rem !important; box-shadow: 20px 20px 0px #000 !important; transform: rotate({(i%2)*0.4}deg); position: relative; z-index: 5;">
-            """, unsafe_allow_html=True)
-            
-            selected = st.radio(
-                f"Options for Q{i+1}:",
-                q['options'],
-                key=f"quiz_q{i}",
-                label_visibility="collapsed"
-            )
-            st.session_state.quiz_answers[i] = q['options'].index(selected) if selected in q['options'] else -1
-            st.markdown('</div><div style="height: 60px;"></div>', unsafe_allow_html=True)
-
-        # Persistence for quiz results
-        if 'quiz_submitted' not in st.session_state:
-            st.session_state.quiz_submitted = False
-        if 'quiz_result' not in st.session_state:
-            st.session_state.quiz_result = None
-
-        if not st.session_state.quiz_submitted:
-            if st.button("✅ SUBMIT MISSION INTEL", type="primary", use_container_width=True):
-                with st.spinner("Analyzing your answers... trying not to laugh..."):
-                    try:
-                        q_result = st.session_state.agent_controller.evaluate_quiz(st.session_state.quizzes, st.session_state.quiz_answers)
-                        st.session_state.quiz_result = q_result
-                        st.session_state.quiz_submitted = True
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"⚠️ Tactical Error during evaluation: {e}")
-                        logger.exception("Quiz evaluation failed")
-        
-        if st.session_state.quiz_submitted and st.session_state.quiz_result:
-            q_result = st.session_state.quiz_result
-            
-            st.markdown("""
-            <div class="designer-card" style="text-align: center; border-width: 6px;">
-                <h1 class="designer-header" style="font-size: 3rem; border: none; margin: 0;">📊 MISSION RESULTS</h1>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            c1, c2 = st.columns(2)
-            accuracy = (q_result['score']/q_result['total']) * 100 if q_result['total'] > 0 else 0
-            
-            with c1: 
-                st.markdown(f"""
-                <div class="designer-card-red" style="text-align: center; border-width: 10px !important;">
-                    <h4 class="designer-header" style="font-size: 2rem; background: #000; color: #fff; border: 4px solid #fff;">SCORE</h4>
-                    <h1 style="font-size: 5rem; color: #fff; margin: 0; font-family: 'Bangers'; text-shadow: 4px 4px 0px #000;">{q_result['score']}/{q_result['total']}</h1>
-                </div>
-                """, unsafe_allow_html=True)
-            with c2:
-                st.markdown(f"""
-                <div class="designer-card-red" style="text-align: center; border-width: 10px !important;">
-                    <h4 class="designer-header" style="font-size: 2rem; background: #000; color: #fff; border: 4px solid #fff;">ACCURACY</h4>
-                    <h1 style="font-size: 5rem; color: #fff; margin: 0; font-family: 'Bangers'; text-shadow: 4px 4px 0px #000;">{accuracy:.1f}%</h1>
-                </div>
-                """, unsafe_allow_html=True)
-            
-            if accuracy >= 50:
-                st.success("🔥 MAXIMUM EFFORT! YOU'RE NOT AS DUMB AS YOU LOOK!")
-                if st.session_state.quiz_submitted and not st.session_state.get('strike_triggered', False):
-                    trigger_maximum_effort_strike(queued=False)
-                    st.session_state.strike_triggered = True
-            else:
-                st.error("💀 PATHETIC. MY CHIMICHANGA HAS MORE BRAIN CELLS THAN YOU. TRY AGAIN!")
-            
-            with st.expander("📝 REVIEW MISSION ERRORS", expanded=True):
-                for i, q in enumerate(st.session_state.quizzes):
-                    ans_idx = st.session_state.quiz_answers.get(i, -1)
-                    # Correctly resolve the index (ensure it's an int)
-                    raw_correct = q.get('correct_index', q.get('correct_option', 0))
-                    try:
-                        correct_idx = int(raw_correct)
-                    except:
-                        correct_idx = 0
-                        
-                    is_correct = ans_idx == correct_idx
-                    
-                    color = "#28a745" if is_correct else "#A80000"
-                    
-                    # Safety check for option list length
-                    correct_text = q['options'][correct_idx] if 0 <= correct_idx < len(q['options']) else "N/A"
-                    your_text = q['options'][ans_idx] if 0 <= ans_idx < len(q['options']) else "Not Answered"
-                    
-                    correct_intel_html = f"<p style='color: #28a745;'>Correct Intel: {correct_text}</p>" if not is_correct else ""
-                    st.markdown(f"""
-                    <div style="background: #111; padding: 2rem; border-left: 12px solid {color}; margin-bottom: 20px; border-radius: 0px; box-shadow: 10px 10px 0px #000;">
-                        <p style="color: #fff; font-weight: bold; font-family: Oswald; font-size: 1.3rem;">Q{i+1}: {q['question']}</p>
-                        <p style="color: {'#28a745' if is_correct else '#ffc107'}; font-family: Oswald; font-size: 1.1rem;">Your Intel: {your_text}</p>
-                        {correct_intel_html}
-                        <p style="color: #aaa; font-style: italic; margin-top: 15px; font-family: Oswald;">{q['explanation']}</p>
-                    </div>
-                    """, unsafe_allow_html=True)
-            
-            if st.button("🔄 RETAKE MISSION", use_container_width=True):
-                st.session_state.quiz_submitted = False
-                st.session_state.quiz_result = None
-                st.session_state.balloons_triggered = False
-                st.rerun()
-    else:
-        st.info("Click 'INITIATE QUIZ' to create a quiz from your arsenal!")
     
     # Display quiz
     if st.session_state.quizzes:
@@ -1804,19 +1687,19 @@ def show_planner_page():
     with st.container():
         st.markdown('<div class="designer-card">', unsafe_allow_html=True)
         st.markdown('<h3 class="designer-header">MISSION TIMELINE CONFIG</h3>', unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
-    with col1:
+        col1, col2 = st.columns(2)
+        with col1:
             exam_date = st.date_input("MISSION DEADLINE (EXAM DATE)", value=None)
-    with col2:
+        with col2:
             study_days = st.slider("TRAINING INTENSITY (DAYS/WEEK)", 3, 7, 5)
-    
+        
         if st.button("📅 INITIATE STRATEGIC BATTLE PLAN", type="primary", use_container_width=True):
             processing_msg = st.info("Calculating optimal learning trajectories... trying not to get distracted by tacos...")
-        plan = st.session_state.agent_controller.create_revision_plan(
-            exam_date.strftime('%Y-%m-%d') if exam_date else None,
-            study_days
-        )
-        processing_msg.empty()
+            plan = st.session_state.agent_controller.create_revision_plan(
+                exam_date.strftime('%Y-%m-%d') if exam_date else None,
+                study_days
+            )
+            processing_msg.empty()
             st.success(f"✅ Strategic Battle Plan ready with {len(plan)} targets identified!")
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
@@ -1945,7 +1828,7 @@ def show_chat_page():
         if isinstance(chat, tuple):
             q, a = chat
             s = []
-            else:
+        else:
             q = chat.get('question', '')
             a = chat.get('answer', '')
             s = chat.get('sources', [])
@@ -2012,8 +1895,8 @@ def show_analytics_page():
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col2:
-    if st.session_state.agent_controller.planner_agent:
-        rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
+        if st.session_state.agent_controller.planner_agent:
+            rev_stats = st.session_state.agent_controller.planner_agent.get_statistics()
             st.markdown('<div class="designer-card" style="height: 100%; border-left: 15px solid #28a745;">', unsafe_allow_html=True)
             st.markdown('<h3 class="designer-header">📅 REVISION STRATEGY PROGRESS</h3>', unsafe_allow_html=True)
             st.markdown(f"""
