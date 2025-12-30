@@ -14,7 +14,12 @@ from dotenv import load_dotenv
 env_path = Path(__file__).parent / '.env'
 load_dotenv(dotenv_path=env_path)
 # Also try loading from current directory
-load_dotenv()
+try:
+    load_dotenv()
+except UnicodeDecodeError:
+    pass
+except Exception:
+    pass
 
 
 class RAGPipeline:

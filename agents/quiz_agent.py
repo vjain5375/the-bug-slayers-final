@@ -15,7 +15,12 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 
-load_dotenv()
+try:
+    load_dotenv()
+except UnicodeDecodeError:
+    pass
+except Exception:
+    pass
 
 
 class QuizAgent:

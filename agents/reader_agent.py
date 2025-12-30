@@ -26,7 +26,13 @@ try:
 except Exception:
     OCR_AVAILABLE = False
 
-load_dotenv()
+try:
+    load_dotenv()
+except UnicodeDecodeError:
+    # If .env has encoding issues, skip it and use environment variables directly
+    pass
+except Exception:
+    pass
 
 
 class ReaderAgent:

@@ -12,7 +12,12 @@ import os
 import logging
 from dotenv import load_dotenv
 
-load_dotenv()
+try:
+    load_dotenv()
+except UnicodeDecodeError:
+    pass
+except Exception:
+    pass
 logger = logging.getLogger(__name__)
 
 # Try importing google-generativeai as fallback
