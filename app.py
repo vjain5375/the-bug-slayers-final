@@ -756,11 +756,22 @@ def main():
         st.divider()
         
     # Top Bar matching React version - Main Header
-    st.markdown("""
-    <div style="position: sticky; top: 0; z-index: 30; background: rgba(10,10,10,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #222; padding: 0.75rem 2rem; margin: 0 -1rem 1rem -1rem; display: flex; justify-content: space-between; align-items: center;">
+    page_names = {
+        'Home': 'DASHBOARD',
+        'Arsenal Portal': 'INTEL UPLOAD',
+        'Flashcards': 'MEMORY TRAINING',
+        'Quizzes': 'COMBAT SIM',
+        'Revision Planner': 'TACTICAL PLAN',
+        'Chat Assistant': 'ORACLE LINK',
+        'Analytics': 'STATISTICS'
+    }
+    current_op = page_names.get(st.session_state.current_page, 'DASHBOARD')
+    
+    st.markdown(f"""
+    <div style="background: rgba(10,10,10,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #222; padding: 0.75rem 2rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
         <div style="display: flex; align-items: center; gap: 1rem;">
             <span style="font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: #71717a; text-transform: uppercase; letter-spacing: 0.2em;">Current Op:</span>
-            <span style="font-family: 'Anton', sans-serif; font-size: 1.125rem; color: white; text-transform: uppercase; font-weight: bold;" id="current-op">DASHBOARD</span>
+            <span style="font-family: 'Anton', sans-serif; font-size: 1.125rem; color: white; text-transform: uppercase; font-weight: bold;">{current_op}</span>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
             <div style="text-align: right; display: block;">
@@ -772,26 +783,6 @@ def main():
             </div>
         </div>
     </div>
-    <script>
-        (function() {
-            const pageMap = {
-                'Home': 'DASHBOARD',
-                'Arsenal Portal': 'INTEL UPLOAD',
-                'Flashcards': 'MEMORY TRAINING',
-                'Quizzes': 'COMBAT SIM',
-                'Revision Planner': 'TACTICAL PLAN',
-                'Chat Assistant': 'ORACLE LINK',
-                'Analytics': 'STATISTICS'
-            };
-            const currentPage = '""" + st.session_state.current_page + """';
-            setTimeout(function() {
-                const elem = document.getElementById('current-op');
-                if (elem) {
-                    elem.textContent = pageMap[currentPage] || 'DASHBOARD';
-                }
-            }, 100);
-        })();
-    </script>
     """, unsafe_allow_html=True)
     
     # Main Content Area
