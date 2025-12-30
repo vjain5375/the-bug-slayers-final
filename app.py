@@ -196,21 +196,26 @@ st.markdown("""
         box-shadow: 2px 2px 0px #000 !important;
     }
 
-    /* COMMAND CENTER CARD BUTTONS - Invisible overlay */
-    button[kind="secondary"][data-testid="baseButton-secondary"] {
+    /* COMMAND CENTER CARD BUTTONS - Invisible overlay behind cards */
+    div[data-testid="column"] button[kind="secondary"][key*="dash_"] {
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
         padding: 0 !important;
         margin: 0 !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        z-index: 10 !important;
+        position: relative !important;
+        z-index: 1 !important;
         cursor: pointer !important;
         opacity: 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+    }
+    
+    /* Make cards appear above buttons and clickable */
+    div[data-testid="column"]:has(button[key*="dash_"]) .designer-card-red {
+        position: relative !important;
+        z-index: 2 !important;
+        cursor: pointer !important;
     }
 
     /* Make card hover effect */
