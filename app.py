@@ -938,44 +938,81 @@ def show_chat_interface_inline():
         </div>
         """, unsafe_allow_html=True)
     
-    # Display chat history
+    # Display chat history - show question and answer pairs
     for chat in st.session_state.chat_history:
         if isinstance(chat, dict):
             q = chat.get('question', '')
             a = chat.get('answer', '')
             s = chat.get('sources', [])
-            is_user = False
         else:
+            # Old tuple format: (question, answer)
             q, a = chat
             s = []
-            is_user = True
         
-        st.markdown(f"""
-        <div style="display: flex; {'justify-content: flex-end;' if is_user else 'justify-content: flex-start;'} margin-bottom: 2rem;">
-            <div style="max-width: 80%; display: flex; flex-direction: column; {'align-items: flex-end;' if is_user else 'align-items: flex-start;'}">
-                <span style="font-family: 'Rajdhani', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.25rem; color: {'#06b6d4' if is_user else 'var(--pool-red)'};">
-                    {'OPERATOR // YOU' if is_user else 'AI // DEADPOOL'}
-                </span>
-                <div style="background: {'#1a1a1a' if is_user else '#111'}; border-{'right' if is_user else 'left'}: 2px solid {'#06b6d4' if is_user else 'var(--pool-red)'}; padding: 1.25rem; color: {'#e5e7eb' if is_user else '#d1d5db'}; font-family: 'Rajdhani', sans-serif; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); position: relative;">
-                    <div style="position: absolute; top: 0; width: 8px; height: 8px; border: 1px solid #52525b; {'right: 0; border-right: 1px solid #52525b;' if is_user else 'left: 0; border-left: 1px solid #52525b;'}"></div>
-                    <div style="position: absolute; bottom: 0; width: 8px; height: 8px; border: 1px solid #52525b; {'right: 0; border-right: 1px solid #52525b;' if is_user else 'left: 0; border-left: 1px solid #52525b;'}"></div>
-                    <p style="white-space: pre-wrap; margin: 0;">{q if is_user else a}</p>
+        # Show user question
+        if q:
+            st.markdown(f"""
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
+                <div style="max-width: 80%; display: flex; flex-direction: column; align-items: flex-end;">
+                    <span style="font-family: 'Rajdhani', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.25rem; color: #06b6d4;">
+                        OPERATOR // YOU
+                    </span>
+                    <div style="background: #1a1a1a; border-right: 2px solid #06b6d4; padding: 1.25rem; color: #e5e7eb; font-family: 'Rajdhani', sans-serif; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); position: relative;">
+                        <div style="position: absolute; top: 0; right: 0; width: 8px; height: 8px; border: 1px solid #52525b; border-right: 1px solid #52525b;"></div>
+                        <div style="position: absolute; bottom: 0; right: 0; width: 8px; height: 8px; border: 1px solid #52525b; border-right: 1px solid #52525b;"></div>
+                        <p style="white-space: pre-wrap; margin: 0;">{q}</p>
+                    </div>
                 </div>
-                {f'''<div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                    {''.join([f'<span style="padding: 0.25rem 0.5rem; background: #222; border: 1px solid #333; font-family: Rajdhani, sans-serif; font-size: 10px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.1em;">SRC: {src}</span>' for src in s])}
-                </div>''' if s else ''}
             </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
+        
+        # Show assistant answer
+        if a:
+            st.markdown(f"""
+            <div style="display: flex; justify-content: flex-start; margin-bottom: 2rem;">
+                <div style="max-width: 80%; display: flex; flex-direction: column; align-items: flex-start;">
+                    <span style="font-family: 'Rajdhani', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.25rem; color: var(--pool-red);">
+                        AI // DEADPOOL
+                    </span>
+                    <div style="background: #111; border-left: 2px solid var(--pool-red); padding: 1.25rem; color: #d1d5db; font-family: 'Rajdhani', sans-serif; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); position: relative;">
+                        <div style="position: absolute; top: 0; left: 0; width: 8px; height: 8px; border: 1px solid #52525b; border-left: 1px solid #52525b;"></div>
+                        <div style="position: absolute; bottom: 0; left: 0; width: 8px; height: 8px; border: 1px solid #52525b; border-left: 1px solid #52525b;"></div>
+                        <p style="white-space: pre-wrap; margin: 0;">{a}</p>
+                    </div>
+                    {f'''<div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        {''.join([f'<span style="padding: 0.25rem 0.5rem; background: #222; border: 1px solid #333; font-family: Rajdhani, sans-serif; font-size: 10px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.1em;">SRC: {src}</span>' for src in s])}
+                    </div>''' if s else ''}
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
     
     # Input area
     q_input = st.text_input("Enter query parameter...", key="home_chat_input", placeholder="Enter query parameter...")
     if st.button("SEND", key="home_chat_send", type="primary"):
         if q_input:
-            with st.spinner("Decryption in progress..."):
-                res = st.session_state.agent_controller.answer_question(q_input, st.session_state.latest_document)
-                st.session_state.chat_history.append({'question': q_input, 'answer': res['answer'], 'sources': res.get('sources', [])})
-                st.rerun()
+            if not st.session_state.agent_controller:
+                st.error("⚠️ Agent controller not initialized. Please process documents first!")
+            elif not st.session_state.vector_store or st.session_state.vector_store.get_collection_count() == 0:
+                st.error("⚠️ No documents processed. Upload and process documents first!")
+            else:
+                try:
+                    with st.spinner("Decryption in progress..."):
+                        res = st.session_state.agent_controller.answer_question(
+                            q_input, 
+                            prioritize_source=st.session_state.get('latest_document')
+                        )
+                        if res and 'answer' in res:
+                            st.session_state.chat_history.append({
+                                'question': q_input, 
+                                'answer': res['answer'], 
+                                'sources': res.get('sources', [])
+                            })
+                            st.rerun()
+                        else:
+                            st.error("⚠️ Failed to get answer from agent. Please try again.")
+                except Exception as e:
+                    st.error(f"⚠️ Error: {str(e)}")
+                    logger.exception("Error in chat interface")
 
 def show_arsenal_portal_page():
     """Arsenal Portal page matching React ArsenalPortal component"""
@@ -1036,29 +1073,73 @@ def show_arsenal_portal_page():
         col1, col2 = st.columns(2)
         with col1:
             if st.button("💾 LOCK & LOAD", use_container_width=True, type="primary", key="arsenal_save"):
-                docs_dir = ensure_documents_directory()
-                saved = 0
-                for f in uploaded_files:
-                    file_path = docs_dir / f.name
-                    if not file_path.exists():
-                        with open(file_path, "wb") as pf:
-                            pf.write(f.getbuffer())
-                        saved += 1
-                if saved > 0:
-                    st.success(f"✅ Saved {saved} files!")
-                    st.session_state.documents_processed = False
-                    st.rerun()
+                try:
+                    docs_dir = ensure_documents_directory()
+                    saved = 0
+                    saved_files = []
+                    for f in uploaded_files:
+                        try:
+                            file_path = docs_dir / f.name
+                            if not file_path.exists():
+                                with open(file_path, "wb") as pf:
+                                    pf.write(f.getbuffer())
+                                saved += 1
+                                saved_files.append(f.name)
+                                # Track upload order
+                                if f.name not in st.session_state.document_upload_order:
+                                    st.session_state.document_upload_order.append(f.name)
+                                else:
+                                    st.session_state.document_upload_order.remove(f.name)
+                                    st.session_state.document_upload_order.append(f.name)
+                        except Exception as e:
+                            logger.error(f"Error saving file {f.name}: {e}")
+                            st.error(f"⚠️ Failed to save {f.name}: {str(e)}")
+                    
+                    if saved > 0:
+                        if saved_files:
+                            st.session_state.latest_document = saved_files[-1]
+                        st.success(f"✅ Saved {saved} file(s)!")
+                        st.session_state.documents_processed = False
+                        st.rerun()
+                    else:
+                        st.info("Files already exist or no files to save.")
+                except Exception as e:
+                    logger.exception("Error in arsenal save")
+                    st.error(f"⚠️ Error saving files: {str(e)}")
         with col2:
             if st.button("🔄 MAXIMUM EFFORT (PROCESS)", use_container_width=True, type="primary", key="arsenal_process"):
-                docs_dir = ensure_documents_directory()
-                for f in uploaded_files:
-                    file_path = docs_dir / f.name
-                    if not file_path.exists():
-                        with open(file_path, "wb") as pf:
-                            pf.write(f.getbuffer())
-                if process_documents():
-                    st.session_state.uploaded_files_shared = None
-                    st.rerun()
+                try:
+                    docs_dir = ensure_documents_directory()
+                    saved_files = []
+                    for f in uploaded_files:
+                        try:
+                            file_path = docs_dir / f.name
+                            if not file_path.exists():
+                                with open(file_path, "wb") as pf:
+                                    pf.write(f.getbuffer())
+                                saved_files.append(f.name)
+                                # Track upload order
+                                if f.name not in st.session_state.document_upload_order:
+                                    st.session_state.document_upload_order.append(f.name)
+                                else:
+                                    st.session_state.document_upload_order.remove(f.name)
+                                    st.session_state.document_upload_order.append(f.name)
+                        except Exception as e:
+                            logger.error(f"Error saving file {f.name}: {e}")
+                            st.error(f"⚠️ Failed to save {f.name}: {str(e)}")
+                    
+                    # Update latest document before processing
+                    if saved_files:
+                        st.session_state.latest_document = saved_files[-1]
+                    
+                    if process_documents():
+                        st.session_state.uploaded_files_shared = None
+                        st.rerun()
+                    else:
+                        st.error("⚠️ Failed to process documents. Please check logs.")
+                except Exception as e:
+                    logger.exception("Error in arsenal process")
+                    st.error(f"⚠️ Error processing files: {str(e)}")
 
     # CASE 2: RETURNING USER (Pro Dashboard)
     st.markdown("<h2 class='designer-header' style='font-size: 3rem; background: var(--deadpool-red); border-color: #fff;'>⚡ COMMAND CENTER</h2>", unsafe_allow_html=True)
@@ -1636,10 +1717,29 @@ def show_chat_page():
         q_input = st.text_input("💭 INTERROGATE THE SYSTEM (ASK ANYTHING):", placeholder="e.g., Explain the primary directives of the mission...")
         if st.button("🔍 INITIATE INTERROGATION", type="primary", use_container_width=True):
             if q_input:
-                with st.spinner("Searching through the sematic archives... stay frosty..."):
-                    res = st.session_state.agent_controller.answer_question(q_input, st.session_state.latest_document)
-                    st.session_state.chat_history.append({'question': q_input, 'answer': res['answer'], 'sources': res.get('sources', [])})
-                    st.rerun()
+                if not st.session_state.agent_controller:
+                    st.error("⚠️ Agent controller not initialized. Please process documents first!")
+                elif not st.session_state.vector_store or st.session_state.vector_store.get_collection_count() == 0:
+                    st.error("⚠️ No documents processed. Upload and process documents first!")
+                else:
+                    try:
+                        with st.spinner("Searching through the sematic archives... stay frosty..."):
+                            res = st.session_state.agent_controller.answer_question(
+                                q_input, 
+                                prioritize_source=st.session_state.get('latest_document')
+                            )
+                            if res and 'answer' in res:
+                                st.session_state.chat_history.append({
+                                    'question': q_input, 
+                                    'answer': res['answer'], 
+                                    'sources': res.get('sources', [])
+                                })
+                                st.rerun()
+                            else:
+                                st.error("⚠️ Failed to get answer from agent. Please try again.")
+                    except Exception as e:
+                        st.error(f"⚠️ Error: {str(e)}")
+                        logger.exception("Error in chat page")
         st.markdown('</div>', unsafe_allow_html=True)
 
 def show_analytics_page():
