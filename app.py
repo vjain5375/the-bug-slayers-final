@@ -233,6 +233,12 @@ st.markdown("""
         animation: fade-slide-up 0.3s ease-out forwards !important;
     }
 
+    /* Pulse animation for status */
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
     /* GLOBAL THEME OVERRIDE */
     .stApp {
         background: #0a0a0a;
@@ -749,37 +755,42 @@ def main():
         
         st.divider()
         
-    # Top Bar matching React version
+    # Top Bar matching React version - Main Header
     st.markdown("""
-    <div style="position: sticky; top: 0; z-index: 30; background: rgba(10,10,10,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #222; padding: 0.75rem 2rem; display: flex; justify-content: space-between; align-items: center; margin: -1rem -1rem 1rem -1rem;">
+    <div style="position: sticky; top: 0; z-index: 30; background: rgba(10,10,10,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #222; padding: 0.75rem 2rem; margin: 0 -1rem 1rem -1rem; display: flex; justify-content: space-between; align-items: center;">
         <div style="display: flex; align-items: center; gap: 1rem;">
             <span style="font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: #71717a; text-transform: uppercase; letter-spacing: 0.2em;">Current Op:</span>
-            <span style="font-family: 'Anton', sans-serif; font-size: 1.125rem; color: white; text-transform: uppercase;" id="current-op">DASHBOARD</span>
+            <span style="font-family: 'Anton', sans-serif; font-size: 1.125rem; color: white; text-transform: uppercase; font-weight: bold;" id="current-op">DASHBOARD</span>
         </div>
         <div style="display: flex; align-items: center; gap: 1rem;">
-            <div style="text-align: right; display: none;">
-                <p style="font-family: 'Anton', sans-serif; font-size: 0.875rem; color: var(--pool-red); margin: 0;">DEADPOOL</p>
-                <p style="font-family: 'Rajdhani', sans-serif; font-size: 10px; color: #71717a; text-transform: uppercase; margin: 0;">Mercenary / Oracle</p>
+            <div style="text-align: right; display: block;">
+                <p style="font-family: 'Anton', sans-serif; font-size: 0.875rem; color: var(--pool-red); margin: 0; line-height: 1.2;">DEADPOOL</p>
+                <p style="font-family: 'Rajdhani', sans-serif; font-size: 10px; color: #71717a; text-transform: uppercase; margin: 0; line-height: 1.2;">Mercenary / Oracle</p>
             </div>
-            <div style="width: 32px; height: 32px; background: var(--pool-red); border: 1px solid #dc2626; display: flex; align-items: center; justify-content: center; font-family: 'Anton', sans-serif; font-size: 0.75rem; border-radius: 4px; overflow: hidden;">
+            <div style="width: 32px; height: 32px; background: var(--pool-red); border: 1px solid #dc2626; display: flex; align-items: center; justify-content: center; font-family: 'Anton', sans-serif; font-size: 0.75rem; border-radius: 4px; overflow: hidden; flex-shrink: 0;">
                 <span style="color: white;">DP</span>
             </div>
         </div>
     </div>
     <script>
-        const pageMap = {
-            'Home': 'DASHBOARD',
-            'Arsenal Portal': 'INTEL UPLOAD',
-            'Flashcards': 'MEMORY TRAINING',
-            'Quizzes': 'COMBAT SIM',
-            'Revision Planner': 'TACTICAL PLAN',
-            'Chat Assistant': 'ORACLE LINK',
-            'Analytics': 'STATISTICS'
-        };
-        const currentPage = '""" + st.session_state.current_page + """';
-        if (document.getElementById('current-op')) {
-            document.getElementById('current-op').textContent = pageMap[currentPage] || 'DASHBOARD';
-        }
+        (function() {
+            const pageMap = {
+                'Home': 'DASHBOARD',
+                'Arsenal Portal': 'INTEL UPLOAD',
+                'Flashcards': 'MEMORY TRAINING',
+                'Quizzes': 'COMBAT SIM',
+                'Revision Planner': 'TACTICAL PLAN',
+                'Chat Assistant': 'ORACLE LINK',
+                'Analytics': 'STATISTICS'
+            };
+            const currentPage = '""" + st.session_state.current_page + """';
+            setTimeout(function() {
+                const elem = document.getElementById('current-op');
+                if (elem) {
+                    elem.textContent = pageMap[currentPage] || 'DASHBOARD';
+                }
+            }, 100);
+        })();
     </script>
     """, unsafe_allow_html=True)
     
