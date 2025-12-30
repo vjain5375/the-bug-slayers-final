@@ -15,6 +15,37 @@ from dotenv import load_dotenv
 load_dotenv()
 logger = logging.getLogger(__name__)
 
+# Try importing google-generativeai as fallback
+try:
+    import google.generativeai as genai
+    GENAI_AVAILABLE = True
+except ImportError:
+    GENAI_AVAILABLE = False
+
+
+class DirectGenAIChat:
+    """Direct wrapper for google-generativeai when langchain fails"""
+    def __init__(self, api_key: str):
+        if not GENAI_AVAILABLE:
+            raise ImportError("google-generativeai not available")
+        genai.configure(api_key=api_key)
+        self.model = genai.GenerativeModel('gemini-pro')
+    
+    def invoke(self, messages):
+        # Convert langchain messages to simple text
+        text_content = ""
+        for msg in messages:
+            if hasattr(msg, 'content'):
+                text_content += msg.content + "\n"
+        
+        response = self.model.generate_content(text_content)
+        
+        class Response:
+            def __init__(self, content):
+                self.content = content
+        
+        return Response(response.text if response.text else "No response generated")
+
 
 class ChatAgent:
     """Answers questions using content extracted from study materials"""
@@ -26,6 +57,13 @@ class ChatAgent:
         self.llm = None
         
         if api_key:
+            # Configure API key for direct google-generativeai if available
+            if GENAI_AVAILABLE:
+                try:
+                    genai.configure(api_key=api_key)
+                except Exception:
+                    pass
+            
             # Try multiple model names in order of preference
             model_names = [
                 "gemini-1.5-pro",
@@ -48,6 +86,15 @@ class ChatAgent:
                     logger.debug(f"Failed to initialize {model_name}: {str(e)}")
                     self.llm = None
                     continue  # Try next model
+            
+            # If langchain fails, try direct google-generativeai as last resort
+            if not self.llm and GENAI_AVAILABLE:
+                try:
+                    # Create a wrapper that uses google-generativeai directly
+                    self.llm = DirectGenAIChat(api_key)
+                    logger.info("Using direct google-generativeai as fallback")
+                except Exception as e:
+                    logger.warning(f"Failed to initialize direct GenAI: {str(e)}")
             
             if not self.llm:
                 logger.warning(f"Failed to initialize any Gemini model. Please check your API key and model availability.")
