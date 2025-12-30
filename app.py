@@ -179,40 +179,26 @@ st.markdown("""
         box-shadow: 2px 2px 0px #000 !important;
     }
 
-    /* COMMAND CENTER CARD BUTTONS */
+    /* COMMAND CENTER CARD BUTTONS - Invisible overlay */
     button[kind="secondary"][data-testid="baseButton-secondary"] {
-        background: var(--deadpool-red) !important;
-        background-image: radial-gradient(#000 10%, transparent 10%) !important;
-        background-size: 15px 15px !important;
-        color: white !important;
-        font-family: 'Bangers', cursive !important;
-        font-size: 1.8rem !important;
-        padding: 2rem !important;
-        border: 8px solid #000 !important;
-        box-shadow: 15px 15px 0px #000 !important;
-        transform: rotate(-1deg);
-        transition: all 0.2s ease;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
         width: 100% !important;
-        height: auto !important;
-        min-height: 180px !important;
-        text-align: left !important;
-        text-transform: uppercase;
-        position: relative;
-        white-space: pre-line !important;
-        line-height: 1.6 !important;
+        height: 100% !important;
+        z-index: 10 !important;
+        cursor: pointer !important;
     }
 
-    button[kind="secondary"][data-testid="baseButton-secondary"]:hover {
+    /* Make card hover effect */
+    .designer-card-red:hover {
         transform: rotate(-1deg) translate(-4px, -4px) !important;
         box-shadow: 20px 20px 0px #000 !important;
-        background: #ff0000 !important;
-        background-image: radial-gradient(#000 10%, transparent 10%) !important;
-        background-size: 15px 15px !important;
-    }
-
-    button[kind="secondary"][data-testid="baseButton-secondary"]:active {
-        transform: rotate(-1deg) translate(2px, 2px) !important;
-        box-shadow: 8px 8px 0px #000 !important;
     }
 
     /* SIDEBAR STYLING */
@@ -685,29 +671,74 @@ def show_home_page():
     # 1. High-Impact Quick Access Grid - Cards as Buttons
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("📇 MISSION CARDS\n\nWeaponized flashcards for rapid intel retention.\n\nCLICK TO ACCESS →", key="dash_flash", use_container_width=True, type="secondary"):
+        st.markdown("""
+        <div class="designer-card-red" style="transform: rotate(-1deg); padding: 2rem !important; cursor: pointer; position: relative;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem;">
+                📇 MISSION CARDS
+            </div>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">WEAPONIZED FLASHCARDS FOR RAPID INTEL RETENTION.</p>
+            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO ACCESS →</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("", key="dash_flash", use_container_width=True, type="secondary"):
             st.session_state.current_page = "Flashcards"
             st.rerun()
 
     with col2:
-        if st.button("📝 TACTICAL QUIZ\n\nTest your combat readiness with customized challenges.\n\nCLICK TO INITIATE →", key="dash_quiz", use_container_width=True, type="secondary"):
+        st.markdown("""
+        <div class="designer-card-red" style="transform: rotate(1deg); padding: 2rem !important; cursor: pointer; position: relative;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem;">
+                📝 TACTICAL QUIZ
+            </div>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">TEST YOUR COMBAT READINESS WITH CUSTOMIZED CHALLENGES.</p>
+            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO INITIATE →</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("", key="dash_quiz", use_container_width=True, type="secondary"):
             st.session_state.current_page = "Quizzes"
             st.rerun()
 
     col3, col4 = st.columns(2)
     with col3:
-        if st.button("💬 INTEL CHAT\n\nInterrogate the AI for deep semantic insights.\n\nCLICK TO INTERROGATE →", key="dash_chat", use_container_width=True, type="secondary"):
+        st.markdown("""
+        <div class="designer-card-red" style="transform: rotate(0.5deg); padding: 2rem !important; cursor: pointer; position: relative;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem;">
+                💬 INTEL CHAT
+            </div>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">INTERROGATE THE AI FOR DEEP SEMANTIC INSIGHTS.</p>
+            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO INTERROGATE →</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("", key="dash_chat", use_container_width=True, type="secondary"):
             st.session_state.current_page = "Chat Assistant"
             st.rerun()
 
     with col4:
-        if st.button("📅 BATTLE PLAN\n\nStrategize your learning journey with a timeline.\n\nCLICK TO VIEW →", key="dash_plan", use_container_width=True, type="secondary"):
+        st.markdown("""
+        <div class="designer-card-red" style="transform: rotate(-0.5deg); padding: 2rem !important; cursor: pointer; position: relative;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem;">
+                📅 BATTLE PLAN
+            </div>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">STRATEGIZE YOUR LEARNING JOURNEY WITH A TIMELINE.</p>
+            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO VIEW →</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("", key="dash_plan", use_container_width=True, type="secondary"):
             st.session_state.current_page = "Revision Planner"
             st.rerun()
 
     col5, _ = st.columns([1, 1])
     with col5:
-        if st.button("📊 MISSION STATS\n\nTrack your study efficiency and victory rates.\n\nCLICK TO ANALYZE →", key="dash_analytics", use_container_width=True, type="secondary"):
+        st.markdown("""
+        <div class="designer-card-red" style="transform: rotate(1.5deg); padding: 2rem !important; cursor: pointer; position: relative;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 2rem;">
+                📊 MISSION STATS
+            </div>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">TRACK YOUR STUDY EFFICIENCY AND VICTORY RATES.</p>
+            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO ANALYZE →</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("", key="dash_analytics", use_container_width=True, type="secondary"):
             st.session_state.current_page = "Analytics"
             st.rerun()
     
