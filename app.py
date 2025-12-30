@@ -193,12 +193,26 @@ st.markdown("""
         height: 100% !important;
         z-index: 10 !important;
         cursor: pointer !important;
+        opacity: 0 !important;
     }
 
     /* Make card hover effect */
     .designer-card-red:hover {
         transform: rotate(-1deg) translate(-4px, -4px) !important;
         box-shadow: 20px 20px 0px #000 !important;
+    }
+    
+    /* Ensure titles are visible above button */
+    .designer-card-red > div:first-child {
+        position: relative !important;
+        z-index: 20 !important;
+        pointer-events: none !important;
+    }
+    
+    .designer-card-red p {
+        position: relative !important;
+        z-index: 20 !important;
+        pointer-events: none !important;
     }
 
     /* SIDEBAR STYLING */
