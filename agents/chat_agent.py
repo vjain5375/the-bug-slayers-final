@@ -9,9 +9,11 @@ from typing import List, Dict, Optional
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
 import os
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
+logger = logging.getLogger(__name__)
 
 
 class ChatAgent:
@@ -21,25 +23,35 @@ class ChatAgent:
         self.vector_store = vector_store
         
         api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")
+        self.llm = None
+        
         if api_key:
-            try:
-                self.llm = ChatGoogleGenerativeAI(
-                    model="gemini-pro",
-                    temperature=0.2,
-                    google_api_key=api_key
-                )
-            except Exception:
-                # Fallback to gemini-1.5-pro if gemini-pro fails
+            # Try multiple model names in order of preference
+            model_names = [
+                "gemini-1.5-pro",
+                "gemini-pro", 
+                "gemini-1.5-flash-latest",
+                "models/gemini-1.5-pro",
+                "models/gemini-pro"
+            ]
+            
+            for model_name in model_names:
                 try:
                     self.llm = ChatGoogleGenerativeAI(
-                        model="gemini-1.5-pro",
+                        model=model_name,
                         temperature=0.2,
                         google_api_key=api_key
                     )
-                except Exception:
+                    # Test the model with a simple call
+                    test_response = self.llm.invoke([HumanMessage(content="test")])
+                    if test_response and test_response.content:
+                        break  # Model works, use it
+                except Exception as e:
                     self.llm = None
-        else:
-            self.llm = None
+                    continue  # Try next model
+            
+            if not self.llm:
+                logger.warning(f"Failed to initialize any Gemini model. API key present: {bool(api_key)}")
     
     def answer_question(self, question: str, n_chunks: int = 5, prioritize_source: Optional[str] = None) -> Dict:
         """
