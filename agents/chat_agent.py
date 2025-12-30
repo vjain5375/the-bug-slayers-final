@@ -30,7 +30,7 @@ class ChatAgent:
             model_names = [
                 "gemini-1.5-pro",
                 "gemini-pro", 
-                "gemini-1.5-flash-latest",
+                "gemini-1.5-flash",
                 "models/gemini-1.5-pro",
                 "models/gemini-pro"
             ]
@@ -42,16 +42,15 @@ class ChatAgent:
                         temperature=0.2,
                         google_api_key=api_key
                     )
-                    # Test the model with a simple call
-                    test_response = self.llm.invoke([HumanMessage(content="test")])
-                    if test_response and test_response.content:
-                        break  # Model works, use it
+                    logger.info(f"Successfully initialized Gemini model: {model_name}")
+                    break  # Model initialized successfully
                 except Exception as e:
+                    logger.debug(f"Failed to initialize {model_name}: {str(e)}")
                     self.llm = None
                     continue  # Try next model
             
             if not self.llm:
-                logger.warning(f"Failed to initialize any Gemini model. API key present: {bool(api_key)}")
+                logger.warning(f"Failed to initialize any Gemini model. Please check your API key and model availability.")
     
     def answer_question(self, question: str, n_chunks: int = 5, prioritize_source: Optional[str] = None) -> Dict:
         """
