@@ -353,18 +353,44 @@ st.markdown("""
         pointer-events: none !important;
     }
 
-    /* SIDEBAR STYLING */
+    /* SIDEBAR STYLING - Matching React Version */
     section[data-testid="stSidebar"] {
-        background-color: #000000 !important;
-        border-right: 8px solid var(--deadpool-red);
+        background-color: #0d0d0d !important;
+        border-right: 1px solid #333 !important;
     }
     
     section[data-testid="stSidebar"]::after {
         content: "";
         position: absolute;
-        top: 0; right: 4px; bottom: 0; left: 0;
-        border-right: 3px solid #fff;
+        top: 0; right: 0; bottom: 0; left: 0;
+        border-right: 1px solid #333;
         pointer-events: none;
+    }
+    
+    /* Sidebar Navigation Items */
+    section[data-testid="stSidebar"] button {
+        background: transparent !important;
+        border: none !important;
+        border-left: 2px solid transparent !important;
+        color: #9ca3af !important;
+        font-family: 'Rajdhani', sans-serif !important;
+        font-weight: 600 !important;
+        padding: 1rem !important;
+        width: 100% !important;
+        text-align: left !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    section[data-testid="stSidebar"] button:hover {
+        background: #151515 !important;
+        color: #d1d5db !important;
+        border-left-color: #333 !important;
+    }
+    
+    /* Top Bar Styling */
+    .stApp > header {
+        background: #0a0a0a !important;
+        border-bottom: 1px solid #222 !important;
     }
 
     /* FANCY RADIO BUTTONS FOR QUIZ */
@@ -549,48 +575,87 @@ def trigger_maximum_effort_strike():
 
 # --- MAIN APP FLOW ---
 def main():
-    # Sidebar
+    # Sidebar - Matching React Version
     with st.sidebar:
+        # Header matching React Sidebar
         st.markdown("""
-        <div style="text-align: center; padding: 1rem; background: var(--deadpool-red); border: 5px solid #fff; box-shadow: 5px 5px 0px #000; margin-bottom: 2rem; transform: rotate(-2deg);">
-            <h1 style="font-family: 'Bangers'; color: #fff; font-size: 2.5rem; margin: 0; text-shadow: 3px 3px 0px #000;">⚔️ ARSENAL HUB</h1>
+        <div style="padding: 1.5rem 1.5rem 0.5rem; position: relative; z-index: 10;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+                <div style="width: 40px; height: 40px; background: var(--pool-red); display: flex; align-items: center; justify-content: center; font-family: 'Anton', sans-serif; font-size: 1.5rem; color: white; transform: rotate(3deg); position: relative; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
+                    DP
+                    <div style="position: absolute; top: -8px; right: -8px; width: 16px; height: 16px; background: #fbbf24; border-radius: 50%; border: 2px solid black;"></div>
+                </div>
+                <div>
+                    <h1 style="font-family: 'Anton', sans-serif; font-size: 1.5rem; color: white; line-height: 1; letter-spacing: 0.05em; text-transform: uppercase; margin: 0;">
+                        <span style="color: var(--pool-red);">DEADPOOL'S</span><br/>
+                        STUDY HUB
+                    </h1>
+                    <p style="font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: #71717a; letter-spacing: 0.2em; text-transform: uppercase; margin: 0;">Auth: Level 5 (God)</p>
+                </div>
+            </div>
+
+            <!-- Status Indicator -->
+            <div style="background: #151515; padding: 0.75rem; border: 1px solid #333; margin-bottom: 1.5rem; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: 0; left: 0; width: 2px; height: 100%; background: var(--pool-red);"></div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.25rem;">
+                    <span style="font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: #a1a1aa; text-transform: uppercase;">System Status</span>
+                    <span style="font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: #22c55e; font-weight: bold; text-transform: uppercase; animation: pulse 2s infinite;">Online</span>
+                </div>
+                <div style="width: 100%; background: #333; height: 4px;">
+                    <div style="background: var(--pool-red); height: 4px; width: 75%;"></div>
+                </div>
+            </div>
         </div>
         """, unsafe_allow_html=True)
         
-        # FANCY NAVIGATION MENU
-        st.markdown("<p style='font-family: \"Bangers\"; font-size: 1.4rem; color: var(--deadpool-red); margin-bottom: 2rem; text-shadow: 2px 2px 0px #000;'>🎯 DESTINATIONS</p>", unsafe_allow_html=True)
+        # Navigation matching React version
+        nav_items = [
+            ("Home", "⌖", "MISSION CONTROL"),
+            ("Arsenal Portal", "⬆", "INTEL UPLOAD"),
+            ("Flashcards", "⚡", "FLASH MEMORY"),
+            ("Quizzes", "⚔", "BATTLE SIM"),
+            ("Revision Planner", "🗓", "TACTICAL PLAN"),
+        ]
         
-        nav_options = {
-            "Home": "🏠",
-            "Flashcards": "📇",
-            "Quizzes": "📝",
-            "Revision Planner": "📅",
-            "Chat Assistant": "💬",
-            "Analytics": "📊"
-        }
+        st.markdown('<nav style="flex: 1; padding: 0 1rem; display: flex; flex-direction: column; gap: 0.5rem; position: relative; z-index: 10;">', unsafe_allow_html=True)
         
-        for page_name, icon in nav_options.items():
+        for page_name, icon, label in nav_items:
             is_active = st.session_state.current_page == page_name
+            border_color = "var(--pool-red)" if is_active else "transparent"
+            bg_color = "#1a1a1a" if is_active else "transparent"
+            text_color = "white" if is_active else "#9ca3af"
+            icon_color = "var(--pool-red)" if is_active else "#52525b"
             
-            # Sidebar Active Marker (Premium Comic Arrow) - Improved Positioning
-            col_marker, col_btn = st.columns([1.5, 8.5])
-            with col_marker:
-                if is_active:
-                    st.markdown("""
-                        <div style='height: 95px; display: flex; align-items: center; justify-content: flex-end; margin-right: 5px;'>
-                            <div style="font-size: 3.5rem; color: white; filter: drop-shadow(4px 4px 0px #000); line-height: 1;">▶</div>
-                        </div>
-                    """, unsafe_allow_html=True)
-                else:
-                    st.markdown("<div style='height: 95px;'></div>", unsafe_allow_html=True)
+            st.markdown(f"""
+            <div style="width: 100%; position: relative; margin-bottom: 0.5rem;">
+                <div style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: var(--pool-red); border-radius: 50%; box-shadow: 0 0 8px rgba(220,38,38,0.8); display: {'block' if is_active else 'none'};"></div>
+            </div>
+            """, unsafe_allow_html=True)
             
-            with col_btn:
-                # Create a stylized button-like container
-                if st.button(f"{icon} {page_name.upper()}", key=f"side_nav_{page_name}", use_container_width=True, type="secondary" if not is_active else "primary"):
-                    st.session_state.current_page = page_name
-                    st.rerun()
-
-        st.markdown("<div style='margin-bottom: 2rem;'></div>", unsafe_allow_html=True)
+            if st.button(f"{icon} {label}", key=f"nav_{page_name}", use_container_width=True, type="primary" if is_active else "secondary"):
+                st.session_state.current_page = page_name
+                st.rerun()
+        
+        st.markdown('</nav>', unsafe_allow_html=True)
+        
+        # Footer matching React version
+        chunk_count = st.session_state.vector_store.get_collection_count() if st.session_state.vector_store else 0
+        st.markdown(f"""
+        <div style="padding: 1.5rem; background: #0a0a0a; border-top: 1px solid #333; position: relative; z-index: 10;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <span style="font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: #71717a; text-transform: uppercase;">Documents Parsed</span>
+                <span style="font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: bold; color: white;">{chunk_count}</span>
+            </div>
+            
+            <div style="margin-top: 1rem; text-align: center;">
+                <p style="font-family: 'Permanent Marker', cursive; font-size: 0.75rem; color: #52525b; transform: rotate(-2deg);">
+                    "Don't forget to study!" - No one
+                </p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
         
         uploaded_files = st.file_uploader(
             "📎 Upload Study Materials",
@@ -684,9 +749,45 @@ def main():
         
         st.divider()
         
+    # Top Bar matching React version
+    st.markdown("""
+    <div style="position: sticky; top: 0; z-index: 30; background: rgba(10,10,10,0.9); backdrop-filter: blur(10px); border-bottom: 1px solid #222; padding: 0.75rem 2rem; display: flex; justify-content: space-between; align-items: center; margin: -1rem -1rem 1rem -1rem;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <span style="font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: #71717a; text-transform: uppercase; letter-spacing: 0.2em;">Current Op:</span>
+            <span style="font-family: 'Anton', sans-serif; font-size: 1.125rem; color: white; text-transform: uppercase;" id="current-op">DASHBOARD</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div style="text-align: right; display: none;">
+                <p style="font-family: 'Anton', sans-serif; font-size: 0.875rem; color: var(--pool-red); margin: 0;">DEADPOOL</p>
+                <p style="font-family: 'Rajdhani', sans-serif; font-size: 10px; color: #71717a; text-transform: uppercase; margin: 0;">Mercenary / Oracle</p>
+            </div>
+            <div style="width: 32px; height: 32px; background: var(--pool-red); border: 1px solid #dc2626; display: flex; align-items: center; justify-content: center; font-family: 'Anton', sans-serif; font-size: 0.75rem; border-radius: 4px; overflow: hidden;">
+                <span style="color: white;">DP</span>
+            </div>
+        </div>
+    </div>
+    <script>
+        const pageMap = {
+            'Home': 'DASHBOARD',
+            'Arsenal Portal': 'INTEL UPLOAD',
+            'Flashcards': 'MEMORY TRAINING',
+            'Quizzes': 'COMBAT SIM',
+            'Revision Planner': 'TACTICAL PLAN',
+            'Chat Assistant': 'ORACLE LINK',
+            'Analytics': 'STATISTICS'
+        };
+        const currentPage = '""" + st.session_state.current_page + """';
+        if (document.getElementById('current-op')) {
+            document.getElementById('current-op').textContent = pageMap[currentPage] || 'DASHBOARD';
+        }
+    </script>
+    """, unsafe_allow_html=True)
+    
     # Main Content Area
     if st.session_state.current_page == "Home":
         show_home_page()
+    elif st.session_state.current_page == "Arsenal Portal":
+        show_arsenal_portal_page()
     elif st.session_state.current_page == "Flashcards":
         show_flashcards_page()
     elif st.session_state.current_page == "Quizzes":
@@ -706,116 +807,258 @@ def main():
     """, unsafe_allow_html=True)
         
 def show_home_page():
-    """Deadpool-themed Home page with Designer Visuals"""
+    """Home page matching React App.tsx structure"""
     
-    # Hero Section with Deadpool Action Grid Style - RED/BLACK/WHITE
+    # Hero Banner matching React version
     st.markdown("""
-    <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 6rem 2rem; border: 10px solid #000; box-shadow: 20px 20px 0px var(--deadpool-red), 30px 30px 0px #000; text-align: center; margin-bottom: 4rem; position: relative; transform: rotate(-1deg) skew(-1deg);">
-        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); border: 4px solid #fff; margin: 10px;"></div>
-        <div style="position: relative; z-index: 2;">
-            <h1 style="font-family: 'Bangers'; font-size: 5rem; color: #fff; text-shadow: 8px 8px 0px var(--deadpool-red), 12px 12px 0px #000; margin: 0; letter-spacing: 5px; transform: rotate(1deg);">WEAPONIZED KNOWLEDGE!</h1>
-            <p style="font-family: 'Bangers', cursive; color: #fff; font-size: 2.2rem; background: var(--deadpool-red); display: inline-block; padding: 1rem 3rem; transform: skew(-15deg); margin-top: 2.5rem; border: 5px solid #fff; box-shadow: 10px 10px 0px #000; text-shadow: 3px 3px 0px #000;">MAXIMUM EFFORT. MINIMUM STUDYING.</p>
+    <div style="position: relative; border: 1px solid #333; background: #0a0a0a; padding: 3rem; overflow: visible; margin-bottom: 4rem;">
+        <div style="position: absolute; right: 0; top: 0; width: 50%; height: 100%; background: linear-gradient(to left, rgba(153,27,27,0.1), transparent); pointer-events: none;"></div>
+        
+        <div style="position: relative; z-index: 10; max-width: 42rem;">
+            <div style="display: inline-block; background: var(--pool-red); color: white; padding: 0.25rem 0.75rem; font-family: 'Anton', sans-serif; font-size: 0.875rem; margin-bottom: 1rem; transform: skewX(-12deg);">
+                <span style="transform: skewX(12deg); display: inline-block;">CLASSIFIED CLEARANCE</span>
+            </div>
+            <h1 style="font-family: 'Anton', sans-serif; font-size: 4rem; color: white; margin-bottom: 1.5rem; line-height: 0.9; letter-spacing: 0.05em; text-transform: uppercase;">
+                <span style="background: linear-gradient(to right, #ef4444, #991b1b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">DEADPOOL'S</span><br/>
+                STUDY HUB
+            </h1>
+            <p style="font-family: 'Rajdhani', sans-serif; font-size: 1.25rem; color: #a1a1aa; max-width: 32rem; line-height: 1.75;">
+                Your tactical guide to surviving the academic bureaucracy. No reading required. Just answers.
+            </p>
+        </div>
+
+        <!-- Graffiti Note -->
+        <div class="tape-strip" style="position: absolute; top: 2.5rem; right: 25%; padding: 1rem; width: 16rem; transform: rotate(6deg); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); z-index: 20; display: none;">
+            <p style="font-family: 'Permanent Marker', cursive; color: black; font-size: 1.125rem; line-height: 1.25; text-align: center; margin: 0;">
+                "I read the handbook so you don't have to! It tasted like dust."
+            </p>
         </div>
     </div>
     """, unsafe_allow_html=True)
         
-    # CASE 1: NEW USER EXPERIENCE (High-Impact Onboarding)
-    if not st.session_state.documents_processed:
-        st.markdown("<h2 class='designer-header' style='text-align: center; display: block; font-size: 2.5rem;'>⚔️ MISSION OBJECTIVES</h2>", unsafe_allow_html=True)
+    # Mission Protocol Steps matching React version
+    st.markdown("""
+    <div style="position: relative; margin-bottom: 4rem;">
+        <h3 style="font-family: 'Anton', sans-serif; font-size: 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; color: white; text-transform: uppercase; letter-spacing: 0.05em;">
+            <span style="width: 8px; height: 32px; background: var(--pool-red); margin-right: 1rem;"></span>
+            MISSION PROTOCOL
+        </h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+    """, unsafe_allow_html=True)
+    
+    steps = [
+        {'title': 'UPLOAD', 'desc': 'Drop your PDF/TXT files in the portal.', 'icon': '01'},
+        {'title': 'PARSE', 'desc': 'I extract the boring policy stuff.', 'icon': '02'},
+        {'title': 'ASK', 'desc': 'Type your question in the box.', 'icon': '03'},
+        {'title': 'CONQUER', 'desc': 'Get instant, cited answers.', 'icon': '04'}
+    ]
+    
+    for i, step in enumerate(steps):
+        st.markdown(f"""
+        <div style="background: #0f0f0f; border: 1px solid #222; padding: 1.5rem; transition: border-color 0.2s; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; right: 0; padding: 0.5rem; opacity: 0.1; transition: opacity 0.2s;">
+                <span style="font-size: 3rem;">📄</span>
+            </div>
+            <div style="font-family: 'Anton', sans-serif; font-size: 3rem; color: #222; margin-bottom: 1rem; transition: color 0.2s;">{step['icon']}</div>
+            <h4 style="font-family: 'Anton', sans-serif; font-size: 1.25rem; color: white; margin-bottom: 0.5rem; text-transform: uppercase;">{step['title']}</h4>
+            <p style="font-family: 'Rajdhani', sans-serif; color: #71717a; font-size: 0.875rem;">{step['desc']}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Chat Interface Section matching React version
+    st.markdown("""
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; margin-top: 2rem;">
+        <div>
+            <h3 style="font-family: 'Anton', sans-serif; font-size: 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; color: white; text-transform: uppercase;">
+                <span style="width: 8px; height: 32px; background: var(--pool-red); margin-right: 1rem;"></span>
+                LIVE ORACLE LINK
+            </h3>
+    """, unsafe_allow_html=True)
+    
+    # Show chat interface inline on home page
+    show_chat_interface_inline()
+    
+    st.markdown("""
+        </div>
         
-        # Journey Cards with Designer Style
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown("""
-            <div class="designer-card-red" style="transform: rotate(-2deg) skew(-2deg);">
-                <h3 class="designer-header" style="font-size: 2.5rem; background: #000; color: #fff; border: 4px solid #fff;">1️⃣ LOAD UP</h3>
-                <p style="color: #fff; font-size: 1.4rem; font-weight: 900; font-family: 'Oswald', sans-serif; text-shadow: 2px 2px 0px #000; line-height: 1.2;">Drop your PDFs, DOCX, or Text notes into the side-feed. Don't worry, I won't read your diary... maybe.</p>
-            </div>
-            <div class="designer-card-red" style="transform: rotate(1deg) skew(1deg); margin-top: 2rem;">
-                <h3 class="designer-header" style="font-size: 2.5rem; background: #000; color: #fff; border: 4px solid #fff;">3️⃣ EXTRACT</h3>
-                <p style="color: #fff; font-size: 1.4rem; font-weight: 900; font-family: 'Oswald', sans-serif; text-shadow: 2px 2px 0px #000; line-height: 1.2;">Hit <b>'PROCESS'</b>. My agents will slice and dice your text into pure semantic gold faster than I can slice a chimichanga.</p>
-            </div>
-            """, unsafe_allow_html=True)
-        with col2:
-            st.markdown("""
-            <div class="designer-card-red" style="transform: rotate(2deg) skew(2deg);">
-                <h3 class="designer-header" style="font-size: 2.5rem; background: #000; color: #fff; border: 4px solid #fff;">2️⃣ LOCK & LOAD</h3>
-                <p style="color: #fff; font-size: 1.4rem; font-weight: 900; font-family: 'Oswald', sans-serif; text-shadow: 2px 2px 0px #000; line-height: 1.2;">Hit <b>'SAVE'</b> to commit those files to my infinite memory banks. No take-backs!</p>
-            </div>
-            <div class="designer-card-red" style="transform: rotate(-1.5deg) skew(-1.5deg); margin-top: 2rem;">
-                <h3 class="designer-header" style="font-size: 2.5rem; background: #000; color: #fff; border: 4px solid #fff;">4️⃣ DOMINATE</h3>
-                <p style="color: #fff; font-size: 1.4rem; font-weight: 900; font-family: 'Oswald', sans-serif; text-shadow: 2px 2px 0px #000; line-height: 1.2;">Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now operational. Go be a hero... or whatever.</p>
-            </div>
-            """, unsafe_allow_html=True)
-
-        st.markdown("<br>", unsafe_allow_html=True)
-        # Add the thumbs up Deadpool image
-        st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=350)
-        
-        # Arsenal Portal (Upload Zone)
-        st.markdown("""
-            <div class="sexy-drop-zone">
-                <div class="tactical-border"></div>
-                <div class="command-center">
-                    <div class="pop-art-label">CLASSIFIED ARCHIVES</div>
-                    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; margin-top: 1rem;">
-                        <div style="background: #A80000; padding: 10px 30px; border: 6px solid #fff; transform: rotate(-1.5deg); box-shadow: 12px 12px 0px #000; display: inline-block; max-width: 90%;">
-                            <span style="font-family: 'Bangers', cursive !important; font-size: 3.0rem; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 1.5px;">⚔️ ARSENAL PORTAL</span>
-                        </div>
-                    </div>
-                    <p style="font-family: 'Bangers'; font-size: 2.2rem; color: #fff; letter-spacing: 3px; margin: 1.5rem 0; text-shadow: 3px 3px 0px #A80000;">DROP YOUR BRAIN JUICE HERE!</p>
-                    <div class="moving-danger-stripes"></div>
+        <!-- Side Panel / Status -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <div style="background: #111; border: 1px solid #333; padding: 1.5rem; position: relative; overflow: hidden;">
+                <div style="position: absolute; bottom: 0.5rem; right: 0.5rem; opacity: 0.1; pointer-events: none;">
+                    <span style="font-size: 5rem;">🔫</span>
                 </div>
+                <h4 style="font-family: 'Anton', sans-serif; font-size: 1.125rem; margin-bottom: 1rem; color: #d1d5db; text-transform: uppercase;">SYSTEM INTEL</h4>
+                <div style="display: flex; flex-direction: column; gap: 1rem; position: relative; z-index: 10;">
+    """, unsafe_allow_html=True)
+    
+    chunk_count = st.session_state.vector_store.get_collection_count() if st.session_state.vector_store else 0
+    stats = st.session_state.agent_controller.get_statistics() if st.session_state.agent_controller else {'total_chunks': 0}
+    
+    st.markdown(f"""
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 0.5rem;">
+                        <span style="font-family: 'Rajdhani', sans-serif; color: #71717a; text-transform: uppercase; font-size: 0.75rem;">Knowledge Base</span>
+                        <span style="font-family: 'Rajdhani', sans-serif; color: var(--pool-red); font-weight: bold;">{'ACTIVE' if chunk_count > 0 else 'EMPTY'}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 0.5rem;">
+                        <span style="font-family: 'Rajdhani', sans-serif; color: #71717a; text-transform: uppercase; font-size: 0.75rem;">Chunk Count</span>
+                        <span style="font-family: 'Rajdhani', sans-serif; color: white;">{chunk_count}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #222; padding-bottom: 0.5rem;">
+                        <span style="font-family: 'Rajdhani', sans-serif; color: #71717a; text-transform: uppercase; font-size: 0.75rem;">Last Sync</span>
+                        <span style="font-family: 'Rajdhani', sans-serif; color: white;">T-Minus 0s</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tape-strip" style="padding: 1rem; background: #f3f3f3; transform: rotate(1deg); position: relative;">
+                <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); width: 16px; height: 16px; background: red; border-radius: 50%; border: 2px solid black;"></div>
+                <p style="font-family: 'Permanent Marker', cursive; color: black; text-align: center; font-size: 0.875rem; margin: 0;">
+                    "Why is tuition so expensive? Does the Dean need a new yacht? Asking for a friend."
+                </p>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+def show_chat_interface_inline():
+    """Inline chat interface for home page matching React ChatInterface"""
+    # Chat messages area
+    if not st.session_state.chat_history:
+        st.markdown("""
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 400px; opacity: 0.6;">
+            <div style="width: 96px; height: 96px; border: 2px dashed var(--pool-red); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; animation: spin 10s linear infinite;">
+                <span style="font-family: 'Anton', sans-serif; font-size: 2.5rem; color: var(--pool-red);">⚠</span>
+            </div>
+            <h3 style="font-family: 'Anton', sans-serif; font-size: 2.5rem; color: white; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">SYSTEM IDLE</h3>
+            <div class="tape-strip" style="background: #f3f3f3; color: black; font-family: 'Permanent Marker', cursive; font-size: 1.25rem; padding: 0.5rem; transform: rotate(2deg); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);">
+                Ask me something hard!
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Display chat history
+    for chat in st.session_state.chat_history:
+        if isinstance(chat, dict):
+            q = chat.get('question', '')
+            a = chat.get('answer', '')
+            s = chat.get('sources', [])
+            is_user = False
+        else:
+            q, a = chat
+            s = []
+            is_user = True
+        
+        st.markdown(f"""
+        <div style="display: flex; {'justify-content: flex-end;' if is_user else 'justify-content: flex-start;'} margin-bottom: 2rem;">
+            <div style="max-width: 80%; display: flex; flex-direction: column; {'align-items: flex-end;' if is_user else 'align-items: flex-start;'}">
+                <span style="font-family: 'Rajdhani', sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.25rem; color: {'#06b6d4' if is_user else 'var(--pool-red)'};">
+                    {'OPERATOR // YOU' if is_user else 'AI // DEADPOOL'}
+                </span>
+                <div style="background: {'#1a1a1a' if is_user else '#111'}; border-{'right' if is_user else 'left'}: 2px solid {'#06b6d4' if is_user else 'var(--pool-red)'}; padding: 1.25rem; color: {'#e5e7eb' if is_user else '#d1d5db'}; font-family: 'Rajdhani', sans-serif; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); position: relative;">
+                    <div style="position: absolute; top: 0; width: 8px; height: 8px; border: 1px solid #52525b; {'right: 0; border-right: 1px solid #52525b;' if is_user else 'left: 0; border-left: 1px solid #52525b;'}"></div>
+                    <div style="position: absolute; bottom: 0; width: 8px; height: 8px; border: 1px solid #52525b; {'right: 0; border-right: 1px solid #52525b;' if is_user else 'left: 0; border-left: 1px solid #52525b;'}"></div>
+                    <p style="white-space: pre-wrap; margin: 0;">{q if is_user else a}</p>
+                </div>
+                {f'''<div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    {''.join([f'<span style="padding: 0.25rem 0.5rem; background: #222; border: 1px solid #333; font-family: Rajdhani, sans-serif; font-size: 10px; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.1em;">SRC: {src}</span>' for src in s])}
+                </div>''' if s else ''}
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Input area
+    q_input = st.text_input("Enter query parameter...", key="home_chat_input", placeholder="Enter query parameter...")
+    if st.button("SEND", key="home_chat_send", type="primary"):
+        if q_input:
+            with st.spinner("Decryption in progress..."):
+                res = st.session_state.agent_controller.answer_question(q_input, st.session_state.latest_document)
+                st.session_state.chat_history.append({'question': q_input, 'answer': res['answer'], 'sources': res.get('sources', [])})
+                st.rerun()
+
+def show_arsenal_portal_page():
+    """Arsenal Portal page matching React ArsenalPortal component"""
+    st.markdown("""
+    <div style="max-width: 56rem; margin: 2rem auto 0; position: relative;">
+        <!-- Header Block -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; position: relative; z-index: 10;">
+            <div>
+                <h2 style="font-family: 'Anton', sans-serif; font-size: 2.25rem; color: white; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">INTEL ACQUISITION</h2>
+                <p style="font-family: 'Rajdhani', sans-serif; color: #a1a1aa;">Upload official documents to train the Oracle.</p>
+            </div>
+            <div class="tape-strip" style="padding: 0.5rem 1.5rem; transform: rotate(2deg); display: none;">
+                <span style="font-family: 'Permanent Marker', cursive; color: black;">TOP SECRET!!</span>
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    uploaded_files = st.file_uploader(
+        "DROP FILES HERE",
+        type=['pdf', 'docx', 'doc', 'txt'],
+        accept_multiple_files=True,
+        key="arsenal_uploader",
+        label_visibility="collapsed"
+    )
+    
+    st.markdown("""
+        <div style="position: relative; background: #0d0d0d; border: 1px solid #333; padding: 4px;">
+            <div style="position: relative; padding: 4rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1px dashed #333; transition: all 0.2s;">
+                <!-- Corner Tech Elements -->
+                <div style="position: absolute; top: 1rem; left: 1rem; width: 16px; height: 16px; border-top: 1px solid #52525b; border-left: 1px solid #52525b;"></div>
+                <div style="position: absolute; top: 1rem; right: 1rem; width: 16px; height: 16px; border-top: 1px solid #52525b; border-right: 1px solid #52525b;"></div>
+                <div style="position: absolute; bottom: 1rem; left: 1rem; width: 16px; height: 16px; border-bottom: 1px solid #52525b; border-left: 1px solid #52525b;"></div>
+                <div style="position: absolute; bottom: 1rem; right: 1rem; width: 16px; height: 16px; border-bottom: 1px solid #52525b; border-right: 1px solid #52525b;"></div>
+                
+                <div style="margin-bottom: 1.5rem; width: 80px; height: 80px; background: #151515; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #333; position: relative;">
+                    <span style="font-size: 2.5rem; position: relative; z-index: 10;">📂</span>
+                    <div style="position: absolute; inset: 0; border: 2px solid rgba(220,38,38,0.3); border-radius: 50%; animation: ping 1s infinite;"></div>
+                </div>
+                
+                <h3 style="font-family: 'Anton', sans-serif; font-size: 1.5rem; color: white; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">DROP FILES HERE</h3>
+                <p style="font-family: 'Rajdhani', sans-serif; color: #71717a; margin-bottom: 2rem; max-width: 24rem;">
+                    Supports PDF, TXT, MD. Max file size 50MB. Do not upload pictures of your cat (unless it's wearing a mask).
+                </p>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    if uploaded_files:
+        st.session_state.uploaded_files_shared = uploaded_files
+        f_count = len(uploaded_files)
+        st.markdown(f"""
+        <div style="background: var(--pool-red); color: white; padding: 15px; border: 4px solid #fff; text-align: center; font-family: 'Anton', sans-serif; transform: rotate(1deg); box-shadow: 8px 8px 0px #000; margin: 1rem 0;">
+            ✅ {f_count} NEW TARGETS DETECTED! PREPARE TO SLICE!
         </div>
         """, unsafe_allow_html=True)
         
-        uploaded_files_main = st.file_uploader(
-            "📎 Choose files to upload",
-            type=['pdf', 'docx', 'doc', 'txt'],
-            accept_multiple_files=True,
-            key="main_uploader_onboarding",
-            label_visibility="collapsed"
-        )
-        
-        # Save and Process logic for onboarding
-        if uploaded_files_main:
-            st.session_state.uploaded_files_shared = uploaded_files_main
-            
-            f_count = len(uploaded_files_main)
-            st.markdown(f"""
-            <div style="background: #A80000; color: white; padding: 10px; border: 3px solid #000; text-align: center; font-family: 'Bangers'; transform: rotate(2deg); box-shadow: 5px 5px 0px #000; margin-bottom: 1rem;">
-                ✅ {f_count} TARGETS LOCKED! READY FOR SLICING!
-            </div>
-            """, unsafe_allow_html=True)
-            
-            col1, col2 = st.columns(2)
-            with col1:
-                if st.button("💾 SAVE TARGETS", use_container_width=True, type="primary", key="save_main_onboard"):
-                    docs_dir = ensure_documents_directory()
-                    saved = 0
-                    for f in uploaded_files_main:
-                        file_path = docs_dir / f.name
-                        if not file_path.exists():
-                            with open(file_path, "wb") as pf:
-                                pf.write(f.getbuffer())
-                            saved += 1
-                    if saved > 0:
-                        st.success(f"✅ Saved {saved} files!")
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("💾 LOCK & LOAD", use_container_width=True, type="primary", key="arsenal_save"):
+                docs_dir = ensure_documents_directory()
+                saved = 0
+                for f in uploaded_files:
+                    file_path = docs_dir / f.name
+                    if not file_path.exists():
+                        with open(file_path, "wb") as pf:
+                            pf.write(f.getbuffer())
+                        saved += 1
+                if saved > 0:
+                    st.success(f"✅ Saved {saved} files!")
                     st.session_state.documents_processed = False
                     st.rerun()
-            with col2:
-                if st.button("🔄 PROCESS MISSION", use_container_width=True, type="primary", key="process_main_onboard"):
-                    # Save first
-                    docs_dir = ensure_documents_directory()
-                    for f in uploaded_files_main:
-                        file_path = docs_dir / f.name
-                        if not file_path.exists():
-                            with open(file_path, "wb") as pf:
-                                pf.write(f.getbuffer())
-                    if process_documents():
-                        st.session_state.uploaded_files_shared = None
-                        st.rerun()
-        return
+        with col2:
+            if st.button("🔄 MAXIMUM EFFORT (PROCESS)", use_container_width=True, type="primary", key="arsenal_process"):
+                docs_dir = ensure_documents_directory()
+                for f in uploaded_files:
+                    file_path = docs_dir / f.name
+                    if not file_path.exists():
+                        with open(file_path, "wb") as pf:
+                            pf.write(f.getbuffer())
+                if process_documents():
+                    st.session_state.uploaded_files_shared = None
+                    st.rerun()
 
     # CASE 2: RETURNING USER (Pro Dashboard)
     st.markdown("<h2 class='designer-header' style='font-size: 3rem; background: var(--deadpool-red); border-color: #fff;'>⚡ COMMAND CENTER</h2>", unsafe_allow_html=True)
