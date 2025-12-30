@@ -77,6 +77,17 @@ if 'initialized' not in st.session_state:
     st.session_state.initialized = True
     st.session_state.current_page = "Home"
     st.session_state.vector_store = VectorStore()
+    # Clear any existing data in the collection
+    try:
+        if st.session_state.vector_store.collection:
+            # Delete all existing data
+            all_ids = st.session_state.vector_store.collection.get()['ids']
+            if all_ids:
+                st.session_state.vector_store.collection.delete(ids=all_ids)
+                logger.info(f"Cleared {len(all_ids)} existing chunks from vector store")
+    except Exception as e:
+        logger.warning(f"Error clearing vector store on init: {e}")
+    
     st.session_state.agent_controller = AgentController(st.session_state.vector_store)
     st.session_state.documents_processed = False
     st.session_state.flashcards = []
