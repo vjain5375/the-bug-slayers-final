@@ -414,12 +414,17 @@ Only return the JSON array, no additional text or markdown formatting."""
         
         accuracy = correct / total if total > 0 else 0
         
+        feedback = "MAXIMUM EFFORT! PERFECTION!" if accuracy == 1.0 else \
+                   "NOT BAD, HERO. BUT YOU CAN DO BETTER!" if accuracy >= 0.7 else \
+                   "ROOKIE NUMBERS! GET BACK TO TRAINING!"
+        
         return {
             'score': correct,
             'total': total,
             'accuracy': accuracy,
             'correct': correct,
-            'details': details
+            'details': details,
+            'feedback': feedback
         }
     
     def save_quiz(self, questions: List[Dict], file_path: str = "outputs/quizzes.json"):

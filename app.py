@@ -891,17 +891,17 @@ def show_quizzes_page():
         
         for i, q in enumerate(st.session_state.quizzes):
             st.markdown(f"""
-            <div class="designer-card-red" style="margin-bottom: 0px; border-bottom: none; transform: rotate({(i%2)*-0.6}deg); border-width: 10px !important; padding: 3rem !important; box-shadow: 15px 15px 0px #000 !important;">
+            <div class="designer-card-red" style="transform: rotate({(i%2)*0.8 - 0.4}deg); border-width: 10px !important; padding: 2.5rem !important; margin-bottom: 0px !important; box-shadow: 15px 15px 0px #000 !important;">
                 <div style="position: relative; z-index: 10;">
                     <h4 class="designer-header" style="font-size: 1.8rem !important; padding: 5px 20px !important; background: #000; border: 4px solid #fff;">QUESTION #{i+1}</h4>
-                    <p style="font-size: 2.2rem; font-weight: 900; margin-top: 20px; color: #fff; line-height: 1.2; font-family: 'Bangers', cursive !important; text-shadow: 4px 4px 0px #000; letter-spacing: 1.5px;">{q['question']}</p>
+                    <p style="font-size: 2.2rem; font-weight: 900; margin: 25px 0; color: #fff; line-height: 1.2; font-family: 'Bangers', cursive !important; text-shadow: 4px 4px 0px #000; letter-spacing: 1.5px;">Q: {q['question']}</p>
                 </div>
             </div>
             """, unsafe_allow_html=True)
             
             # Options in a stylish sub-container
             st.markdown(f"""
-            <div style="margin-top: -10px; background: #fff !important; border: 10px solid #000; outline: 5px solid var(--deadpool-red) !important; padding: 2.5rem !important; box-shadow: 20px 20px 0px #000 !important; transform: rotate({(i%2)*0.4}deg); position: relative; z-index: 5;">
+            <div style="background: #fff; padding: 2.5rem; border: 10px solid #000; outline: 5px solid var(--deadpool-red); margin-top: -10px; box-shadow: 20px 20px 0px #000 !important; transform: rotate({(i%2)*-0.5 + 0.25}deg); position: relative; z-index: 5;">
             """, unsafe_allow_html=True)
             
             selected = st.radio(
@@ -935,12 +935,13 @@ def show_quizzes_page():
             q_result = st.session_state.quiz_result
             
             # Result Card
-            score_color = "#28a745" if q_result['score_percentage'] >= 0.7 else "#dc3545"
+            accuracy = q_result.get('accuracy', 0)
+            score_color = "#28a745" if accuracy >= 0.7 else "#dc3545"
             st.markdown(f"""
             <div class="designer-card" style="border-color: {score_color} !important; border-width: 15px !important; text-align: center;">
                 <h1 style="font-size: 5rem; color: {score_color}; margin: 0;">{q_result['score']}/{q_result['total']}</h1>
-                <h2 class="designer-header" style="background: {score_color};">MISSION SCORE: {q_result['score_percentage']*100:.1f}%</h2>
-                <p style="font-family: 'Bangers'; font-size: 2rem; color: #fff; margin-top: 1rem;">{q_result['feedback']}</p>
+                <h2 class="designer-header" style="background: {score_color};">MISSION SCORE: {accuracy*100:.1f}%</h2>
+                <p style="font-family: 'Bangers'; font-size: 2rem; color: #fff; margin-top: 1rem;">{q_result.get('feedback', 'MISSION COMPLETE!')}</p>
             </div>
             """, unsafe_allow_html=True)
 
@@ -952,14 +953,14 @@ def show_quizzes_page():
 
             # Detailed Review
             st.markdown("<h3 class='designer-header' style='font-size: 2.5rem;'>📋 AFTER-ACTION REPORT</h3>", unsafe_allow_html=True)
-            for i, rev in enumerate(q_result['review']):
+            for i, rev in enumerate(q_result.get('details', [])):
                 is_correct = rev['is_correct']
                 border_color = "#28a745" if is_correct else "#dc3545"
-            icon = "✅" if is_correct else "❌"
-            
-            st.markdown(f"""
-            <div style="background: #1a1a1a; padding: 2rem; border-left: 15px solid {border_color}; margin-bottom: 2rem; box-shadow: 10px 10px 0px #000;">
-                <h4 style="color: #fff; font-family: 'Bangers'; font-size: 1.5rem; margin-bottom: 1rem;">{icon} CHALLENGE #{i+1}</h4>
+                icon = "✅" if is_correct else "❌"
+                
+                st.markdown(f"""
+                <div style="background: #1a1a1a; padding: 2rem; border-left: 15px solid {border_color}; margin-bottom: 2rem; box-shadow: 10px 10px 0px #000;">
+                    <h4 style="color: #fff; font-family: 'Bangers'; font-size: 1.5rem; margin-bottom: 1rem;">{icon} CHALLENGE #{i+1}</h4>
                     <p style="color: #eee; font-family: 'Oswald'; font-size: 1.2rem;"><strong>QUESTION:</strong> {rev['question']}</p>
                     <p style="color: {score_color if is_correct else '#dc3545'}; font-family: 'Oswald';"><strong>YOUR INTEL:</strong> {rev['user_answer']}</p>
                     <p style="color: #28a745; font-family: 'Oswald';"><strong>CORRECT INTEL:</strong> {rev['correct_answer']}</p>
