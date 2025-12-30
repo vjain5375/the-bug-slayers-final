@@ -411,109 +411,46 @@ def trigger_maximum_effort_strike():
 
 # --- MAIN APP FLOW ---
 def main():
-    # Top Bar - Main Header
-    page_names = {
-        'Home': 'DASHBOARD',
-        'Flashcards': 'MEMORY TRAINING',
-        'Quizzes': 'COMBAT SIM',
-        'Revision Planner': 'TACTICAL PLAN',
-        'Chat Assistant': 'ORACLE LINK',
-        'Analytics': 'STATISTICS'
-    }
-    current_op = page_names.get(st.session_state.current_page, 'DASHBOARD')
-    
-    st.markdown(f"""
-    <div style="background: rgba(10,10,10,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid #222; padding: 0.75rem 2rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <span style="font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: #71717a; text-transform: uppercase; letter-spacing: 0.2em;">Current Op:</span>
-            <span style="font-family: 'Anton', sans-serif; font-size: 1.125rem; color: white; text-transform: uppercase; font-weight: bold;">{current_op}</span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 1rem;">
-            <div style="text-align: right;">
-                <p style="font-family: 'Anton', sans-serif; font-size: 0.875rem; color: var(--pool-red); margin: 0; line-height: 1.2; text-transform: uppercase;">DEADPOOL</p>
-                <p style="font-family: 'Rajdhani', sans-serif; font-size: 10px; color: #71717a; text-transform: uppercase; margin: 0; line-height: 1.2;">Mercenary / Oracle</p>
-            </div>
-            <div style="width: 32px; height: 32px; background: var(--pool-red); border: 1px solid #dc2626; display: flex; align-items: center; justify-content: center; font-family: 'Anton', sans-serif; font-size: 0.75rem; border-radius: 4px; overflow: hidden; flex-shrink: 0;">
-                <span style="color: white;">DP</span>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
     # Sidebar
     with st.sidebar:
         st.markdown("""
-        <div style="padding: 1.5rem 1.5rem 0.5rem; position: relative; z-index: 10;">
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
-                <div style="width: 40px; height: 40px; background: var(--pool-red); display: flex; align-items: center; justify-content: center; font-family: 'Anton', sans-serif; font-size: 1.5rem; color: white; transform: rotate(3deg); position: relative; box-shadow: 4px 4px 0px rgba(0,0,0,1);">
-                    DP
-                    <div style="position: absolute; top: -8px; right: -8px; width: 16px; height: 16px; background: #fbbf24; border-radius: 50%; border: 2px solid black;"></div>
-                </div>
-                <div>
-                    <h1 style="font-family: 'Anton', sans-serif; font-size: 1.5rem; color: white; line-height: 1; letter-spacing: 0.05em; text-transform: uppercase; margin: 0;">
-                        <span style="color: var(--pool-red);">ARSENAL</span><br/>
-                        <span style="font-size: 1.2rem;">HUB</span>
-                    </h1>
-                    <p style="font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: #71717a; letter-spacing: 0.2em; text-transform: uppercase; margin: 0;">Auth: Level 5 (God)</p>
-                </div>
-            </div>
-
-            <!-- Status Indicator -->
-            <div style="background: #151515; padding: 0.75rem; border: 1px solid #333; margin-bottom: 1.5rem; position: relative; overflow: hidden;">
-                <div style="position: absolute; top: 0; left: 0; width: 2px; height: 100%; background: var(--pool-red);"></div>
-                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.25rem;">
-                    <span style="font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: #a1a1aa; text-transform: uppercase;">System Status</span>
-                    <span style="font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: #22c55e; font-weight: bold; text-transform: uppercase; animation: pulse 2s infinite;">Online</span>
-                </div>
-                <div style="width: 100%; background: #333; height: 4px;">
-                    <div style="background: var(--pool-red); height: 4px; width: 75%;"></div>
-                </div>
-            </div>
+        <div style="text-align: center; padding: 1rem; background: var(--deadpool-red); border: 5px solid #fff; box-shadow: 5px 5px 0px #000; margin-bottom: 2rem; transform: rotate(-2deg);">
+            <h1 style="font-family: 'Bangers'; color: #fff; font-size: 2.5rem; margin: 0; text-shadow: 3px 3px 0px #000;">⚔️ ARSENAL HUB</h1>
         </div>
         """, unsafe_allow_html=True)
         
-        # Navigation matching design
-        nav_items = [
-            ("Home", "◆", "MISSION CONTROL"),
-            ("Flashcards", "⚡", "FLASH MEMORY"),
-            ("Quizzes", "⚔", "BATTLE SIM"),
-            ("Revision Planner", "🗓", "TACTICAL PLAN"),
-            ("Chat Assistant", "💬", "ORACLE LINK"),
-            ("Analytics", "📊", "STATISTICS")
-        ]
+        # FANCY NAVIGATION MENU
+        st.markdown("<p style='font-family: \"Bangers\"; font-size: 1.4rem; color: var(--deadpool-red); margin-bottom: 2rem; text-shadow: 2px 2px 0px #000;'>🎯 DESTINATIONS</p>", unsafe_allow_html=True)
         
-        st.markdown('<nav style="flex: 1; padding: 0 1rem; display: flex; flex-direction: column; gap: 0.5rem; position: relative; z-index: 10;">', unsafe_allow_html=True)
+        nav_options = {
+            "Home": "🏠",
+            "Flashcards": "📇",
+            "Quizzes": "📝",
+            "Revision Planner": "📅",
+            "Chat Assistant": "💬",
+            "Analytics": "📊"
+        }
         
-        for page_name, icon, label in nav_items:
+        for page_name, icon in nav_options.items():
             is_active = st.session_state.current_page == page_name
             
-            st.markdown(f"""
-            <div style="width: 100%; position: relative; margin-bottom: 0.5rem;">
-                <div style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); width: 8px; height: 8px; background: var(--pool-red); border-radius: 50%; box-shadow: 0 0 8px rgba(220,38,38,0.8); display: {'block' if is_active else 'none'};"></div>
-            </div>
-            """, unsafe_allow_html=True)
+            # Sidebar Active Marker (Premium Comic Arrow) - Improved Positioning
+            col_marker, col_btn = st.columns([1.5, 8.5])
+            with col_marker:
+                if is_active:
+                    st.markdown("""
+                        <div style='height: 95px; display: flex; align-items: center; justify-content: flex-end; margin-right: 5px;'>
+                            <div style="font-size: 3.5rem; color: white; filter: drop-shadow(4px 4px 0px #000); line-height: 1;">▶</div>
+                        </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.markdown("<div style='height: 95px;'></div>", unsafe_allow_html=True)
             
-            if st.button(f"{icon} {label}", key=f"nav_{page_name}", use_container_width=True, type="primary" if is_active else "secondary"):
-                st.session_state.current_page = page_name
-                st.rerun()
-        
-        st.markdown('</nav>', unsafe_allow_html=True)
-        
-        # Footer
-        chunk_count = st.session_state.vector_store.get_collection_count() if st.session_state.vector_store else 0
-        st.markdown(f"""
-        <div style="padding: 1.5rem; background: #0a0a0a; border-top: 1px solid #333; position: relative; z-index: 10;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <span style="font-family: 'Rajdhani', sans-serif; font-size: 0.75rem; color: #71717a; text-transform: uppercase;">Documents Parsed</span>
-                <span style="font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: bold; color: white;">{chunk_count}</span>
-            </div>
-            
-        </div>
-        """, unsafe_allow_html=True)
-        
-        if st.button("📊 VIEW ANALYTICS", use_container_width=True, key="sidebar_analytics"):
-            st.session_state.current_page = "Analytics"
-            st.rerun()
+            with col_btn:
+                # Create a stylized button-like container
+                if st.button(f"{icon} {page_name.upper()}", key=f"side_nav_{page_name}", use_container_width=True, type="secondary" if not is_active else "primary"):
+                    st.session_state.current_page = page_name
+                    st.rerun()
 
         st.markdown("<div style='margin-bottom: 2rem;'></div>", unsafe_allow_html=True)
         
@@ -631,24 +568,15 @@ def main():
     """, unsafe_allow_html=True)
         
 def show_home_page():
-    """Deadpool-themed Home page matching the design"""
+    """Deadpool-themed Home page with Designer Visuals"""
     
-    # Hero Section matching the design
+    # Hero Section with Deadpool Action Grid Style - RED/BLACK/WHITE
     st.markdown("""
-    <div style="position: relative; border: 1px solid #333; background: #0a0a0a; padding: 3rem; overflow: visible; margin-bottom: 4rem;">
-        <div style="position: absolute; right: 0; top: 0; width: 50%; height: 100%; background: linear-gradient(to left, rgba(153,27,27,0.1), transparent); pointer-events: none;"></div>
-        
-        <div style="position: relative; z-index: 10; max-width: 42rem;">
-            <div style="display: inline-block; background: var(--pool-red); color: white; padding: 0.25rem 0.75rem; font-family: 'Anton', sans-serif; font-size: 0.875rem; margin-bottom: 1rem; transform: skewX(-12deg);">
-                <span style="transform: skewX(12deg); display: inline-block;">CLASSIFIED CLEARANCE</span>
-            </div>
-            <h1 style="font-family: 'Anton', sans-serif; font-size: 4rem; color: white; margin-bottom: 1.5rem; line-height: 0.9; letter-spacing: 0.05em; text-transform: uppercase;">
-                <span style="background: linear-gradient(to right, #ef4444, #991b1b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">DEADPOOL'S</span><br/>
-                <span style="color: white;">STUDY HUB</span>
-            </h1>
-            <p style="font-family: 'Rajdhani', sans-serif; font-size: 1.25rem; color: #a1a1aa; max-width: 32rem; line-height: 1.75;">
-                Your tactical guide to surviving the academic bureaucracy. No reading required. Just answers.
-            </p>
+    <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 6rem 2rem; border: 10px solid #000; box-shadow: 20px 20px 0px var(--deadpool-red), 30px 30px 0px #000; text-align: center; margin-bottom: 4rem; position: relative; transform: rotate(-1deg) skew(-1deg);">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); border: 4px solid #fff; margin: 10px;"></div>
+        <div style="position: relative; z-index: 2;">
+            <h1 style="font-family: 'Bangers'; font-size: 5rem; color: #fff; text-shadow: 8px 8px 0px var(--deadpool-red), 12px 12px 0px #000; margin: 0; letter-spacing: 5px; transform: rotate(1deg);">WEAPONIZED KNOWLEDGE!</h1>
+            <p style="font-family: 'Bangers', cursive; color: #fff; font-size: 2.2rem; background: var(--deadpool-red); display: inline-block; padding: 1rem 3rem; transform: skew(-15deg); margin-top: 2.5rem; border: 5px solid #fff; box-shadow: 10px 10px 0px #000; text-shadow: 3px 3px 0px #000;">MAXIMUM EFFORT. MINIMUM STUDYING.</p>
         </div>
     </div>
     """, unsafe_allow_html=True)
