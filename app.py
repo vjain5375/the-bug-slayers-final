@@ -685,78 +685,76 @@ def show_home_page():
     # 1. High-Impact Quick Access Grid - Cards as Buttons
     col1, col2 = st.columns(2)
     with col1:
-        # Button first (invisible, behind content)
-        if st.button("", key="dash_flash", use_container_width=True, type="secondary"):
-            st.session_state.current_page = "Flashcards"
-            st.rerun()
-        # Content on top
         st.markdown("""
-        <div class="designer-card-red" style="transform: rotate(-1deg); padding: 2rem !important; cursor: pointer; position: relative; margin-top: -50px; z-index: 5;">
-            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem; position: relative; z-index: 10;">
+        <div class="designer-card-red" style="transform: rotate(-1deg); padding: 2rem !important; position: relative;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem;">
                 📇 MISSION CARDS
             </div>
-            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase; position: relative; z-index: 10;">WEAPONIZED FLASHCARDS FOR RAPID INTEL RETENTION.</p>
-            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center; position: relative; z-index: 10;">CLICK TO ACCESS →</p>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">WEAPONIZED FLASHCARDS FOR RAPID INTEL RETENTION.</p>
+            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO ACCESS →</p>
         </div>
         """, unsafe_allow_html=True)
+        if st.button("📇 MISSION CARDS", key="dash_flash", use_container_width=True, type="primary"):
+            st.session_state.current_page = "Flashcards"
+            st.rerun()
 
     with col2:
-        if st.button("", key="dash_quiz", use_container_width=True, type="secondary"):
-            st.session_state.current_page = "Quizzes"
-            st.rerun()
         st.markdown("""
-        <div class="designer-card-red" style="transform: rotate(1deg); padding: 2rem !important; cursor: pointer; position: relative; margin-top: -50px; z-index: 5;">
-            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem; position: relative; z-index: 10;">
+        <div class="designer-card-red" style="transform: rotate(1deg); padding: 2rem !important; position: relative;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem;">
                 📝 TACTICAL QUIZ
             </div>
-            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase; position: relative; z-index: 10;">TEST YOUR COMBAT READINESS WITH CUSTOMIZED CHALLENGES.</p>
-            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center; position: relative; z-index: 10;">CLICK TO INITIATE →</p>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">TEST YOUR COMBAT READINESS WITH CUSTOMIZED CHALLENGES.</p>
+            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO INITIATE →</p>
         </div>
         """, unsafe_allow_html=True)
+        if st.button("📝 TACTICAL QUIZ", key="dash_quiz", use_container_width=True, type="primary"):
+            st.session_state.current_page = "Quizzes"
+            st.rerun()
 
     col3, col4 = st.columns(2)
     with col3:
-        if st.button("", key="dash_chat", use_container_width=True, type="secondary"):
-            st.session_state.current_page = "Chat Assistant"
-            st.rerun()
         st.markdown("""
-        <div class="designer-card-red" style="transform: rotate(0.5deg); padding: 2rem !important; cursor: pointer; position: relative; margin-top: -50px; z-index: 5;">
-            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem; position: relative; z-index: 10;">
+        <div class="designer-card-red" style="transform: rotate(0.5deg); padding: 2rem !important; position: relative;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem;">
                 💬 INTEL CHAT
             </div>
-            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase; position: relative; z-index: 10;">INTERROGATE THE AI FOR DEEP SEMANTIC INSIGHTS.</p>
-            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center; position: relative; z-index: 10;">CLICK TO INTERROGATE →</p>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">INTERROGATE THE AI FOR DEEP SEMANTIC INSIGHTS.</p>
+            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO INTERROGATE →</p>
         </div>
         """, unsafe_allow_html=True)
+        if st.button("💬 INTEL CHAT", key="dash_chat", use_container_width=True, type="primary"):
+            st.session_state.current_page = "Chat Assistant"
+            st.rerun()
 
     with col4:
-        if st.button("", key="dash_plan", use_container_width=True, type="secondary"):
-            st.session_state.current_page = "Revision Planner"
-            st.rerun()
         st.markdown("""
-        <div class="designer-card-red" style="transform: rotate(-0.5deg); padding: 2rem !important; cursor: pointer; position: relative; margin-top: -50px; z-index: 5;">
-            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem; position: relative; z-index: 10;">
+        <div class="designer-card-red" style="transform: rotate(-0.5deg); padding: 2rem !important; position: relative;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem;">
                 📅 BATTLE PLAN
             </div>
-            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase; position: relative; z-index: 10;">STRATEGIZE YOUR LEARNING JOURNEY WITH A TIMELINE.</p>
-            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center; position: relative; z-index: 10;">CLICK TO VIEW →</p>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">STRATEGIZE YOUR LEARNING JOURNEY WITH A TIMELINE.</p>
+            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO VIEW →</p>
         </div>
         """, unsafe_allow_html=True)
+        if st.button("📅 BATTLE PLAN", key="dash_plan", use_container_width=True, type="primary"):
+            st.session_state.current_page = "Revision Planner"
+            st.rerun()
 
     col5, _ = st.columns([1, 1])
     with col5:
-        if st.button("", key="dash_analytics", use_container_width=True, type="secondary"):
-            st.session_state.current_page = "Analytics"
-            st.rerun()
         st.markdown("""
-        <div class="designer-card-red" style="transform: rotate(1.5deg); padding: 2rem !important; cursor: pointer; position: relative; margin-top: -50px; z-index: 5;">
-            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 2rem; position: relative; z-index: 10;">
+        <div class="designer-card-red" style="transform: rotate(1.5deg); padding: 2rem !important; position: relative;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 2rem;">
                 📊 MISSION STATS
             </div>
-            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase; position: relative; z-index: 10;">TRACK YOUR STUDY EFFICIENCY AND VICTORY RATES.</p>
-            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center; position: relative; z-index: 10;">CLICK TO ANALYZE →</p>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">TRACK YOUR STUDY EFFICIENCY AND VICTORY RATES.</p>
+            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO ANALYZE →</p>
         </div>
         """, unsafe_allow_html=True)
+        if st.button("📊 MISSION STATS", key="dash_analytics", use_container_width=True, type="primary"):
+            st.session_state.current_page = "Analytics"
+            st.rerun()
     
     # Add Mission Portal to Command Center for completeness
     st.markdown("<br>", unsafe_allow_html=True)
