@@ -1098,25 +1098,31 @@ def show_planner_page():
         """, unsafe_allow_html=True)
         return
     
-    with st.container():
-        st.markdown('<div class="designer-card">', unsafe_allow_html=True)
-        st.markdown('<h3 class="designer-header">MISSION TIMELINE CONFIG</h3>', unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
-        with col1:
-            exam_date = st.date_input("MISSION DEADLINE (EXAM DATE)", value=None)
-        with col2:
-            study_days = st.slider("TRAINING INTENSITY (DAYS/WEEK)", 3, 7, 5)
-        
-        if st.button("📅 INITIATE STRATEGIC BATTLE PLAN", type="primary", use_container_width=True):
-            processing_msg = st.info("Calculating optimal learning trajectories... trying not to get distracted by tacos...")
-            plan = st.session_state.agent_controller.create_revision_plan(
-                exam_date.strftime('%Y-%m-%d') if exam_date else None,
-                study_days
-            )
-            processing_msg.empty()
-            st.success(f"✅ Strategic Battle Plan ready with {len(plan)} targets identified!")
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown('<div class="designer-card">', unsafe_allow_html=True)
+    st.markdown('<h3 class="designer-header">MISSION TIMELINE CONFIG</h3>', unsafe_allow_html=True)
+    col1, col2 = st.columns(2)
+    with col1:
+        exam_date = st.date_input("MISSION DEADLINE (EXAM DATE)", value=None)
+    with col2:
+        study_days = st.slider("TRAINING INTENSITY (DAYS/WEEK)", 3, 7, 5)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    if st.button("📅 INITIATE STRATEGIC BATTLE PLAN", type="primary", use_container_width=True, key="initiate_plan"):
+        try:
+            with st.spinner("Calculating optimal learning trajectories... trying not to get distracted by tacos..."):
+                plan = st.session_state.agent_controller.create_revision_plan(
+                    exam_date.strftime('%Y-%m-%d') if exam_date else None,
+                    study_days
+                )
+            if plan and len(plan) > 0:
+                st.success(f"✅ Strategic Battle Plan ready with {len(plan)} targets identified!")
+                st.rerun()
+            else:
+                st.warning("⚠️ No topics found to create a plan. Please process documents first!")
+        except Exception as e:
+            st.error(f"⚠️ Error creating battle plan: {str(e)}")
+            logger.exception("Battle plan creation failed")
     
     try:
         plan = st.session_state.agent_controller.planner_agent.load_plan()
