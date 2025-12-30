@@ -1110,17 +1110,17 @@ def show_planner_page():
                 c1, c2, c3 = st.columns(3)
                 with c1:
                     if st.button(f"🎯 COMMENCE", key=f"start_{i}"):
-                        st.session_state.agent_controller.planner_agent.update_item_status(item_date, item_topic, "in_progress")
+                        st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, "in_progress")
                         st.session_state.planner_study_mode = True
                         st.session_state.planner_study_topic = item_topic
                         st.rerun()
                 with c2:
                     if st.button(f"✅ MISSION COMPLETE", key=f"comp_{i}"):
-                        st.session_state.agent_controller.planner_agent.update_item_status(item_date, item_topic, "completed")
+                        st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, "completed")
                         st.rerun()
                 with c3:
                     if st.button(f"💤 REGROUP", key=f"pend_{i}"):
-                        st.session_state.agent_controller.planner_agent.update_item_status(item_date, item_topic, "pending")
+                        st.session_state.agent_controller.planner_agent.mark_status(item_date, item_topic, "pending")
                         st.rerun()
                 
                 st.markdown('</div></div>', unsafe_allow_html=True)
