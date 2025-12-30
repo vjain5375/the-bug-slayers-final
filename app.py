@@ -59,9 +59,15 @@ def cleanup_session():
     # 3. Reset Vector Store
     if 'vector_store' in st.session_state and st.session_state.vector_store:
         try:
-            st.session_state.vector_store.client.delete_collection("study_materials")
+            # Delete the correct collection name
+            st.session_state.vector_store.client.delete_collection("campus_compass")
             st.session_state.vector_store = VectorStore() # Re-init
-        except: pass
+        except Exception as e:
+            logger.warning(f"Error deleting collection: {e}")
+            # Force re-init anyway
+            try:
+                st.session_state.vector_store = VectorStore()
+            except: pass
 
 # --- SESSION STATE INITIALIZATION ---
 if 'initialized' not in st.session_state:
