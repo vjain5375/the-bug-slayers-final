@@ -355,11 +355,11 @@ def main():
             col_marker, col_btn = st.columns([1.5, 8.5])
             with col_marker:
                 if is_active:
-    st.markdown("""
-                    <div style='height: 95px; display: flex; align-items: center; justify-content: flex-end; margin-right: 5px;'>
-                        <div style="font-size: 3.5rem; color: white; filter: drop-shadow(4px 4px 0px #000); line-height: 1;">▶</div>
-    </div>
-    """, unsafe_allow_html=True)
+                    st.markdown("""
+                        <div style='height: 95px; display: flex; align-items: center; justify-content: flex-end; margin-right: 5px;'>
+                            <div style="font-size: 3.5rem; color: white; filter: drop-shadow(4px 4px 0px #000); line-height: 1;">▶</div>
+                        </div>
+                    """, unsafe_allow_html=True)
                 else:
                     st.markdown("<div style='height: 95px;'></div>", unsafe_allow_html=True)
             
