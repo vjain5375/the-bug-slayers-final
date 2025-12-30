@@ -1123,20 +1123,27 @@ def show_planner_page():
     st.markdown('</div>', unsafe_allow_html=True)
     
     if st.button("📅 INITIATE STRATEGIC BATTLE PLAN", type="primary", use_container_width=True, key="initiate_plan"):
-        try:
-            with st.spinner("Calculating optimal learning trajectories... trying not to get distracted by tacos..."):
-                plan = st.session_state.agent_controller.create_revision_plan(
-                    exam_date.strftime('%Y-%m-%d') if exam_date else None,
-                    study_days
-                )
-            if plan and len(plan) > 0:
-                st.success(f"✅ Strategic Battle Plan ready with {len(plan)} targets identified!")
-                st.rerun()
-            else:
-                st.warning("⚠️ No topics found to create a plan. Please process documents first!")
-        except Exception as e:
-            st.error(f"⚠️ Error creating battle plan: {str(e)}")
-            logger.exception("Battle plan creation failed")
+        if not exam_date:
+            st.error("⚠️ Please select an exam date first!")
+        elif not st.session_state.agent_controller:
+            st.error("⚠️ Agent controller not initialized. Please process documents first!")
+        elif not st.session_state.vector_store or st.session_state.vector_store.get_collection_count() == 0:
+            st.error("⚠️ No documents processed. Upload and process documents first!")
+        else:
+            try:
+                with st.spinner("Calculating optimal learning trajectories... trying not to get distracted by tacos..."):
+                    plan = st.session_state.agent_controller.create_revision_plan(
+                        exam_date.strftime('%Y-%m-%d') if exam_date else None,
+                        study_days
+                    )
+                if plan and len(plan) > 0:
+                    st.success(f"✅ Strategic Battle Plan ready with {len(plan)} targets identified!")
+                    st.rerun()
+                else:
+                    st.warning("⚠️ No topics found to create a plan. Please process documents first!")
+            except Exception as e:
+                st.error(f"⚠️ Error creating battle plan: {str(e)}")
+                logger.exception("Battle plan creation failed")
     
     try:
         plan = st.session_state.agent_controller.planner_agent.load_plan()
@@ -1255,10 +1262,29 @@ def show_chat_page():
         q_input = st.text_input("💭 INTERROGATE THE SYSTEM (ASK ANYTHING):", placeholder="e.g., Explain the primary directives of the mission...")
         if st.button("🔍 INITIATE INTERROGATION", type="primary", use_container_width=True):
             if q_input:
-                with st.spinner("Searching through the sematic archives... stay frosty..."):
-                    res = st.session_state.agent_controller.answer_question(q_input, st.session_state.latest_document)
-                    st.session_state.chat_history.append({'question': q_input, 'answer': res['answer'], 'sources': res.get('sources', [])})
-                    st.rerun()
+                if not st.session_state.agent_controller:
+                    st.error("⚠️ Agent controller not initialized. Please process documents first!")
+                elif not st.session_state.vector_store or st.session_state.vector_store.get_collection_count() == 0:
+                    st.error("⚠️ No documents processed. Upload and process documents first!")
+                else:
+                    try:
+                        with st.spinner("Searching through the sematic archives... stay frosty..."):
+                            res = st.session_state.agent_controller.answer_question(
+                                q_input, 
+                                prioritize_source=st.session_state.get('latest_document')
+                            )
+                            if res and 'answer' in res:
+                                st.session_state.chat_history.append({
+                                    'question': q_input, 
+                                    'answer': res['answer'], 
+                                    'sources': res.get('sources', [])
+                                })
+                                st.rerun()
+                            else:
+                                st.error("⚠️ Failed to get answer from agent. Please try again.")
+                    except Exception as e:
+                        st.error(f"⚠️ Error: {str(e)}")
+                        logger.exception("Error in chat page")
         st.markdown('</div>', unsafe_allow_html=True)
 
 def show_analytics_page():
