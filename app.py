@@ -8,9 +8,8 @@ import logging
 from typing import List, Dict, Optional
 
 # --- AGENT IMPORTS ---
-from agent_controller import AgentController
+from agents.controller import AgentController
 from vector_store import VectorStore
-from utils.file_processor import process_file
 from agents.planner_agent import PlannerAgent
 
 # --- LOGGING CONFIG ---
@@ -277,7 +276,7 @@ def process_documents():
         
     with st.spinner("⚔️ DEADPOOL IS SLICING THROUGH YOUR TEXT..."):
         try:
-            results = st.session_state.agent_controller.process_new_documents(docs)
+            results = st.session_state.agent_controller.process_study_materials("documents")
             st.session_state.processing_results = results
             st.session_state.documents_processed = True
             st.session_state.latest_document = docs[-1].name
