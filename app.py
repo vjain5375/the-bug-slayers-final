@@ -508,9 +508,6 @@ def main():
                 <span style="font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: bold; color: white;">{chunk_count}</span>
             </div>
             
-            <button onclick="window.location.href='?page=Analytics'" style="width: 100%; background: #1a1a1a; border: 1px solid #333; color: #9ca3af; padding: 0.75rem; font-family: 'Rajdhani', sans-serif; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em; transition: all 0.2s; cursor: pointer; font-size: 0.875rem;">
-                View Analytics
-            </button>
         </div>
         """, unsafe_allow_html=True)
         
