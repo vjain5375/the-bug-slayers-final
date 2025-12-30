@@ -179,6 +179,42 @@ st.markdown("""
         box-shadow: 2px 2px 0px #000 !important;
     }
 
+    /* COMMAND CENTER CARD BUTTONS */
+    button[kind="secondary"][data-testid="baseButton-secondary"] {
+        background: var(--deadpool-red) !important;
+        background-image: radial-gradient(#000 10%, transparent 10%) !important;
+        background-size: 15px 15px !important;
+        color: white !important;
+        font-family: 'Bangers', cursive !important;
+        font-size: 1.8rem !important;
+        padding: 2rem !important;
+        border: 8px solid #000 !important;
+        box-shadow: 15px 15px 0px #000 !important;
+        transform: rotate(-1deg);
+        transition: all 0.2s ease;
+        width: 100% !important;
+        height: auto !important;
+        min-height: 180px !important;
+        text-align: left !important;
+        text-transform: uppercase;
+        position: relative;
+        white-space: pre-line !important;
+        line-height: 1.6 !important;
+    }
+
+    button[kind="secondary"][data-testid="baseButton-secondary"]:hover {
+        transform: rotate(-1deg) translate(-4px, -4px) !important;
+        box-shadow: 20px 20px 0px #000 !important;
+        background: #ff0000 !important;
+        background-image: radial-gradient(#000 10%, transparent 10%) !important;
+        background-size: 15px 15px !important;
+    }
+
+    button[kind="secondary"][data-testid="baseButton-secondary"]:active {
+        transform: rotate(-1deg) translate(2px, 2px) !important;
+        box-shadow: 8px 8px 0px #000 !important;
+    }
+
     /* SIDEBAR STYLING */
     section[data-testid="stSidebar"] {
         background-color: #000000 !important;
@@ -239,60 +275,6 @@ st.markdown("""
     
     div[data-testid="stRadio"] div[role="radiogroup"] label div[data-sidemeasure="true"] > div {
         background-color: var(--deadpool-red) !important;
-    }
-
-    /* COMMAND CENTER CARD BUTTONS */
-    button[data-testid*="dash_"] {
-        background: var(--deadpool-red) !important;
-        background-image: radial-gradient(#000 10%, transparent 10%) !important;
-        background-size: 15px 15px !important;
-        color: white !important;
-        font-family: 'Bangers', cursive !important;
-        font-size: 2rem !important;
-        padding: 2rem !important;
-        border: 8px solid #000 !important;
-        box-shadow: 15px 15px 0px #000 !important;
-        transform: rotate(-1deg) !important;
-        transition: all 0.2s ease !important;
-        width: 100% !important;
-        margin-bottom: 2rem !important;
-        text-align: left !important;
-        height: auto !important;
-        min-height: 150px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        text-transform: uppercase !important;
-    }
-
-    button[data-testid*="dash_"]:hover {
-        transform: rotate(-1deg) translate(-4px, -4px) !important;
-        box-shadow: 20px 20px 0px #000 !important;
-        background: #ff0000 !important;
-        background-image: radial-gradient(#000 10%, transparent 10%) !important;
-        background-size: 15px 15px !important;
-    }
-
-    button[data-testid*="dash_"]:active {
-        transform: rotate(-1deg) translate(2px, 2px) !important;
-        box-shadow: 8px 8px 0px #000 !important;
-    }
-
-    /* Style the button text content */
-    button[data-testid*="dash_"] > div {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        gap: 10px !important;
-    }
-
-    button[data-testid*="dash_"] p {
-        font-family: 'Oswald', sans-serif !important;
-        font-size: 1.1rem !important;
-        font-weight: 400 !important;
-        text-transform: none !important;
-        margin: 0 !important;
-        color: #fff !important;
     }
 
     /* CHAT BUBBLES */
@@ -703,29 +685,29 @@ def show_home_page():
     # 1. High-Impact Quick Access Grid - Cards as Buttons
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("📇 MISSION CARDS\n\nWeaponized flashcards for rapid intel retention.", use_container_width=True, key="dash_flash"):
+        if st.button("📇 MISSION CARDS\n\nWeaponized flashcards for rapid intel retention.\n\nCLICK TO ACCESS →", key="dash_flash", use_container_width=True, type="secondary"):
             st.session_state.current_page = "Flashcards"
             st.rerun()
 
     with col2:
-        if st.button("📝 TACTICAL QUIZ\n\nTest your combat readiness with customized challenges.", use_container_width=True, key="dash_quiz"):
+        if st.button("📝 TACTICAL QUIZ\n\nTest your combat readiness with customized challenges.\n\nCLICK TO INITIATE →", key="dash_quiz", use_container_width=True, type="secondary"):
             st.session_state.current_page = "Quizzes"
             st.rerun()
 
     col3, col4 = st.columns(2)
     with col3:
-        if st.button("💬 INTEL CHAT\n\nInterrogate the AI for deep semantic insights.", use_container_width=True, key="dash_chat"):
+        if st.button("💬 INTEL CHAT\n\nInterrogate the AI for deep semantic insights.\n\nCLICK TO INTERROGATE →", key="dash_chat", use_container_width=True, type="secondary"):
             st.session_state.current_page = "Chat Assistant"
             st.rerun()
 
     with col4:
-        if st.button("📅 BATTLE PLAN\n\nStrategize your learning journey with a timeline.", use_container_width=True, key="dash_plan"):
+        if st.button("📅 BATTLE PLAN\n\nStrategize your learning journey with a timeline.\n\nCLICK TO VIEW →", key="dash_plan", use_container_width=True, type="secondary"):
             st.session_state.current_page = "Revision Planner"
             st.rerun()
 
     col5, _ = st.columns([1, 1])
     with col5:
-        if st.button("📊 MISSION STATS\n\nTrack your study efficiency and victory rates.", use_container_width=True, key="dash_analytics"):
+        if st.button("📊 MISSION STATS\n\nTrack your study efficiency and victory rates.\n\nCLICK TO ANALYZE →", key="dash_analytics", use_container_width=True, type="secondary"):
             st.session_state.current_page = "Analytics"
             st.rerun()
     
