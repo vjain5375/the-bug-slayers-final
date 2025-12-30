@@ -647,27 +647,61 @@ def show_home_page():
     st.markdown("<h2 class='designer-header' style='font-size: 3rem; background: var(--deadpool-red); border-color: #fff;'>⚡ COMMAND CENTER</h2>", unsafe_allow_html=True)
     
     # 1. High-Impact Quick Access Grid
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     with col1:
-        if st.button("📇 MISSION CARDS", use_container_width=True, key="dash_flash"):
+        st.markdown("""
+        <div class="designer-card-red" style="transform: rotate(-1deg); padding: 2rem !important;">
+            <h3 class="designer-header" style="font-size: 2rem !important;">📇 MISSION CARDS</h3>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem;">Weaponized flashcards for rapid intel retention.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🚀 ACCESS FLASHCARDS", use_container_width=True, key="dash_flash"):
             st.session_state.current_page = "Flashcards"
             st.rerun()
+
     with col2:
-        if st.button("📝 TACTICAL QUIZ", use_container_width=True, key="dash_quiz"):
+        st.markdown("""
+        <div class="designer-card-red" style="transform: rotate(1deg); padding: 2rem !important;">
+            <h3 class="designer-header" style="font-size: 2rem !important;">📝 TACTICAL QUIZ</h3>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem;">Test your combat readiness with customized challenges.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🎯 INITIATE QUIZ", use_container_width=True, key="dash_quiz"):
             st.session_state.current_page = "Quizzes"
             st.rerun()
+
+    col3, col4 = st.columns(2)
     with col3:
-        if st.button("📅 BATTLE PLAN", use_container_width=True, key="dash_plan"):
-            st.session_state.current_page = "Revision Planner"
-            st.rerun()
-            
-    col4, col5 = st.columns(2)
-    with col4:
-        if st.button("💬 INTEL CHAT", use_container_width=True, key="dash_chat"):
+        st.markdown("""
+        <div class="designer-card-red" style="transform: rotate(0.5deg); padding: 2rem !important;">
+            <h3 class="designer-header" style="font-size: 2rem !important;">💬 INTEL CHAT</h3>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem;">Interrogate the AI for deep semantic insights.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("🔍 START INTERROGATION", use_container_width=True, key="dash_chat"):
             st.session_state.current_page = "Chat Assistant"
             st.rerun()
+
+    with col4:
+        st.markdown("""
+        <div class="designer-card-red" style="transform: rotate(-0.5deg); padding: 2rem !important;">
+            <h3 class="designer-header" style="font-size: 2rem !important;">📅 BATTLE PLAN</h3>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem;">Strategize your learning journey with a timeline.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("📅 VIEW BATTLE PLAN", use_container_width=True, key="dash_plan"):
+            st.session_state.current_page = "Revision Planner"
+            st.rerun()
+
+    col5, _ = st.columns([1, 1])
     with col5:
-        if st.button("📊 MISSION STATS", use_container_width=True, key="dash_analytics"):
+        st.markdown("""
+        <div class="designer-card-red" style="transform: rotate(1.5deg); padding: 2rem !important;">
+            <h3 class="designer-header" style="font-size: 2.5rem !important;">📊 MISSION STATS</h3>
+            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem;">Track your study efficiency and victory rates.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("📈 ANALYZE PROGRESS", use_container_width=True, key="dash_analytics"):
             st.session_state.current_page = "Analytics"
             st.rerun()
     
