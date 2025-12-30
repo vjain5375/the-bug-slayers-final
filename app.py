@@ -193,6 +193,54 @@ st.markdown("""
         pointer-events: none;
     }
 
+    /* FANCY RADIO BUTTONS FOR QUIZ */
+    div[data-testid="stRadio"] > label {
+        display: none !important;
+    }
+    
+    div[data-testid="stRadio"] div[role="radiogroup"] {
+        background: #ffffff !important;
+        padding: 2.5rem !important;
+        border: 10px solid #000 !important;
+        outline: 5px solid var(--deadpool-red) !important;
+        box-shadow: 20px 20px 0px #000 !important;
+        margin-top: -10px !important;
+        margin-bottom: 50px !important;
+        border-radius: 0px !important;
+    }
+
+    div[data-testid="stRadio"] div[role="radiogroup"] label {
+        background: transparent !important;
+        color: #000 !important;
+        font-family: 'Oswald', sans-serif !important;
+        font-size: 1.6rem !important;
+        font-weight: 900 !important;
+        text-transform: uppercase !important;
+        padding: 10px 0 !important;
+        margin-bottom: 15px !important;
+        border-bottom: 3px solid rgba(0,0,0,0.1) !important;
+        width: 100% !important;
+    }
+
+    div[data-testid="stRadio"] div[role="radiogroup"] label:last-child {
+        border-bottom: none !important;
+    }
+
+    div[data-testid="stRadio"] div[role="radiogroup"] label div[data-testid="stMarkdownContainer"] p {
+        font-size: 1.6rem !important;
+        color: #000 !important;
+        line-height: 1.2 !important;
+    }
+
+    /* Style the actual radio circle */
+    div[data-testid="stRadio"] div[role="radiogroup"] label div[data-sidemeasure="true"] {
+        border-color: var(--deadpool-red) !important;
+    }
+    
+    div[data-testid="stRadio"] div[role="radiogroup"] label div[data-sidemeasure="true"] > div {
+        background-color: var(--deadpool-red) !important;
+    }
+
     /* CHAT BUBBLES */
     .chat-bubble {
         padding: 1.5rem;
@@ -899,11 +947,7 @@ def show_quizzes_page():
             </div>
             """, unsafe_allow_html=True)
             
-            # Options in a stylish sub-container
-            st.markdown(f"""
-            <div style="background: #fff; padding: 2.5rem; border: 10px solid #000; outline: 5px solid var(--deadpool-red); margin-top: -10px; box-shadow: 20px 20px 0px #000 !important; transform: rotate({(i%2)*-0.5 + 0.25}deg); position: relative; z-index: 5;">
-            """, unsafe_allow_html=True)
-            
+            # Options using styled st.radio
             selected = st.radio(
                 f"Options for Q{i+1}:",
                 q['options'],
@@ -911,7 +955,7 @@ def show_quizzes_page():
                 label_visibility="collapsed"
             )
             st.session_state.quiz_answers[i] = q['options'].index(selected) if selected in q['options'] else -1
-            st.markdown('</div><div style="height: 60px;"></div>', unsafe_allow_html=True)
+            st.markdown('<div style="height: 10px;"></div>', unsafe_allow_html=True)
 
         # Persistence for quiz results
         if 'quiz_submitted' not in st.session_state:
