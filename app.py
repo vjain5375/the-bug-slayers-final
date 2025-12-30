@@ -88,11 +88,149 @@ if 'initialized' not in st.session_state:
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Anton&family=Bangers&family=Permanent+Marker&family=Rajdhani:wght@400;500;600;700&display=swap');
 
     :root {
         --deadpool-red: #A80000;
         --deadpool-black: #1A1A1A;
         --deadpool-white: #FFFFFF;
+        --pool-red: #E23636;
+        --pool-dark-red: #820505;
+        --pool-gray: #1a1a1a;
+        --tech-cyan: #00f0ff;
+    }
+
+    /* Font Utilities from index.html */
+    .font-headline { 
+        font-family: 'Anton', sans-serif !important; 
+        letter-spacing: 0.05em !important; 
+        text-transform: uppercase !important; 
+    }
+    .font-tech { 
+        font-family: 'Rajdhani', sans-serif !important; 
+    }
+    .font-marker { 
+        font-family: 'Permanent Marker', cursive !important; 
+    }
+    .font-sfx { 
+        font-family: 'Bangers', cursive !important; 
+        letter-spacing: 0.1em !important; 
+    }
+
+    /* Tactical Borders from index.html */
+    .tech-border {
+        border: 1px solid #333 !important;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.5) !important;
+        position: relative !important;
+    }
+    
+    .tech-border::before, .tech-border::after {
+        content: '';
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-color: #555;
+        border-style: solid;
+        transition: all 0.3s ease;
+    }
+    .tech-border::before { 
+        top: -1px; 
+        left: -1px; 
+        border-width: 2px 0 0 2px; 
+    }
+    .tech-border::after { 
+        bottom: -1px; 
+        right: -1px; 
+        border-width: 0 2px 2px 0; 
+    }
+
+    .tech-border:hover::before, .tech-border:hover::after {
+        width: 100%;
+        height: 100%;
+        border-color: var(--pool-red);
+    }
+
+    /* Comic/Graffiti Effects from index.html */
+    .tape-strip {
+        background-color: #f3f3f3 !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.4) !important;
+        transform: rotate(-2deg) !important;
+        border-left: 2px dashed rgba(0,0,0,0.1) !important;
+        border-right: 2px dashed rgba(0,0,0,0.1) !important;
+    }
+
+    .comic-pop {
+        filter: drop-shadow(4px 4px 0px rgba(0,0,0,1)) !important;
+        transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    }
+    .comic-pop:hover {
+        transform: translate(-2px, -2px) !important;
+        filter: drop-shadow(6px 6px 0px var(--pool-red)) !important;
+    }
+
+    /* Scrollbar from index.html */
+    ::-webkit-scrollbar { 
+        width: 8px !important; 
+    }
+    ::-webkit-scrollbar-track { 
+        background: #000 !important; 
+    }
+    ::-webkit-scrollbar-thumb { 
+        background: #333 !important; 
+    }
+    ::-webkit-scrollbar-thumb:hover { 
+        background: var(--pool-red) !important; 
+    }
+
+    /* Glitch Animations from index.html */
+    @keyframes glitch {
+        0% { transform: translate(0) }
+        20% { transform: translate(-2px, 2px) }
+        40% { transform: translate(-2px, -2px) }
+        60% { transform: translate(2px, 2px) }
+        80% { transform: translate(2px, -2px) }
+        100% { transform: translate(0) }
+    }
+    .glitch-hover:hover {
+        animation: glitch 0.2s cubic-bezier(.25, .46, .45, .94) both !important;
+    }
+
+    /* Message Entry Animations from index.html */
+    @keyframes glitch-appear {
+        0% { 
+            opacity: 0; 
+            transform: translateX(-10px) skew(-10deg) scale(0.95);
+            filter: brightness(2) saturate(0) contrast(2);
+        }
+        30% {
+            opacity: 1;
+            transform: translateX(5px) skew(5deg) scale(1.02);
+            filter: brightness(1) saturate(3) hue-rotate(90deg);
+        }
+        60% {
+            transform: translateX(-2px) skew(-2deg) scale(0.98);
+            filter: hue-rotate(-45deg);
+        }
+        100% { 
+            opacity: 1; 
+            transform: translateX(0) skew(0) scale(1);
+            filter: none;
+        }
+    }
+    
+    .glitch-entry {
+        animation: glitch-appear 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+        transform-origin: bottom left !important;
+        will-change: transform, filter, opacity !important;
+    }
+
+    @keyframes fade-slide-up {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .user-entry {
+        animation: fade-slide-up 0.3s ease-out forwards !important;
     }
 
     /* GLOBAL THEME OVERRIDE */
