@@ -22,11 +22,22 @@ class ChatAgent:
         
         api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")
         if api_key:
-            self.llm = ChatGoogleGenerativeAI(
-                model="gemini-1.5-flash",
-                temperature=0.2,
-                google_api_key=api_key
-            )
+            try:
+                self.llm = ChatGoogleGenerativeAI(
+                    model="gemini-pro",
+                    temperature=0.2,
+                    google_api_key=api_key
+                )
+            except Exception:
+                # Fallback to gemini-1.5-pro if gemini-pro fails
+                try:
+                    self.llm = ChatGoogleGenerativeAI(
+                        model="gemini-1.5-pro",
+                        temperature=0.2,
+                        google_api_key=api_key
+                    )
+                except Exception:
+                    self.llm = None
         else:
             self.llm = None
     
@@ -98,6 +109,12 @@ Question: {question}
 Please provide a helpful answer based ONLY on the context above, or state that the information is not available."""
         
         try:
+            if not self.llm:
+                return {
+                    'answer': "⚠️ Chat agent not initialized. Please check your GOOGLE_API_KEY in the .env file.",
+                    'sources': [],
+                    'chunks': []
+                }
             messages = [
                 SystemMessage(content=system_prompt),
                 HumanMessage(content=user_prompt)
@@ -105,7 +122,13 @@ Please provide a helpful answer based ONLY on the context above, or state that t
             response = self.llm.invoke(messages)
             answer = response.content
         except Exception as e:
-            answer = f"Error generating answer: {str(e)}. Please check your API key."
+            error_msg = str(e)
+            if "404" in error_msg or "NOT_FOUND" in error_msg:
+                answer = "⚠️ Model not found. Please check your API key and ensure you have access to Gemini models. If the issue persists, try updating your langchain-google-genai package."
+            elif "API key" in error_msg.lower() or "authentication" in error_msg.lower():
+                answer = "⚠️ API key error. Please check your GOOGLE_API_KEY in the .env file and ensure it's valid."
+            else:
+                answer = f"⚠️ Error generating answer: {error_msg}. Please check your API configuration."
         
         # Extract unique sources
         sources = list(set([

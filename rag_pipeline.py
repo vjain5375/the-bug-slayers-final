@@ -20,7 +20,7 @@ load_dotenv()
 class RAGPipeline:
     """Retrieval-Augmented Generation pipeline for answering questions"""
     
-    def __init__(self, vector_store, model_name: str = "gemini-1.5-flash", temperature: float = 0.1):
+    def __init__(self, vector_store, model_name: str = "gemini-pro", temperature: float = 0.1):
         """
         Initialize RAG pipeline
         
