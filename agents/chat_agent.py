@@ -116,15 +116,28 @@ class ChatAgent:
         Returns:
             Dict with 'answer', 'sources', and 'chunks' keys
         """
-        if not self.vector_store or not self.llm:
+        logger.info(f"answer_question: question='{question[:50]}...', n_chunks={n_chunks}, prioritize={prioritize_source}")
+        
+        if not self.vector_store:
+            logger.error("answer_question: vector_store is None")
             return {
-                'answer': "Chat agent not properly initialized. Please ensure vector store and API key are configured.",
+                'answer': "Chat agent not properly initialized. Vector store not configured.",
+                'sources': [],
+                'chunks': []
+            }
+        
+        if not self.llm:
+            logger.error("answer_question: llm is None")
+            return {
+                'answer': "Chat agent not properly initialized. Please ensure API key is configured.",
                 'sources': [],
                 'chunks': []
             }
         
         # Retrieve relevant chunks (prioritize latest document if specified)
+        logger.info("answer_question: Searching vector store")
         retrieved_chunks = self.vector_store.search(question, n_results=n_chunks, prioritize_source=prioritize_source)
+        logger.info(f"answer_question: Retrieved {len(retrieved_chunks)} chunks")
         
         # Filter by relevance
         relevant_chunks = []

@@ -7,12 +7,15 @@ Automatically generates Q/A flashcards from study material
 
 import json
 import re
+import logging
 from typing import List, Dict
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 try:
     load_dotenv()
@@ -26,6 +29,7 @@ class FlashcardAgent:
     """Generates concise Q/A flashcards for quick revision"""
     
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
         api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")
         if api_key:
             self.llm = ChatGoogleGenerativeAI(
@@ -33,8 +37,10 @@ class FlashcardAgent:
                 temperature=0.3,
                 google_api_key=api_key
             )
+            self.logger.info("FlashcardAgent initialized with LLM")
         else:
             self.llm = None
+            self.logger.warning("FlashcardAgent initialized WITHOUT LLM - will use fallback generation")
     
     def generate_flashcards(
         self,
@@ -53,7 +59,10 @@ class FlashcardAgent:
         Returns:
             List of flashcard dictionaries with 'question' and 'answer' keys
         """
+        self.logger.info(f"generate_flashcards called: chunks={len(text_chunks) if text_chunks else 0}, num={num_flashcards}, mix={difficulty_mix}")
+        
         if not text_chunks:
+            self.logger.warning("generate_flashcards: No text chunks provided - returning empty list")
             return []
         
         # Pre-clean chunks and drop low-signal ones

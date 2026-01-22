@@ -954,18 +954,41 @@ def show_flashcards_page():
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("🔄 GENERATE ARSENAL", use_container_width=True, type="primary"):
                 processing_msg = st.info("Deadpool is thinking (mostly about tacos and world peace... nah, just tacos)...")
-                flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards, difficulty_mix=difficulty_mix)
-                processing_msg.empty()
-                st.session_state.flashcards = flashcards
-                st.rerun()
+                try:
+                    # Check if we have chunks to work with
+                    memory_chunks = st.session_state.agent_controller.memory.chunks
+                    logger.info(f"Flashcard generation: memory has {len(memory_chunks)} chunks")
+                    
+                    if not memory_chunks or len(memory_chunks) == 0:
+                        processing_msg.empty()
+                        st.error("⚠️ No document content found! Please upload and process documents first.")
+                        logger.warning("Flashcard generation failed: No chunks in memory")
+                    else:
+                        flashcards = st.session_state.agent_controller.generate_flashcards(num_flashcards, difficulty_mix=difficulty_mix)
+                        processing_msg.empty()
+                        
+                        if flashcards and len(flashcards) > 0:
+                            st.session_state.flashcards = flashcards
+                            logger.info(f"Flashcards generated successfully: {len(flashcards)} cards")
+                            st.rerun()
+                        else:
+                            st.warning("⚠️ Could not generate flashcards. Try processing more documents.")
+                            logger.warning("Flashcard generation returned empty list")
+                except Exception as e:
+                    processing_msg.empty()
+                    st.error(f"⚠️ Flashcard generation failed: {str(e)}")
+                    logger.exception("Flashcard generation error")
         st.markdown('</div>', unsafe_allow_html=True)
     
-    # Load existing flashcards
+    # Load existing flashcards from file if session is empty
     if not st.session_state.flashcards:
         try:
             flashcards = st.session_state.agent_controller.flashcard_agent.load_flashcards()
-            st.session_state.flashcards = flashcards
-        except Exception: pass
+            if flashcards and len(flashcards) > 0:
+                st.session_state.flashcards = flashcards
+                logger.info(f"Loaded {len(flashcards)} flashcards from file")
+        except Exception as e:
+            logger.warning(f"Could not load flashcards from file: {e}")
     
     # Display flashcards
     if st.session_state.flashcards:
@@ -1027,12 +1050,34 @@ def show_quizzes_page():
             st.markdown("<br>", unsafe_allow_html=True)
             if st.button("🎯 INITIATE QUIZ", use_container_width=True, type="primary"):
                 processing_msg = st.info("Drafting questions... mostly about you failing... and maybe some tacos...")
-                questions = st.session_state.agent_controller.generate_quiz(difficulty, num_questions, True)
-                processing_msg.empty()
-                if questions:
-                    st.session_state.quizzes = questions
-                    st.session_state.quiz_answers = {}
-                    st.rerun()
+                try:
+                    # Check if we have chunks to work with
+                    memory_chunks = st.session_state.agent_controller.memory.chunks
+                    logger.info(f"Quiz generation: memory has {len(memory_chunks)} chunks")
+                    
+                    if not memory_chunks or len(memory_chunks) == 0:
+                        processing_msg.empty()
+                        st.error("⚠️ No document content found! Please upload and process documents first.")
+                        logger.warning("Quiz generation failed: No chunks in memory")
+                    else:
+                        questions = st.session_state.agent_controller.generate_quiz(difficulty, num_questions, True)
+                        processing_msg.empty()
+                        
+                        if questions and len(questions) > 0:
+                            st.session_state.quizzes = questions
+                            st.session_state.quiz_answers = {}
+                            # Reset quiz submission state for new quiz
+                            st.session_state.quiz_submitted = False
+                            st.session_state.quiz_result = None
+                            logger.info(f"Quiz generated successfully: {len(questions)} questions")
+                            st.rerun()
+                        else:
+                            st.warning("⚠️ Could not generate quiz questions. Try adjusting difficulty or processing more documents.")
+                            logger.warning("Quiz generation returned empty list")
+                except Exception as e:
+                    processing_msg.empty()
+                    st.error(f"⚠️ Quiz generation failed: {str(e)}")
+                    logger.exception("Quiz generation error")
         st.markdown('</div>', unsafe_allow_html=True)
     
     # Display quiz
@@ -1248,6 +1293,21 @@ def show_chat_page():
     """Chat assistant page with Designer Comic Style"""
     st.markdown('<h1 class="designer-header" style="font-size: 3.5rem;">💬 INTEL CHAT (AI ASSISTANT)</h1>', unsafe_allow_html=True)
     
+    # AUTO-REINDEX FIX: If vector store is empty but memory has chunks, auto-reindex
+    if st.session_state.vector_store and st.session_state.agent_controller:
+        try:
+            vs_count = st.session_state.vector_store.get_collection_count()
+            memory_chunks = st.session_state.agent_controller.memory.chunks
+            if vs_count == 0 and memory_chunks and len(memory_chunks) > 0:
+                logger.info(f"Auto-reindexing: Vector store empty but {len(memory_chunks)} chunks in memory")
+                with st.spinner("🔄 Re-indexing documents for chat..."):
+                    st.session_state.vector_store.add_documents(memory_chunks)
+                    st.session_state.agent_controller.chat_agent.vector_store = st.session_state.vector_store
+                st.success(f"✅ Re-indexed {len(memory_chunks)} chunks for chat!")
+                logger.info(f"Auto-reindex complete: {len(memory_chunks)} chunks added")
+        except Exception as e:
+            logger.error(f"Auto-reindex failed: {e}")
+    
     col1, col2 = st.columns([3, 1])
     with col1:
         if st.session_state.latest_document:
@@ -1286,16 +1346,37 @@ def show_chat_page():
             if q_input:
                 if not st.session_state.agent_controller:
                     st.error("⚠️ Agent controller not initialized. Please process documents first!")
-                elif not st.session_state.vector_store or st.session_state.vector_store.get_collection_count() == 0:
-                    st.error("⚠️ No documents processed. Upload and process documents first!")
+                    logger.error("Chat: agent_controller is None")
+                elif not st.session_state.vector_store:
+                    st.error("⚠️ Vector store not initialized. Please process documents first!")
+                    logger.error("Chat: vector_store is None")
                 else:
+                    # Check vector store count
+                    vs_count = st.session_state.vector_store.get_collection_count()
+                    logger.info(f"Chat: vector_store has {vs_count} chunks indexed")
+                    
+                    if vs_count == 0:
+                        # Try auto-reindex one more time
+                        memory_chunks = st.session_state.agent_controller.memory.chunks
+                        if memory_chunks and len(memory_chunks) > 0:
+                            with st.spinner("🔄 Indexing documents..."):
+                                st.session_state.vector_store.add_documents(memory_chunks)
+                                st.session_state.agent_controller.chat_agent.vector_store = st.session_state.vector_store
+                            logger.info(f"Chat: Auto-reindexed {len(memory_chunks)} chunks")
+                        else:
+                            st.error("⚠️ No documents processed. Upload and process documents first!")
+                            logger.warning("Chat: No chunks in memory and vector store empty")
+                            return
+                    
                     try:
                         with st.spinner("Searching through the sematic archives... stay frosty..."):
+                            logger.info(f"Chat: Answering question: {q_input[:50]}...")
                             res = st.session_state.agent_controller.answer_question(
                                 q_input, 
                                 prioritize_source=st.session_state.get('latest_document')
                             )
                             if res and 'answer' in res:
+                                logger.info(f"Chat: Got answer with {len(res.get('sources', []))} sources")
                                 st.session_state.chat_history.append({
                                     'question': q_input, 
                                     'answer': res['answer'], 
@@ -1304,6 +1385,7 @@ def show_chat_page():
                                 st.rerun()
                             else:
                                 st.error("⚠️ Failed to get answer from agent. Please try again.")
+                                logger.warning(f"Chat: answer_question returned invalid response: {res}")
                     except Exception as e:
                         st.error(f"⚠️ Error: {str(e)}")
                         logger.exception("Error in chat page")

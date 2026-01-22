@@ -5,6 +5,7 @@ Central Controller
 Orchestrates multi-agent workflow and manages inter-agent communication
 """
 
+import logging
 from typing import List, Dict, Optional
 from .reader_agent import ReaderAgent
 from .flashcard_agent import FlashcardAgent
@@ -16,6 +17,8 @@ from pathlib import Path
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from vector_store import VectorStore
+
+logger = logging.getLogger(__name__)
 
 
 class KnowledgeMemory:
@@ -76,6 +79,8 @@ class AgentController:
     """Central controller for orchestrating multi-agent workflow"""
     
     def __init__(self, vector_store: Optional[VectorStore] = None):
+        logger.info("Initializing AgentController")
+        
         # Initialize agents
         self.reader_agent = ReaderAgent()
         self.flashcard_agent = FlashcardAgent()
@@ -88,6 +93,8 @@ class AgentController:
         
         # Vector store for semantic search
         self.vector_store = vector_store
+        
+        logger.info("AgentController initialized successfully")
     
     def get_topic_chunks(self, topic: str) -> List[Dict]:
         """Get all chunks for a specific topic, with robust fallback to semantic search"""
@@ -139,21 +146,29 @@ class AgentController:
         Returns:
             Dict with processing results
         """
+        logger.info(f"process_study_materials: Processing directory {directory_path}")
+        
         # Step 1: Reader Agent processes documents
         result = self.reader_agent.process_directory(directory_path)
         
         chunks = result.get('chunks', [])
         topics = result.get('topics', [])
         
+        logger.info(f"process_study_materials: Extracted {len(chunks)} chunks, {len(topics)} topics")
+        
         # Store in memory
         self.memory.add_chunks(chunks)
         self.memory.add_topics(topics)
         
+        logger.info(f"process_study_materials: Memory now has {len(self.memory.chunks)} total chunks")
+        
         # Add to vector store if available
         if self.vector_store:
+            logger.info("process_study_materials: Adding chunks to vector store")
             self.vector_store.clear_collection()
             self.vector_store.add_documents(chunks)
             self.chat_agent.vector_store = self.vector_store
+            logger.info(f"process_study_materials: Vector store now has {self.vector_store.get_collection_count()} chunks")
         
         # Generate samples for the dashboard
         flashcard_samples = []
@@ -194,16 +209,26 @@ class AgentController:
         Returns:
             List of flashcards
         """
+        logger.info(f"generate_flashcards: num={num_flashcards}, topic={topic}, mix={difficulty_mix}")
+        
         chunks = self.memory.chunks
+        logger.info(f"generate_flashcards: Memory has {len(chunks)} chunks")
         
         if topic:
             chunks = self.get_topic_chunks(topic)
+            logger.info(f"generate_flashcards: Filtered to {len(chunks)} chunks for topic '{topic}'")
+        
+        if not chunks:
+            logger.warning("generate_flashcards: No chunks available - returning empty list")
+            return []
         
         flashcards = self.flashcard_agent.generate_flashcards(
             chunks,
             num_flashcards,
             difficulty_mix=difficulty_mix,
         )
+        
+        logger.info(f"generate_flashcards: Generated {len(flashcards)} flashcards")
         
         # Store in memory
         self.memory.add_flashcards(flashcards)
@@ -232,12 +257,17 @@ class AgentController:
         Returns:
             List of quiz questions
         """
+        logger.info(f"generate_quiz: difficulty={difficulty}, num={num_questions}, adaptive={adaptive}, topic={topic}")
+        
         chunks = self.memory.chunks
+        logger.info(f"generate_quiz: Memory has {len(chunks)} chunks")
         
         if topic:
             chunks = self.get_topic_chunks(topic)
+            logger.info(f"generate_quiz: Filtered to {len(chunks)} chunks for topic '{topic}'")
         elif not chunks:
             # If no topic and no chunks in memory, nothing to do
+            logger.warning("generate_quiz: No chunks available - returning empty list")
             return []
         
         if adaptive and not topic and self.memory.user_performance.get('quiz_scores'):
@@ -246,13 +276,17 @@ class AgentController:
                 'accuracy': sum(self.memory.user_performance['quiz_scores']) / len(self.memory.user_performance['quiz_scores']),
                 'weak_topics': self.memory.user_performance.get('weak_topics', [])
             }
+            logger.info(f"generate_quiz: Using adaptive mode, user accuracy={user_perf['accuracy']:.2f}")
             questions = self.quiz_agent.generate_adaptive_quiz(
                 text_chunks=chunks,
                 user_performance=user_perf,
                 num_questions=num_questions,
             )
         else:
+            logger.info(f"generate_quiz: Using standard mode with difficulty={difficulty}")
             questions = self.quiz_agent.generate_quiz(chunks, difficulty, num_questions)
+        
+        logger.info(f"generate_quiz: Generated {len(questions)} questions")
         
         # Store in memory
         self.memory.add_quizzes(questions)

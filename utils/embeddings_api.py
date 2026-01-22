@@ -105,13 +105,27 @@ class APiEmbeddingsWrapper:
     def _embed_gemini(self, texts: List[str]) -> List[List[float]]:
         """Generate embeddings using Google Gemini API (models/embedding-001)"""
         try:
-            # Use the dedicated embedding model
-            result = self.client.embed_content(
-                model="models/embedding-001",
-                content=texts,
-                task_type="retrieval_document"
-            )
-            return result['embedding']
+            embeddings = []
+            # Gemini embed_content works best with single content, so we process each text
+            for text in texts:
+                result = self.client.embed_content(
+                    model="models/embedding-001",
+                    content=text,
+                    task_type="retrieval_document"
+                )
+                # Result structure: {'embedding': [...vector...]}
+                if 'embedding' in result:
+                    embeddings.append(result['embedding'])
+                else:
+                    logger.warning(f"Unexpected Gemini embedding result format: {result.keys()}")
+                    # Try to extract from other possible formats
+                    if isinstance(result, list):
+                        embeddings.append(result)
+                    else:
+                        raise ValueError(f"Cannot parse Gemini embedding result: {type(result)}")
+            
+            logger.info(f"Generated {len(embeddings)} Gemini embeddings")
+            return embeddings
         except Exception as e:
             logger.error(f"Gemini embedding error: {e}")
             raise

@@ -8,12 +8,15 @@ Generates adaptive quizzes with multiple difficulty levels
 import json
 import re
 import random
+import logging
 from typing import List, Dict, Optional
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, SystemMessage
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 try:
     load_dotenv()
@@ -27,6 +30,7 @@ class QuizAgent:
     """Generates adaptive quizzes from study material"""
     
     def __init__(self):
+        self.logger = logging.getLogger(__name__)
         api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")
         if api_key:
             self.llm = ChatGoogleGenerativeAI(
@@ -34,8 +38,10 @@ class QuizAgent:
                 temperature=0.4,
                 google_api_key=api_key
             )
+            self.logger.info("QuizAgent initialized with LLM")
         else:
             self.llm = None
+            self.logger.warning("QuizAgent initialized WITHOUT LLM - will use fallback generation")
     
     def generate_quiz(self, text_chunks: List[Dict], difficulty: str = "medium", num_questions: int = 5) -> List[Dict]:
         """
@@ -49,7 +55,10 @@ class QuizAgent:
         Returns:
             List of quiz question dictionaries
         """
+        self.logger.info(f"generate_quiz called: chunks={len(text_chunks) if text_chunks else 0}, difficulty={difficulty}, num={num_questions}")
+        
         if not text_chunks:
+            self.logger.warning("generate_quiz: No text chunks provided - returning empty list")
             return []
 
         if not self.llm:
@@ -425,6 +434,8 @@ Only return the JSON array, no additional text or markdown formatting."""
     
     def evaluate_quiz(self, questions: List[Dict], user_answers: Dict[int, int]) -> Dict:
         """Evaluate quiz answers"""
+        self.logger.info(f"evaluate_quiz called: questions={len(questions)}, user_answers={user_answers}")
+        
         correct = 0
         total = len(questions)
         details = []
@@ -433,6 +444,9 @@ Only return the JSON array, no additional text or markdown formatting."""
             user_answer_idx = user_answers.get(i, -1)
             options = question.get('options', [])
             correct_index = question.get('correct_index', 0)
+            
+            # Debug logging for each question evaluation
+            self.logger.debug(f"Q{i}: user_idx={user_answer_idx}, correct_idx={correct_index}, options_count={len(options)}")
             
             is_correct = user_answer_idx == correct_index
             if is_correct:
@@ -451,6 +465,8 @@ Only return the JSON array, no additional text or markdown formatting."""
             })
         
         accuracy = correct / total if total > 0 else 0
+        
+        self.logger.info(f"Quiz evaluation complete: {correct}/{total} = {accuracy*100:.1f}%")
         
         feedback = "MAXIMUM EFFORT! PERFECTION!" if accuracy == 1.0 else \
                    "NOT BAD, HERO. BUT YOU CAN DO BETTER!" if accuracy >= 0.7 else \
