@@ -21,8 +21,8 @@ jobs:
         run: |
           echo "🏓 Pinging Streamlit app to keep it alive..."
           
-          # Your Streamlit app URL (update if different)
-          APP_URL="https://campus-compass.streamlit.app"
+          # Your Streamlit app URL
+          APP_URL="https://deadpools.streamlit.app/"
           
           # Send request with timeout and retry
           for i in 1 2 3; do
@@ -45,4 +45,3 @@ jobs:
       - name: Log Timestamp
         run: |
           echo "🕐 Ping completed at: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-
