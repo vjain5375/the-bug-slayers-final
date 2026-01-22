@@ -289,81 +289,114 @@ Only return the JSON array, no additional text or markdown formatting."""
         }
 
     def _simple_quiz_generation(self, text_chunks: List[Dict], difficulty: str, num_questions: int) -> List[Dict]:
-        """Simple fallback quiz generation when LLM is unavailable"""
+        """Simple fallback quiz generation with unique questions and distinct options"""
         questions = []
         if not text_chunks:
             return []
-            
-        # Mix up the chunks for variety
-        shuffled_chunks = list(text_chunks)
-        random.shuffle(shuffled_chunks)
-        
-        # Loop until we reach the target number of questions
-        attempts = 0
-        max_attempts = num_questions * 2
-        
-        while len(questions) < num_questions and attempts < max_attempts:
-            for chunk in shuffled_chunks:
-                if len(questions) >= num_questions:
-                    break
-                    
-                attempts += 1
-                text = chunk.get('text', '').strip()
-                topic = chunk.get('metadata', {}).get('topic', 'General')
-                
-                if not text:
-                    continue
 
-                # Better fallback: try to find a meaningful sentence for a question
-                sentences = [s.strip() for s in text.split('.') if len(s.strip()) > 30]
-                
-                # If we've already used this chunk, try to find a different sentence
-                start_sentence_idx = (attempts // len(shuffled_chunks)) % max(1, len(sentences))
-                
-                if len(sentences) >= 2:
-                    # Use a random sentence for the question content
-                    fact_idx = (start_sentence_idx + 1) % len(sentences)
-                    context_sentence = sentences[start_sentence_idx]
-                    fact_sentence = sentences[fact_idx]
-                    
-                    question = f"Based on the section about {topic}, what is mentioned regarding: '{context_sentence[:60]}...'?"
-                    correct_answer = fact_sentence[:120]
-                    
-                    # Create more varied dummy distractors
-                    distractors = [
-                        f"A concept unrelated to {topic}",
-                        "The opposite of what was described in the text",
-                        f"A different aspect of {topic} not mentioned in this specific context"
-                    ]
-                    
-                    options = [correct_answer] + distractors
-                    random.shuffle(options)
-                    
-                    questions.append({
-                        'question': question,
-                        'options': options,
-                        'correct_answer': correct_answer,
-                        'correct_index': options.index(correct_answer),
-                        'topic': topic,
-                        'difficulty': difficulty,
-                        'explanation': f"This information is directly stated in the study material for {topic}."
-                    })
-                elif len(text) > 50:
-                    # Ultimate fallback for very short chunks
-                    options = [topic, "A related detail", "General knowledge", "None of these"]
-                    random.shuffle(options)
-                    
-                    questions.append({
-                        'question': f"What is the main focus of the following text: '{text[:50]}...'?",
-                        'options': options,
-                        'correct_answer': topic,
-                        'correct_index': options.index(topic),
-                        'topic': topic,
-                        'difficulty': difficulty,
-                        'explanation': "The topic is derived from the metadata of the provided text chunk."
-                    })
-        
-        return questions[:num_questions]
+        # Build a global pool of unique sentences from ALL chunks
+        all_sentences = []
+        for chunk in text_chunks:
+            text = chunk.get('text', '')
+            topic = chunk.get('metadata', {}).get('topic', 'General')
+            # Split into sentences, filter short/boilerplate
+            sentences = [s.strip() for s in re.split(r'[\.!\?]', text) if len(s.strip()) > 20]
+            for sent in sentences:
+                # Skip boilerplate
+                lower = sent.lower()
+                if any(skip in lower for skip in ['copyright', 'isbn', 'http', 'www.', 'all rights', 'published']):
+                    continue
+                # Clean and add
+                clean = re.sub(r'\s+', ' ', sent).strip()
+                if len(clean) > 20 and len(clean) < 300:
+                    all_sentences.append({'text': clean, 'topic': topic})
+
+        if len(all_sentences) < 4:
+            return questions
+
+        # Dedupe sentences
+        seen = set()
+        unique_sentences = []
+        for item in all_sentences:
+            key = item['text'].lower()[:50]
+            if key not in seen:
+                seen.add(key)
+                unique_sentences.append(item)
+
+        # Shuffle for variety
+        random.shuffle(unique_sentences)
+
+        # Track used sentences to avoid repetition
+        used_indices = set()
+
+        for q_num in range(num_questions):
+            if len(used_indices) >= len(unique_sentences) - 4:
+                break  # Not enough unique content left
+
+            # Find an unused sentence for the question stem
+            stem_idx = None
+            for i, item in enumerate(unique_sentences):
+                if i not in used_indices:
+                    stem_idx = i
+                    break
+            if stem_idx is None:
+                break
+
+            stem_item = unique_sentences[stem_idx]
+            used_indices.add(stem_idx)
+
+            # Find an unused sentence for the correct answer
+            answer_idx = None
+            for i, item in enumerate(unique_sentences):
+                if i not in used_indices and i != stem_idx:
+                    answer_idx = i
+                    break
+            if answer_idx is None:
+                break
+
+            answer_item = unique_sentences[answer_idx]
+            used_indices.add(answer_idx)
+
+            # Find 3 distinct distractors from unused sentences
+            distractors = []
+            for i, item in enumerate(unique_sentences):
+                if i not in used_indices and i != stem_idx and i != answer_idx:
+                    distractors.append(item['text'][:160])
+                    used_indices.add(i)
+                    if len(distractors) >= 3:
+                        break
+
+            # If not enough distractors, use generic ones
+            generic = [
+                "This concept is unrelated to the question.",
+                "This statement describes a different process.",
+                "This is a common misunderstanding of the topic."
+            ]
+            for g in generic:
+                if len(distractors) >= 3:
+                    break
+                distractors.append(g)
+
+            # Build question
+            stem = stem_item['text'][:100]
+            correct_answer = answer_item['text'][:160]
+            topic = stem_item['topic']
+
+            options = [correct_answer] + distractors[:3]
+            random.shuffle(options)
+            correct_index = options.index(correct_answer)
+
+            questions.append({
+                'question': f"Based on the study material, which statement relates to: {stem}?",
+                'options': options,
+                'correct_answer': correct_answer,
+                'correct_index': correct_index,
+                'topic': topic,
+                'difficulty': difficulty,
+                'explanation': f"The correct statement is: {correct_answer}"
+            })
+
+        return questions
     
     def generate_adaptive_quiz(self, text_chunks: List[Dict], user_performance: Optional[Dict] = None, num_questions: int = 5) -> List[Dict]:
         """Generate adaptive quiz based on user performance"""
