@@ -307,21 +307,45 @@ class AgentController:
         Returns:
             List of revision plan items
         """
+        logger.info(f"create_revision_plan: exam_date={exam_date}, study_days={study_days_per_week}")
+        
         topics = self.memory.topics
+        logger.info(f"create_revision_plan: Found {len(topics)} topics in memory")
+        
+        # If no topics found, try to generate from chunks
+        if not topics or len(topics) == 0:
+            logger.warning("No topics in memory, generating basic topics from chunks")
+            # Create basic topics from chunk metadata
+            unique_topics = set()
+            for chunk in self.memory.chunks:
+                topic_name = chunk.get('metadata', {}).get('topic', '')
+                if topic_name and topic_name != 'General':
+                    unique_topics.add(topic_name)
+            
+            if unique_topics:
+                topics = [{'topic': t, 'subtopics': [], 'key_points': []} for t in unique_topics]
+                logger.info(f"Generated {len(topics)} topics from chunk metadata")
+            else:
+                # Create a single general topic if we have chunks
+                if self.memory.chunks:
+                    topics = [{'topic': 'Study Material Review', 'subtopics': [], 'key_points': ['Review uploaded documents']}]
+                    logger.info("Created default topic for study material")
         
         exam_datetime = None
         if exam_date:
             from datetime import datetime
             try:
                 exam_datetime = datetime.strptime(exam_date, '%Y-%m-%d')
-            except ValueError:
-                pass
+            except ValueError as e:
+                logger.warning(f"Invalid exam date format: {exam_date}, error: {e}")
         
         plan = self.planner_agent.create_revision_plan(
             topics,
             exam_date=exam_datetime,
             study_days_per_week=study_days_per_week
         )
+        
+        logger.info(f"create_revision_plan: Generated plan with {len(plan)} items")
         
         # Store in memory
         self.planner_agent.revision_plan = plan

@@ -6,9 +6,12 @@ Creates adaptive revision schedules based on topics and performance
 """
 
 import json
+import logging
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 
 class PlannerAgent:
@@ -37,6 +40,12 @@ class PlannerAgent:
         Returns:
             List of revision schedule items
         """
+        logger.info(f"create_revision_plan called: topics={len(topics) if topics else 0}, exam_date={exam_date}, study_days={study_days_per_week}")
+        
+        if not topics or len(topics) == 0:
+            logger.warning("No topics provided for revision plan - returning empty plan")
+            return []
+        
         if not start_date:
             start_date = datetime.now()
         
@@ -47,12 +56,18 @@ class PlannerAgent:
         if total_days <= 0:
             total_days = 30  # Default to 30 days
         
+        logger.info(f"Plan parameters: total_days={total_days}, start={start_date.strftime('%Y-%m-%d')}, exam={exam_date.strftime('%Y-%m-%d')}")
+        
         # Calculate study days
         weeks = total_days / 7
         total_study_days = int(weeks * study_days_per_week)
         
+        if total_study_days == 0:
+            total_study_days = min(len(topics), 5)  # At least cover some topics
+        
         # Prioritize topics (can be based on difficulty, importance, etc.)
         prioritized_topics = self._prioritize_topics(topics)
+        logger.info(f"Prioritized {len(prioritized_topics)} topics for {total_study_days} study days")
         
         # Distribute topics across study days
         plan = []
@@ -86,6 +101,7 @@ class PlannerAgent:
             topic_index += 1
         
         self.revision_plan = plan
+        logger.info(f"Created revision plan with {len(plan)} items")
         return plan
     
     def _prioritize_topics(self, topics: List[Dict]) -> List[Dict]:
@@ -166,12 +182,14 @@ class PlannerAgent:
     
     def get_statistics(self) -> Dict:
         """Get revision statistics"""
-        total = len(self.revision_plan)
-        completed = sum(1 for item in self.revision_plan if item['status'] == 'completed')
-        pending = sum(1 for item in self.revision_plan if item['status'] == 'pending')
-        in_progress = sum(1 for item in self.revision_plan if item['status'] == 'in_progress')
+        total = len(self.revision_plan) if self.revision_plan else 0
+        completed = sum(1 for item in self.revision_plan if item.get('status') == 'completed') if self.revision_plan else 0
+        pending = sum(1 for item in self.revision_plan if item.get('status') == 'pending') if self.revision_plan else 0
+        in_progress = sum(1 for item in self.revision_plan if item.get('status') == 'in_progress') if self.revision_plan else 0
         
         completion_rate = (completed / total * 100) if total > 0 else 0
+        
+        logger.debug(f"Planner stats: total={total}, completed={completed}, pending={pending}, in_progress={in_progress}")
         
         return {
             'total_topics': total,
@@ -183,26 +201,42 @@ class PlannerAgent:
     
     def save_plan(self, file_path: str = "outputs/planner.json"):
         """Save revision plan to JSON file"""
-        output_dir = Path(file_path).parent
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        data = {
-            'revision_plan': self.revision_plan,
-            'progress': self.progress,
-            'last_updated': datetime.now().isoformat()
-        }
-        
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
+        logger.info(f"Saving plan with {len(self.revision_plan)} items to {file_path}")
+        try:
+            output_dir = Path(file_path).parent
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            data = {
+                'revision_plan': self.revision_plan,
+                'progress': self.progress,
+                'last_updated': datetime.now().isoformat()
+            }
+            
+            with open(file_path, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=2, ensure_ascii=False)
+            logger.info("Plan saved successfully")
+        except Exception as e:
+            logger.error(f"Error saving plan: {e}")
     
-    def load_plan(self, file_path: str = "outputs/planner.json"):
-        """Load revision plan from JSON file"""
-        if Path(file_path).exists():
-            with open(file_path, 'r', encoding='utf-8') as f:
-                data = json.load(f)
-                self.revision_plan = data.get('revision_plan', [])
-                self.progress = data.get('progress', {})
-        else:
+    def load_plan(self, file_path: str = "outputs/planner.json") -> List[Dict]:
+        """Load revision plan from JSON file and return it"""
+        logger.info(f"Loading plan from {file_path}")
+        try:
+            if Path(file_path).exists():
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    self.revision_plan = data.get('revision_plan', [])
+                    self.progress = data.get('progress', {})
+                    logger.info(f"Loaded plan with {len(self.revision_plan)} items")
+            else:
+                logger.info("Plan file does not exist, returning empty plan")
+                self.revision_plan = []
+                self.progress = {}
+        except Exception as e:
+            logger.error(f"Error loading plan: {e}")
             self.revision_plan = []
             self.progress = {}
+        
+        # Return the plan for convenience
+        return self.revision_plan
 

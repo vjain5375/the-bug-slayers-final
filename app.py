@@ -1214,7 +1214,9 @@ def show_planner_page():
     
     try:
         plan = st.session_state.agent_controller.planner_agent.load_plan()
-        if plan:
+        logger.info(f"Planner page: Loaded plan with {len(plan) if plan else 0} items")
+        
+        if plan and len(plan) > 0:
             st.markdown(f'<h3 class="designer-header" style="font-size: 2.5rem;">⚔️ {len(plan)} TARGET MISSIONS IDENTIFIED</h3>', unsafe_allow_html=True)
             
             for i, item in enumerate(plan):
@@ -1285,8 +1287,8 @@ def show_planner_page():
                             st.rerun()
                         st.markdown('</div>', unsafe_allow_html=True)
                     st.markdown('</div>', unsafe_allow_html=True)
-    except Exception:
-        logger.error("Error in planner")
+    except Exception as e:
+        logger.exception(f"Error loading/displaying plan: {e}")
         st.info("Initiate a Strategic Battle Plan to track your mission progress!")
 
 def show_chat_page():
