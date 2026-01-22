@@ -1,730 +1,686 @@
 import streamlit as st
 import os
 import time
-import random
-import pandas as pd
 from pathlib import Path
 import logging
-from typing import List, Dict, Optional
+from typing import List, Dict
 
 # --- AGENT IMPORTS ---
 from agents.controller import AgentController
 from vector_store import VectorStore
 from agents.planner_agent import PlannerAgent
 
-# --- LOGGING CONFIG ---
+# --- LOGGING ---
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # --- PAGE CONFIG ---
 st.set_page_config(
     page_title="Campus Compass",
-    page_icon="🧭",
+    page_icon="📚",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# --- DIRECTORY SETUP ---
+# --- UTILS ---
 def ensure_documents_directory():
     docs_dir = Path("documents")
     docs_dir.mkdir(exist_ok=True)
     return docs_dir
 
 def get_document_files():
-    docs_dir = ensure_documents_directory()
-    return list(docs_dir.glob("*"))
+    return list(ensure_documents_directory().glob("*"))
 
-# --- CLEANUP LOGIC ---
 def cleanup_session():
-    """Wipe everything for a fresh start."""
-    docs_dir = Path("documents")
-    if docs_dir.exists():
-        for f in docs_dir.glob("*"):
-            try: f.unlink()
-            except: pass
-    
-    outputs_dir = Path("outputs")
-    if outputs_dir.exists():
-        for f in outputs_dir.glob("*"):
-            try: f.unlink()
-            except: pass
-            
+    for folder in ["documents", "outputs"]:
+        p = Path(folder)
+        if p.exists():
+            for f in p.glob("*"):
+                try: f.unlink()
+                except: pass
     if 'vector_store' in st.session_state and st.session_state.vector_store:
         try:
             st.session_state.vector_store.client.delete_collection("campus_compass")
-            st.session_state.vector_store = VectorStore() 
-        except Exception:
-            try: st.session_state.vector_store = VectorStore()
-            except: pass
+            st.session_state.vector_store = VectorStore()
+        except: pass
 
-# --- HELPER: DOCS SIGNATURE ---
 def _compute_docs_signature(doc_files):
     if not doc_files: return None
-    sig = []
-    for d in sorted(doc_files, key=lambda x: x.name):
-        try:
-            stat = d.stat()
-            sig.append(f"{d.name}_{stat.st_size}_{stat.st_mtime}")
-        except: pass
-    return "|".join(sig)
+    return "|".join([f"{d.name}_{d.stat().st_size}" for d in sorted(doc_files, key=lambda x: x.name) if d.exists()])
 
-# --- SESSION STATE INITIALIZATION ---
+# --- SESSION STATE ---
 if 'initialized' not in st.session_state:
     cleanup_session()
     st.session_state.initialized = True
-    st.session_state.current_page = "Home"
+    st.session_state.current_page = "home"
     st.session_state.vector_store = VectorStore()
     try:
         if st.session_state.vector_store.collection:
-            all_ids = st.session_state.vector_store.collection.get()['ids']
-            if all_ids: st.session_state.vector_store.collection.delete(ids=all_ids)
+            ids = st.session_state.vector_store.collection.get()['ids']
+            if ids: st.session_state.vector_store.collection.delete(ids=ids)
     except: pass
-    
     st.session_state.agent_controller = AgentController(st.session_state.vector_store)
     st.session_state.documents_processed = False
     st.session_state.flashcards = []
     st.session_state.quizzes = []
     st.session_state.quiz_answers = {}
     st.session_state.chat_history = []
-    st.session_state.latest_document = None
     st.session_state.num_flashcards = 10
-    st.session_state.num_questions = 10
     st.session_state.document_upload_order = []
-    st.session_state.last_processed_signature = None
+    st.session_state.last_signature = None
 
-# --- PREMIUM UI/UX CSS ---
+# --- CSS: OPINIONATED, MATTE, FUNCTIONAL ---
 st.markdown("""
 <style>
-    /* 1. TYPOGRAPHY & RESET */
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
-    
-    :root {
-        --bg-deep: #0B0F1A;
-        --bg-card: #111827;
-        --bg-card-hover: #1F2937;
-        --accent-primary: #3B82F6; /* Electric Blue */
-        --accent-glow: #22D3EE; /* Cyan */
-        --text-primary: #F3F4F6;
-        --text-secondary: #9CA3AF;
-        --border-glass: rgba(255, 255, 255, 0.08);
-        --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
-        --success: #10B981;
-    }
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
 
-    html, body, [class*="css"] {
-        font-family: 'Plus Jakarta Sans', sans-serif;
-        color: var(--text-primary);
-        background-color: var(--bg-deep);
-    }
+:root {
+    --bg: #0a0a0b;
+    --surface: #141416;
+    --surface-2: #1c1c1f;
+    --border: #2a2a2d;
+    --text: #e4e4e7;
+    --text-dim: #71717a;
+    --blue: #3b82f6;
+    --blue-dim: #1e3a5f;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+}
 
-    /* 2. BACKGROUND & APP CONTAINER */
-    .stApp {
-        background-color: var(--bg-deep);
-        background-image: 
-            radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
-            radial-gradient(circle at 90% 80%, rgba(34, 211, 238, 0.08) 0%, transparent 40%);
-        background-attachment: fixed;
-    }
+html, body, [class*="css"] {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
 
-    /* 3. SIDEBAR (Floating Glass) */
-    section[data-testid="stSidebar"] {
-        background: rgba(17, 24, 39, 0.7);
-        backdrop-filter: blur(12px);
-        border-right: 1px solid var(--border-glass);
-        box-shadow: 10px 0 30px rgba(0,0,0,0.3);
-    }
-    
-    div[data-testid="stSidebarNav"] {
-        padding-top: 1rem;
-    }
+.stApp {
+    background: var(--bg);
+}
 
-    /* 4. HEADERS */
-    h1 {
-        background: linear-gradient(135deg, #FFF 0%, #94A3B8 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 800 !important;
-        letter-spacing: -0.03em;
-        font-size: 3.5rem !important;
-        margin-bottom: 0.5rem !important;
-    }
+/* SIDEBAR: Heavy, grounded, not floating */
+section[data-testid="stSidebar"] {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+}
 
-    h2, h3 {
-        color: var(--text-primary) !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.02em;
-    }
+section[data-testid="stSidebar"] > div {
+    padding-top: 1rem;
+}
 
-    /* 5. MODERN CARDS */
-    .feature-card {
-        background: var(--bg-card);
-        border: 1px solid var(--border-glass);
-        border-radius: 16px;
-        padding: 1.5rem;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
+/* Remove default streamlit padding bloat */
+.block-container {
+    padding: 2rem 3rem !important;
+    max-width: 100% !important;
+}
 
-    .feature-card::before {
-        content: '';
-        position: absolute;
-        top: 0; left: 0; right: 0; height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.5), transparent);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
+/* Headers: No gradient nonsense */
+h1, h2, h3 {
+    color: var(--text) !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.02em;
+}
 
-    .feature-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--shadow-glow);
-        border-color: rgba(59, 130, 246, 0.3);
-        background: var(--bg-card-hover);
-    }
+h1 { font-size: 1.75rem !important; margin-bottom: 0.5rem !important; }
+h2 { font-size: 1.25rem !important; }
+h3 { font-size: 1rem !important; }
 
-    .feature-card:hover::before {
-        opacity: 1;
-    }
+/* Buttons: Blue = action, nothing else */
+div.stButton > button {
+    background: transparent !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-dim) !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    font-size: 0.875rem !important;
+    padding: 0.5rem 1rem !important;
+    transition: all 0.15s ease !important;
+}
 
-    /* 6. BUTTONS (Glowing & Interactive) */
-    div.stButton > button {
-        background: rgba(59, 130, 246, 0.1) !important;
-        border: 1px solid rgba(59, 130, 246, 0.2) !important;
-        color: var(--accent-primary) !important;
-        border-radius: 12px !important;
-        padding: 0.6rem 1.2rem !important;
-        font-weight: 600 !important;
-        transition: all 0.2s ease !important;
-    }
+div.stButton > button:hover {
+    border-color: var(--blue) !important;
+    color: var(--blue) !important;
+    background: var(--blue-dim) !important;
+}
 
-    div.stButton > button:hover {
-        background: var(--accent-primary) !important;
-        color: white !important;
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.4) !important;
-        transform: scale(1.02);
-        border-color: var(--accent-primary) !important;
-    }
-    
-    div.stButton > button[kind="primary"] {
-        background: linear-gradient(135deg, var(--accent-primary) 0%, #2563EB 100%) !important;
-        color: white !important;
-        border: none !important;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3) !important;
-    }
+div.stButton > button[kind="primary"] {
+    background: var(--blue) !important;
+    border: none !important;
+    color: white !important;
+}
 
-    /* 7. UPLOAD ZONE */
-    div[data-testid="stFileUploader"] {
-        background: rgba(255,255,255,0.02);
-        border: 2px dashed var(--border-glass);
-        border-radius: 16px;
-        padding: 2rem;
-        transition: all 0.3s ease;
-    }
-    
-    div[data-testid="stFileUploader"]:hover {
-        border-color: var(--accent-primary);
-        background: rgba(59, 130, 246, 0.05);
-    }
-    
-    div[data-testid="stFileUploader"] label {
-        color: var(--text-secondary) !important;
-        font-family: 'Plus Jakarta Sans';
-    }
+div.stButton > button[kind="primary"]:hover {
+    background: #2563eb !important;
+}
 
-    /* 8. CHAT BUBBLES */
-    .chat-container {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .chat-bubble {
-        max-width: 80%;
-        padding: 1rem 1.25rem;
-        border-radius: 16px;
-        font-size: 0.95rem;
-        line-height: 1.6;
-        position: relative;
-    }
-    
-    .user-bubble {
-        align-self: flex-end;
-        background: linear-gradient(135deg, var(--accent-primary), #2563EB);
-        color: white;
-        border-bottom-right-radius: 4px;
-        margin-left: auto;
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-    }
-    
-    .ai-bubble {
-        align-self: flex-start;
-        background: var(--bg-card);
-        border: 1px solid var(--border-glass);
-        color: var(--text-primary);
-        border-bottom-left-radius: 4px;
-        margin-right: auto;
-    }
+/* Status boxes */
+.status-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+}
 
-    /* 9. METRICS */
-    div[data-testid="stMetricValue"] {
-        background: linear-gradient(135deg, #FFF 0%, #9CA3AF 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: 2.5rem !important;
-        font-weight: 700 !important;
-    }
-    
-    div[data-testid="stMetricLabel"] {
-        color: var(--accent-glow) !important;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.8rem;
-        letter-spacing: 0.05em;
-    }
+.status-box.ready {
+    border-left: 3px solid var(--green);
+}
 
-    /* 10. TOAST */
-    div[data-testid="stToast"] {
-        background: var(--bg-card) !important;
-        color: var(--text-primary) !important;
-        border: 1px solid var(--border-glass) !important;
-        border-radius: 12px !important;
-    }
-    
-    /* UTILS */
-    .hero-sub {
-        color: var(--text-secondary);
-        font-size: 1.2rem;
-        font-weight: 400;
-        max-width: 600px;
-        margin: 0 auto 2rem auto;
-        line-height: 1.6;
-    }
-    
-    .glass-panel {
-        background: rgba(17, 24, 39, 0.6);
-        backdrop-filter: blur(12px);
-        border: 1px solid var(--border-glass);
-        border-radius: 20px;
-        padding: 2rem;
-    }
+.status-box.empty {
+    border-left: 3px solid var(--text-dim);
+}
+
+.status-box.processing {
+    border-left: 3px solid var(--yellow);
+}
+
+/* Metric: Monospace numbers */
+.metric {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1;
+}
+
+.metric-label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+}
+
+/* Cards: Dense, functional */
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 0.75rem;
+}
+
+.card:hover {
+    border-color: var(--blue);
+}
+
+/* Nav item */
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.875rem;
+    border-radius: 6px;
+    color: var(--text-dim);
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 0.25rem;
+}
+
+.nav-item:hover {
+    background: var(--surface-2);
+    color: var(--text);
+}
+
+.nav-item.active {
+    background: var(--blue-dim);
+    color: var(--blue);
+}
+
+/* Upload zone: Functional, not decorative */
+.upload-zone {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: left;
+}
+
+.upload-zone:hover {
+    border-color: var(--text-dim);
+}
+
+/* Chat */
+.msg {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    max-width: 85%;
+}
+
+.msg-user {
+    background: var(--blue);
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 2px;
+}
+
+.msg-ai {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    margin-right: auto;
+    border-bottom-left-radius: 2px;
+}
+
+/* Hide streamlit branding */
+#MainMenu, footer, header {visibility: hidden;}
+
+/* Expander */
+.streamlit-expanderHeader {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+}
+
+/* File uploader: remove default styling */
+div[data-testid="stFileUploader"] > div {
+    background: var(--surface) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+}
+
+div[data-testid="stFileUploader"] label {
+    color: var(--text-dim) !important;
+}
+
+/* Metrics override */
+div[data-testid="stMetricValue"] {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 1.5rem !important;
+    color: var(--text) !important;
+}
+
+div[data-testid="stMetricLabel"] {
+    color: var(--text-dim) !important;
+    font-size: 0.75rem !important;
+}
 
 </style>
 """, unsafe_allow_html=True)
 
-# --- HELPER FUNCTIONS ---
+# --- PROCESS DOCUMENTS ---
 def process_documents():
-    """Trigger the RAG pipeline."""
     docs_dir = ensure_documents_directory()
     doc_files = get_document_files()
     
     if not doc_files:
-        st.toast("⚠️ Please upload documents first.", icon="📂")
+        st.error("Nothing to process.")
         return False
     
-    signature = _compute_docs_signature(doc_files)
-    if (
-        signature
-        and st.session_state.documents_processed
-        and st.session_state.get('processing_results')
-        and st.session_state.get('last_processed_signature') == signature
-    ):
-        st.toast("⚡ Documents are already up to date.", icon="✨")
+    sig = _compute_docs_signature(doc_files)
+    if sig and st.session_state.documents_processed and st.session_state.get('last_signature') == sig:
         return True
     
-    if st.session_state.document_upload_order:
-        st.session_state.latest_document = st.session_state.document_upload_order[-1]
-    
-    with st.status("🧠 Analyzing knowledge base...", expanded=True) as status:
+    with st.spinner("Reading..."):
         try:
-            st.write("Extracting semantic concepts...")
-            time.sleep(0.5)
-            st.write("Generating neural embeddings...")
-            
             result = st.session_state.agent_controller.process_study_materials(str(docs_dir))
-            
             if result['total_chunks'] > 0:
                 st.session_state.documents_processed = True
-                status.update(label="✅ Knowledge Base Updated!", state="complete", expanded=False)
-                st.toast(f"Ready! Processed {result['total_topics']} topics.", icon="🚀")
-                
                 st.session_state.processing_results = result
-                st.session_state.last_processed_signature = signature
+                st.session_state.last_signature = sig
                 return True
-            else:
-                status.update(label="❌ Extraction Failed", state="error")
-                return False
-                
         except Exception as e:
-            status.update(label="❌ Error", state="error")
-            st.error(f"Processing failed: {e}")
-            return False
+            st.error(f"Failed: {e}")
+    return False
 
-# --- MAIN APP ---
+# --- MAIN ---
 def main():
-    # --- SIDEBAR ---
+    # === SIDEBAR ===
     with st.sidebar:
+        # Logo/Title: Simple, not fancy
         st.markdown("""
-        <div style="text-align: center; margin-bottom: 2rem;">
-            <div style="
-                width: 60px; height: 60px; 
-                background: linear-gradient(135deg, #3B82F6, #22D3EE); 
-                border-radius: 16px; 
-                margin: 0 auto 1rem; 
-                display: flex; align-items: center; justify-content: center;
-                box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
-            ">
-                <span style="font-size: 30px;">🧭</span>
-            </div>
-            <h2 style="font-size: 1.5rem; margin: 0; background: linear-gradient(to right, #fff, #9ca3af); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Campus Compass</h2>
-            <p style="color: #6B7280; font-size: 0.85rem; letter-spacing: 0.05em; font-weight: 500;">AI STUDY COMPANION</p>
+        <div style="padding: 0.5rem 0 1.5rem 0;">
+            <div style="font-size: 1.1rem; font-weight: 600; color: var(--text);">📚 Campus Compass</div>
+            <div style="font-size: 0.75rem; color: var(--text-dim);">your notes, less chaos</div>
         </div>
         """, unsafe_allow_html=True)
         
-        # Navigation
-        pages = {
-            "Home": "🏠",
-            "Flashcards": "⚡",
-            "Quizzes": "📝",
-            "Revision Planner": "📅",
-            "Chat Assistant": "💬",
-            "Analytics": "📊"
-        }
+        # Navigation: Dense, keyboard-style
+        pages = [
+            ("home", "Home", "⌂"),
+            ("flashcards", "Flashcards", "⚡"),
+            ("quizzes", "Quizzes", "?"),
+            ("planner", "Planner", "📅"),
+            ("chat", "Chat", "💬"),
+            ("stats", "Stats", "◉"),
+        ]
         
-        st.markdown("<div style='display: flex; flex-direction: column; gap: 0.5rem;'>", unsafe_allow_html=True)
-        for page, icon in pages.items():
-            # Active state logic handling for button styles
-            is_active = st.session_state.current_page == page
-            if st.button(f"{icon} {page}", key=f"nav_{page}", use_container_width=True, type="primary" if is_active else "secondary"):
-                st.session_state.current_page = page
+        for key, label, icon in pages:
+            is_active = st.session_state.current_page == key
+            if st.button(
+                f"{icon}  {label}",
+                key=f"nav_{key}",
+                use_container_width=True,
+                type="primary" if is_active else "secondary"
+            ):
+                st.session_state.current_page = key
                 st.rerun()
-        st.markdown("</div>", unsafe_allow_html=True)
         
-        st.markdown("---")
+        st.markdown("<div style='height: 2rem;'></div>", unsafe_allow_html=True)
         
-        # Mini Upload (Quick Add)
-        if st.session_state.documents_processed:
-            st.caption("QUICK ADD")
-            uploaded_files = st.file_uploader("", type=['pdf', 'docx', 'txt'], accept_multiple_files=True, key="mini_uploader", label_visibility="collapsed")
-            if uploaded_files:
-                st.session_state.uploaded_files_shared = uploaded_files
-                if st.button("Process New", use_container_width=True):
-                    process_and_rerun(uploaded_files)
+        # Quick status in sidebar
+        doc_count = len(get_document_files())
+        chunk_count = st.session_state.processing_results.get('total_chunks', 0) if st.session_state.documents_processed else 0
+        
+        st.markdown(f"""
+        <div style="padding: 1rem; background: var(--surface-2); border-radius: 6px; font-size: 0.8rem;">
+            <div style="color: var(--text-dim); margin-bottom: 0.5rem;">STATUS</div>
+            <div style="color: var(--text);">{doc_count} docs → {chunk_count} chunks</div>
+        </div>
+        """, unsafe_allow_html=True)
 
-    # --- ROUTING ---
-    if st.session_state.current_page == "Home":
-        render_home()
-    elif st.session_state.current_page == "Flashcards":
-        render_flashcards()
-    elif st.session_state.current_page == "Quizzes":
-        render_quizzes()
-    elif st.session_state.current_page == "Revision Planner":
-        render_planner()
-    elif st.session_state.current_page == "Chat Assistant":
-        render_chat()
-    elif st.session_state.current_page == "Analytics":
-        render_analytics()
+    # === ROUTING ===
+    page = st.session_state.current_page
+    if page == "home": render_home()
+    elif page == "flashcards": render_flashcards()
+    elif page == "quizzes": render_quizzes()
+    elif page == "planner": render_planner()
+    elif page == "chat": render_chat()
+    elif page == "stats": render_stats()
 
-def process_and_rerun(files):
-    docs_dir = ensure_documents_directory()
-    for f in files:
-        with open(docs_dir / f.name, "wb") as pf:
-            pf.write(f.getbuffer())
-        if f.name not in st.session_state.document_upload_order:
-            st.session_state.document_upload_order.append(f.name)
-    
-    if process_documents():
-        st.session_state.uploaded_files_shared = None
-        st.rerun()
-
-# --- PAGE: HOME ---
+# === HOME: Workspace, not poster ===
 def render_home():
-    # HERO SECTION
-    st.markdown("""
-    <div style="text-align: center; padding: 4rem 0;">
-        <h1>Study smarter.<br>Revise faster. Stress less.</h1>
-        <p class="hero-sub">
-            Stop drowning in PDFs. Turn your lecture notes into interactive flashcards, 
-            adaptive quizzes, and personalized revision plans in seconds.
-        </p>
-    </div>
-    """, unsafe_allow_html=True)
+    # No hero. Just state.
     
-    # ONBOARDING / UPLOAD
     if not st.session_state.documents_processed:
-        c1, c2, c3 = st.columns([1, 2, 1])
-        with c2:
+        # EMPTY STATE: Honest, direct
+        st.markdown("## Your notes are a mess.")
+        st.markdown("<p style='color: var(--text-dim); margin-bottom: 2rem;'>Drop the PDFs. We'll handle the chaos.</p>", unsafe_allow_html=True)
+        
+        # Upload: Left-aligned, not centered
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
             st.markdown("""
-            <div class="glass-panel" style="text-align: center; border: 1px dashed var(--accent-primary);">
-                <div style="font-size: 3rem; margin-bottom: 1rem;">📂</div>
-                <h3 style="margin-bottom: 0.5rem;">Drop your brain dump here</h3>
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.5rem;">
-                    Supports PDF, DOCX, TXT. Max 200MB.
-                </p>
+            <div class="upload-zone">
+                <div style="font-size: 0.875rem; color: var(--text-dim); margin-bottom: 0.5rem;">UPLOAD</div>
+                <div style="font-size: 0.875rem; color: var(--text);">PDF, DOCX, TXT accepted</div>
             </div>
             """, unsafe_allow_html=True)
             
-            uploaded_files = st.file_uploader("Upload Documents", type=['pdf', 'docx', 'doc', 'txt'], accept_multiple_files=True, key="home_uploader", label_visibility="collapsed")
+            uploaded = st.file_uploader(
+                "Drop files",
+                type=['pdf', 'docx', 'doc', 'txt'],
+                accept_multiple_files=True,
+                key="home_upload",
+                label_visibility="collapsed"
+            )
             
-            if uploaded_files:
-                if st.button("🚀 Ignite Engine", type="primary", use_container_width=True):
-                    process_and_rerun(uploaded_files)
+            if uploaded:
+                st.markdown(f"<div style='color: var(--green); font-size: 0.875rem; margin: 0.5rem 0;'>{len(uploaded)} files ready</div>", unsafe_allow_html=True)
+                
+                if st.button("Process now", type="primary"):
+                    docs_dir = ensure_documents_directory()
+                    for f in uploaded:
+                        with open(docs_dir / f.name, "wb") as pf:
+                            pf.write(f.getbuffer())
+                        if f.name not in st.session_state.document_upload_order:
+                            st.session_state.document_upload_order.append(f.name)
+                    
+                    if process_documents():
+                        st.rerun()
+        
+        with col2:
+            st.markdown("""
+            <div style="padding: 1rem; font-size: 0.8rem; color: var(--text-dim);">
+                <div style="margin-bottom: 1rem;"><strong style="color: var(--text);">What happens:</strong></div>
+                <div style="margin-bottom: 0.5rem;">1. We extract every concept</div>
+                <div style="margin-bottom: 0.5rem;">2. Build a knowledge graph</div>
+                <div style="margin-bottom: 0.5rem;">3. Generate study tools</div>
+            </div>
+            """, unsafe_allow_html=True)
     
     else:
-        # DASHBOARD GRID
-        st.markdown("<h3 style='margin-bottom: 1.5rem;'>Your Command Center</h3>", unsafe_allow_html=True)
+        # ACTIVE STATE: Show what's ready
+        result = st.session_state.processing_results
+        
+        # Top: Quick metrics (dense, left-aligned)
+        st.markdown("## Ready to study")
+        
+        c1, c2, c3, c4 = st.columns(4)
+        with c1:
+            st.markdown(f"""
+            <div class="status-box ready">
+                <div class="metric">{result['total_chunks']}</div>
+                <div class="metric-label">chunks</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c2:
+            st.markdown(f"""
+            <div class="status-box ready">
+                <div class="metric">{result['total_topics']}</div>
+                <div class="metric-label">topics</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c3:
+            fc = len(st.session_state.flashcards)
+            st.markdown(f"""
+            <div class="status-box {'ready' if fc else 'empty'}">
+                <div class="metric">{fc}</div>
+                <div class="metric-label">cards</div>
+            </div>
+            """, unsafe_allow_html=True)
+        with c4:
+            qz = len(st.session_state.quizzes)
+            st.markdown(f"""
+            <div class="status-box {'ready' if qz else 'empty'}">
+                <div class="metric">{qz}</div>
+                <div class="metric-label">questions</div>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.markdown("<div style='height: 1.5rem;'></div>", unsafe_allow_html=True)
+        
+        # Quick actions: Not cards, just buttons
+        st.markdown("### Do something")
         
         c1, c2, c3 = st.columns(3)
-        
         with c1:
-            st.markdown("""
-            <div class="feature-card">
-                <div>
-                    <div style="font-size: 2rem; margin-bottom: 1rem;">⚡</div>
-                    <h3>Flashcards</h3>
-                    <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                        Active recall engine. Convert notes into bite-sized memory cards.
-                    </p>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("Open Flashcards", key="btn_flash", use_container_width=True):
-                st.session_state.current_page = "Flashcards"
+            st.markdown("<div style='color: var(--text-dim); font-size: 0.8rem; margin-bottom: 0.5rem;'>FLASHCARDS</div>", unsafe_allow_html=True)
+            if st.button("Generate 10 cards", key="quick_flash"):
+                st.session_state.current_page = "flashcards"
                 st.rerun()
-                
         with c2:
-            st.markdown("""
-            <div class="feature-card">
-                <div>
-                    <div style="font-size: 2rem; margin-bottom: 1rem;">📝</div>
-                    <h3>Quizzes</h3>
-                    <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                        Test your knowledge. Adaptive difficulty based on your performance.
-                    </p>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("Start Quiz", key="btn_quiz", use_container_width=True):
-                st.session_state.current_page = "Quizzes"
+            st.markdown("<div style='color: var(--text-dim); font-size: 0.8rem; margin-bottom: 0.5rem;'>QUIZ</div>", unsafe_allow_html=True)
+            if st.button("Test yourself", key="quick_quiz"):
+                st.session_state.current_page = "quizzes"
                 st.rerun()
-
         with c3:
-            st.markdown("""
-            <div class="feature-card">
-                <div>
-                    <div style="font-size: 2rem; margin-bottom: 1rem;">💬</div>
-                    <h3>AI Assistant</h3>
-                    <p style="color: var(--text-secondary); font-size: 0.9rem;">
-                        Chat with your notes. Ask for summaries, explanations, or examples.
-                    </p>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-            if st.button("Start Chat", key="btn_chat", use_container_width=True):
-                st.session_state.current_page = "Chat Assistant"
+            st.markdown("<div style='color: var(--text-dim); font-size: 0.8rem; margin-bottom: 0.5rem;'>CHAT</div>", unsafe_allow_html=True)
+            if st.button("Ask a question", key="quick_chat"):
+                st.session_state.current_page = "chat"
                 st.rerun()
+        
+        # Topics found (collapsed by default)
+        if result.get('topics'):
+            st.markdown("<div style='height: 1.5rem;'></div>", unsafe_allow_html=True)
+            with st.expander(f"Topics found ({len(result['topics'])})"):
+                for t in result['topics'][:10]:
+                    st.markdown(f"• {t.get('topic', 'General')}")
 
-        # METRICS ROW
-        st.markdown("<div style='height: 2rem;'></div>", unsafe_allow_html=True)
-        if 'processing_results' in st.session_state:
-            res = st.session_state.processing_results
-            c1, c2, c3, c4 = st.columns(4)
-            with c1: st.metric("Knowledge Chunks", res['total_chunks'])
-            with c2: st.metric("Topics Found", res['total_topics'])
-            with c3: st.metric("Cards Created", len(st.session_state.flashcards) if st.session_state.flashcards else 0)
-            with c4: st.metric("Quizzes Aced", len(st.session_state.quiz_answers) if st.session_state.quiz_answers else 0)
-
-# --- PAGE: FLASHCARDS ---
+# === FLASHCARDS ===
 def render_flashcards():
-    st.markdown("## ⚡ Flashcards")
+    st.markdown("## Flashcards")
     
     if not st.session_state.documents_processed:
-        st.warning("Upload documents to generate cards.")
+        st.markdown("<p style='color: var(--text-dim);'>Upload docs first.</p>", unsafe_allow_html=True)
         return
-
-    # SETTINGS
-    with st.expander("⚙️ Generator Config", expanded=not bool(st.session_state.flashcards)):
-        c1, c2 = st.columns(2)
-        with c1: num = st.slider("Quantity", 5, 50, 10)
-        with c2: diff = st.selectbox("Difficulty", ["Mixed", "Hard Mode", "Easy Review"])
-        
-        diff_map = {"Mixed": "easy_medium_hard", "Hard Mode": "medium_hard", "Easy Review": "easy_medium"}
-        
-        if st.button("Generate Deck", type="primary"):
-            with st.spinner("Forging cards..."):
-                st.session_state.flashcards = st.session_state.agent_controller.generate_flashcards(num, diff_map[diff])
-                st.rerun()
-
+    
+    # Generator
+    if not st.session_state.flashcards:
+        c1, c2 = st.columns([1, 2])
+        with c1:
+            num = st.slider("How many?", 5, 30, 10, label_visibility="collapsed")
+            st.caption(f"{num} cards")
+        with c2:
+            if st.button("Generate", type="primary"):
+                with st.spinner("Creating cards..."):
+                    st.session_state.flashcards = st.session_state.agent_controller.generate_flashcards(num)
+                    st.rerun()
+    
+    # Display cards
     if st.session_state.flashcards:
+        st.markdown(f"<p style='color: var(--text-dim); margin-bottom: 1rem;'>{len(st.session_state.flashcards)} cards ready</p>", unsafe_allow_html=True)
+        
+        csv = st.session_state.agent_controller.flashcard_agent.export_to_csv(st.session_state.flashcards)
+        st.download_button("Export CSV", csv, "flashcards.csv", "text/csv")
+        
         for i, card in enumerate(st.session_state.flashcards):
             st.markdown(f"""
-            <div class="feature-card" style="margin-bottom: 1rem;">
-                <div style="display:flex; justify-content:space-between; color: var(--accent-primary); font-size: 0.8rem; font-weight: 700; margin-bottom: 1rem;">
-                    <span>CARD {i+1}</span>
-                    <span>{card.get('difficulty', 'GENERAL').upper()}</span>
-                </div>
-                <h3 style="font-size: 1.4rem; margin-bottom: 1.5rem;">{card['question']}</h3>
-                <details>
-                    <summary style="cursor: pointer; color: var(--accent-glow); font-weight: 600;">Reveal Answer</summary>
-                    <p style="margin-top: 1rem; color: var(--text-secondary); line-height: 1.6;">{card['answer']}</p>
-                </details>
+            <div class="card">
+                <div style="font-size: 0.75rem; color: var(--text-dim); margin-bottom: 0.75rem;">{i+1} / {len(st.session_state.flashcards)}</div>
+                <div style="font-size: 1rem; font-weight: 500; margin-bottom: 1rem;">{card['question']}</div>
             </div>
             """, unsafe_allow_html=True)
-        
-        st.download_button("📥 Download Anki Deck", st.session_state.agent_controller.flashcard_agent.export_to_csv(st.session_state.flashcards), "deck.csv", "text/csv")
+            
+            with st.expander("Answer"):
+                st.write(card['answer'])
 
-# --- PAGE: QUIZZES ---
+# === QUIZZES ===
 def render_quizzes():
-    st.markdown("## 📝 Adaptive Quiz")
+    st.markdown("## Quiz")
     
     if not st.session_state.documents_processed:
-        st.warning("Upload documents first.")
+        st.markdown("<p style='color: var(--text-dim);'>Upload docs first.</p>", unsafe_allow_html=True)
         return
-
+    
+    # Start new quiz
     if not st.session_state.quizzes:
         c1, c2 = st.columns([1, 2])
         with c1:
-            diff = st.select_slider("Difficulty", options=["easy", "medium", "hard"])
-            num = st.number_input("Questions", 3, 20, 5)
+            num = st.slider("Questions", 3, 15, 5, label_visibility="collapsed")
+            diff = st.selectbox("Difficulty", ["easy", "medium", "hard"], label_visibility="collapsed")
         with c2:
-            st.markdown("<br>", unsafe_allow_html=True)
-            if st.button("Start Challenge", type="primary"):
+            st.markdown("<div style='height: 1rem;'></div>", unsafe_allow_html=True)
+            if st.button("Start quiz", type="primary"):
                 st.session_state.quizzes = st.session_state.agent_controller.generate_quiz(diff, num)
                 st.session_state.quiz_answers = {}
                 st.session_state.quiz_submitted = False
                 st.session_state.quiz_result = None
                 st.rerun()
-
     else:
-        # QUIZ INTERFACE
+        # Quiz in progress
         for i, q in enumerate(st.session_state.quizzes):
             st.markdown(f"""
-            <div style="background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; border: 1px solid var(--border-glass);">
-                <p style="font-weight: 600; color: var(--accent-glow); margin-bottom: 0.5rem;">QUESTION {i+1}</p>
-                <h4 style="margin-bottom: 1.5rem;">{q['question']}</h4>
+            <div class="card">
+                <div style="font-size: 0.75rem; color: var(--text-dim);">Q{i+1}</div>
+                <div style="font-weight: 500; margin: 0.5rem 0 1rem 0;">{q['question']}</div>
             </div>
             """, unsafe_allow_html=True)
             
-            sel = st.radio(f"Select answer for Q{i+1}", q['options'], key=f"q_{i}", label_visibility="collapsed")
-            if sel in q['options']:
-                st.session_state.quiz_answers[i] = q['options'].index(sel)
+            ans = st.radio(f"q{i}", q['options'], key=f"quiz_{i}", label_visibility="collapsed")
+            if ans in q['options']:
+                st.session_state.quiz_answers[i] = q['options'].index(ans)
         
-        if not st.session_state.quiz_submitted:
-            if st.button("Submit Answers", type="primary"):
+        if not st.session_state.get('quiz_submitted'):
+            if st.button("Submit", type="primary"):
                 res = st.session_state.agent_controller.evaluate_quiz(st.session_state.quizzes, st.session_state.quiz_answers)
                 st.session_state.quiz_result = res
                 st.session_state.quiz_submitted = True
                 st.rerun()
         
-        # RESULTS
-        if st.session_state.quiz_submitted and st.session_state.quiz_result:
+        # Results
+        if st.session_state.get('quiz_submitted') and st.session_state.quiz_result:
             res = st.session_state.quiz_result
-            score = res['score']
-            total = res['total']
-            perc = res['accuracy'] * 100
-            
-            color = "#10B981" if perc > 70 else "#F59E0B" if perc > 40 else "#EF4444"
+            pct = res['accuracy'] * 100
             
             st.markdown(f"""
-            <div style="background: {color}20; border: 1px solid {color}; padding: 2rem; border-radius: 16px; text-align: center; margin: 2rem 0;">
-                <h1 style="color: {color} !important; margin: 0 !important;">{score}/{total}</h1>
-                <p style="color: {color}; font-weight: 600;">{res.get('feedback', 'Mission Complete')}</p>
+            <div style="padding: 1.5rem; background: var(--surface); border-radius: 8px; border-left: 3px solid {'var(--green)' if pct >= 70 else 'var(--yellow)' if pct >= 50 else 'var(--red)'}; margin: 1rem 0;">
+                <div style="font-family: 'JetBrains Mono'; font-size: 2rem; font-weight: 600;">{res['score']}/{res['total']}</div>
+                <div style="color: var(--text-dim); font-size: 0.875rem;">{pct:.0f}% correct</div>
             </div>
             """, unsafe_allow_html=True)
             
-            if st.button("New Quiz"):
+            if st.button("New quiz"):
                 st.session_state.quizzes = []
                 st.session_state.quiz_submitted = False
                 st.rerun()
 
-# --- PAGE: PLANNER ---
+# === PLANNER ===
 def render_planner():
-    st.markdown("## 📅 Revision Planner")
+    st.markdown("## Planner")
     
     if not st.session_state.documents_processed:
-        st.warning("Upload documents first.")
+        st.markdown("<p style='color: var(--text-dim);'>Upload docs first.</p>", unsafe_allow_html=True)
         return
-
-    c1, c2 = st.columns(2)
-    with c1: date = st.date_input("Exam Date")
-    with c2: days = st.slider("Study Days/Week", 1, 7, 5)
     
-    if st.button("Generate Plan", type="primary"):
+    c1, c2 = st.columns(2)
+    with c1:
+        date = st.date_input("Exam date", label_visibility="collapsed")
+    with c2:
+        days = st.slider("Days/week", 1, 7, 5, label_visibility="collapsed")
+    
+    if st.button("Generate plan", type="primary"):
         st.session_state.agent_controller.create_revision_plan(date.strftime('%Y-%m-%d') if date else None, days)
         st.rerun()
-        
+    
     plan = st.session_state.agent_controller.planner_agent.load_plan()
     if plan:
+        st.markdown(f"<p style='color: var(--text-dim); margin: 1rem 0;'>{len(plan)} sessions</p>", unsafe_allow_html=True)
         for item in plan:
-            status_col = "#10B981" if item.get('status') == 'completed' else "#3B82F6"
+            status = item.get('status', 'pending')
+            color = 'var(--green)' if status == 'completed' else 'var(--text-dim)'
             st.markdown(f"""
-            <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 1.5rem; border-radius: 12px; margin-bottom: 1rem; border-left: 4px solid {status_col};">
-                <div>
-                    <div style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">{item['date']}</div>
-                    <div style="font-size: 1.1rem; font-weight: 600;">{item['topic']}</div>
-                </div>
-                <div style="background: {status_col}20; color: {status_col}; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
-                    {item.get('status', 'PENDING').upper()}
-                </div>
+            <div class="card" style="border-left: 3px solid {color};">
+                <div style="font-size: 0.75rem; color: var(--text-dim);">{item['date']}</div>
+                <div style="font-weight: 500;">{item['topic']}</div>
             </div>
             """, unsafe_allow_html=True)
 
-# --- PAGE: CHAT ---
+# === CHAT ===
 def render_chat():
-    st.markdown("## 💬 AI Assistant")
+    st.markdown("## Chat")
     
     if not st.session_state.documents_processed:
-        st.warning("Upload documents first.")
+        st.markdown("<p style='color: var(--text-dim);'>Upload docs first.</p>", unsafe_allow_html=True)
         return
-
-    # Chat Container
-    st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
+    
+    # History
     for msg in st.session_state.chat_history:
-        q = msg['question']
-        a = msg['answer']
-        st.markdown(f"""
-        <div style="display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem;">
-            <div class="chat-bubble user-bubble">{q}</div>
-            <div class="chat-bubble ai-bubble">{a}</div>
-        </div>
-        """, unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
-
-    if prompt := st.chat_input("Ask about your notes..."):
-        st.markdown(f'<div class="chat-bubble user-bubble" style="margin-bottom: 1rem;">{prompt}</div>', unsafe_allow_html=True)
-        with st.spinner("Thinking..."):
+        st.markdown(f"<div class='msg msg-user'>{msg['question']}</div>", unsafe_allow_html=True)
+        st.markdown(f"<div class='msg msg-ai'>{msg['answer']}</div>", unsafe_allow_html=True)
+    
+    # Input
+    if prompt := st.chat_input("Ask something..."):
+        st.markdown(f"<div class='msg msg-user'>{prompt}</div>", unsafe_allow_html=True)
+        with st.spinner("..."):
             res = st.session_state.agent_controller.answer_question(prompt)
             if res:
-                st.session_state.chat_history.append({'question': prompt, 'answer': res['answer'], 'sources': res.get('sources', [])})
+                st.session_state.chat_history.append({'question': prompt, 'answer': res['answer']})
                 st.rerun()
 
-# --- PAGE: ANALYTICS ---
-def render_analytics():
-    st.markdown("## 📊 Analytics")
-    if not st.session_state.agent_controller: return
+# === STATS ===
+def render_stats():
+    st.markdown("## Stats")
+    
+    if not st.session_state.agent_controller:
+        return
     
     stats = st.session_state.agent_controller.get_statistics()
     
     c1, c2 = st.columns(2)
     with c1:
         st.markdown(f"""
-        <div class="glass-panel">
-            <h3>Content</h3>
-            <div style="font-size: 3rem; font-weight: 700; color: var(--accent-primary);">{stats['total_chunks']}</div>
-            <div style="color: var(--text-secondary);">Knowledge Chunks</div>
+        <div class="status-box">
+            <div style="color: var(--text-dim); font-size: 0.75rem; margin-bottom: 0.5rem;">CONTENT</div>
+            <div class="metric">{stats['total_chunks']}</div>
+            <div class="metric-label">chunks indexed</div>
         </div>
         """, unsafe_allow_html=True)
+    
     with c2:
         perf = stats.get('performance', {})
-        score = perf.get('average_score', 0) * 100
+        avg = perf.get('average_score', 0) * 100
         st.markdown(f"""
-        <div class="glass-panel">
-            <h3>Performance</h3>
-            <div style="font-size: 3rem; font-weight: 700; color: var(--success);">{score:.0f}%</div>
-            <div style="color: var(--text-secondary);">Average Quiz Score</div>
+        <div class="status-box">
+            <div style="color: var(--text-dim); font-size: 0.75rem; margin-bottom: 0.5rem;">PERFORMANCE</div>
+            <div class="metric">{avg:.0f}%</div>
+            <div class="metric-label">avg quiz score</div>
         </div>
         """, unsafe_allow_html=True)
 
