@@ -667,8 +667,8 @@ def show_home_page():
             <div style="background: #fff; color: #000; padding: 5px 20px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.5rem;">
                 📇 FLASHCARDS
             </div>
-            <p style="text-transform: uppercase; margin-bottom: 1.5rem;">WEAPONIZED FLASHCARDS FOR RAPID INTEL RETENTION.</p>
-            <p style="font-family: 'Bangers'; font-size: 1.2rem; text-align: center; color: rgba(255,255,255,0.8);">CLICK TO ACCESS →</p>
+            <p style="color: #fff !important; text-transform: uppercase; margin-bottom: 1.5rem; font-size: 1.1rem;">WEAPONIZED FLASHCARDS FOR RAPID INTEL RETENTION.</p>
+            <p style="font-family: 'Bangers'; font-size: 1.3rem; text-align: center; color: #fff !important; text-shadow: 2px 2px 0px #000;">CLICK TO ACCESS →</p>
         """, unsafe_allow_html=True)
         if st.button("📇 FLASHCARDS", key="dash_flash", use_container_width=True, type="primary"):
             st.session_state.current_page = "Flashcards"
@@ -681,8 +681,8 @@ def show_home_page():
             <div style="background: #fff; color: #000; padding: 5px 20px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.5rem;">
                 📝 QUIZ
             </div>
-            <p style="text-transform: uppercase; margin-bottom: 1.5rem;">TEST YOUR COMBAT READINESS WITH CUSTOMIZED CHALLENGES.</p>
-            <p style="font-family: 'Bangers'; font-size: 1.2rem; text-align: center; color: rgba(255,255,255,0.8);">CLICK TO INITIATE →</p>
+            <p style="color: #fff !important; text-transform: uppercase; margin-bottom: 1.5rem; font-size: 1.1rem;">TEST YOUR COMBAT READINESS WITH CUSTOMIZED CHALLENGES.</p>
+            <p style="font-family: 'Bangers'; font-size: 1.3rem; text-align: center; color: #fff !important; text-shadow: 2px 2px 0px #000;">CLICK TO INITIATE →</p>
         """, unsafe_allow_html=True)
         if st.button("📝 QUIZ", key="dash_quiz", use_container_width=True, type="primary"):
             st.session_state.current_page = "Quizzes"
@@ -696,8 +696,8 @@ def show_home_page():
             <div style="background: #fff; color: #000; padding: 5px 20px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.5rem;">
                 💬 CHAT ASSISTANT
             </div>
-            <p style="text-transform: uppercase; margin-bottom: 1.5rem;">INTERROGATE THE AI FOR DEEP SEMANTIC INSIGHTS.</p>
-            <p style="font-family: 'Bangers'; font-size: 1.2rem; text-align: center; color: rgba(255,255,255,0.8);">CLICK TO INTERROGATE →</p>
+            <p style="color: #fff !important; text-transform: uppercase; margin-bottom: 1.5rem; font-size: 1.1rem;">INTERROGATE THE AI FOR DEEP SEMANTIC INSIGHTS.</p>
+            <p style="font-family: 'Bangers'; font-size: 1.3rem; text-align: center; color: #fff !important; text-shadow: 2px 2px 0px #000;">CLICK TO INTERROGATE →</p>
         """, unsafe_allow_html=True)
         if st.button("💬 CHAT ASSISTANT", key="dash_chat", use_container_width=True, type="primary"):
             st.session_state.current_page = "Chat Assistant"
@@ -710,8 +710,8 @@ def show_home_page():
             <div style="background: #fff; color: #000; padding: 5px 20px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.5rem;">
                 📅 REVISION PLANNER
             </div>
-            <p style="text-transform: uppercase; margin-bottom: 1.5rem;">STRATEGIZE YOUR LEARNING JOURNEY WITH A TIMELINE.</p>
-            <p style="font-family: 'Bangers'; font-size: 1.2rem; text-align: center; color: rgba(255,255,255,0.8);">CLICK TO VIEW →</p>
+            <p style="color: #fff !important; text-transform: uppercase; margin-bottom: 1.5rem; font-size: 1.1rem;">STRATEGIZE YOUR LEARNING JOURNEY WITH A TIMELINE.</p>
+            <p style="font-family: 'Bangers'; font-size: 1.3rem; text-align: center; color: #fff !important; text-shadow: 2px 2px 0px #000;">CLICK TO VIEW →</p>
         """, unsafe_allow_html=True)
         if st.button("📅 REVISION PLANNER", key="dash_plan", use_container_width=True, type="primary"):
             st.session_state.current_page = "Revision Planner"
@@ -725,8 +725,8 @@ def show_home_page():
             <div style="background: #fff; color: #000; padding: 5px 20px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.5rem;">
                 📊 ANALYTICS
             </div>
-            <p style="text-transform: uppercase; margin-bottom: 1.5rem;">TRACK YOUR STUDY EFFICIENCY AND VICTORY RATES.</p>
-            <p style="font-family: 'Bangers'; font-size: 1.2rem; text-align: center; color: rgba(255,255,255,0.8);">CLICK TO ANALYZE →</p>
+            <p style="color: #fff !important; text-transform: uppercase; margin-bottom: 1.5rem; font-size: 1.1rem;">TRACK YOUR STUDY EFFICIENCY AND VICTORY RATES.</p>
+            <p style="font-family: 'Bangers'; font-size: 1.3rem; text-align: center; color: #fff !important; text-shadow: 2px 2px 0px #000;">CLICK TO ANALYZE →</p>
         """, unsafe_allow_html=True)
         if st.button("📊 ANALYTICS", key="dash_analytics", use_container_width=True, type="primary"):
             st.session_state.current_page = "Analytics"
