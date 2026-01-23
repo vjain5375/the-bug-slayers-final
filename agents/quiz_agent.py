@@ -298,7 +298,7 @@ Only return the JSON array, no additional text or markdown formatting."""
         }
 
     def _simple_quiz_generation(self, text_chunks: List[Dict], difficulty: str, num_questions: int) -> List[Dict]:
-        """Simple fallback quiz generation with unique questions and distinct options"""
+        """Simple fallback quiz generation with unique questions and reusable distractors"""
         questions = []
         if not text_chunks:
             return []
@@ -311,17 +311,21 @@ Only return the JSON array, no additional text or markdown formatting."""
             # Split into sentences, filter short/boilerplate
             sentences = [s.strip() for s in re.split(r'[\.!\?]', text) if len(s.strip()) > 20]
             for sent in sentences:
-                # Skip boilerplate
+                # Skip boilerplate and headers
                 lower = sent.lower()
-                if any(skip in lower for skip in ['copyright', 'isbn', 'http', 'www.', 'all rights', 'published']):
+                if any(skip in lower for skip in ['copyright', 'isbn', 'http', 'www.', 'all rights', 'published', 'lab-', 'experiment']):
+                    continue
+                # Skip roll numbers / student info
+                if re.search(r'\b\d{2}[A-Z]{2,4}\d{3,5}\b', sent, re.IGNORECASE):
                     continue
                 # Clean and add
                 clean = re.sub(r'\s+', ' ', sent).strip()
-                if len(clean) > 20 and len(clean) < 300:
+                if len(clean) > 25 and len(clean) < 300:
                     all_sentences.append({'text': clean, 'topic': topic})
 
         if len(all_sentences) < 4:
-            return questions
+            # Not enough content - generate minimal questions with generic approach
+            return self._generate_minimal_questions(text_chunks, difficulty, num_questions)
 
         # Dedupe sentences
         seen = set()
@@ -335,58 +339,93 @@ Only return the JSON array, no additional text or markdown formatting."""
         # Shuffle for variety
         random.shuffle(unique_sentences)
 
-        # Track used sentences to avoid repetition
-        used_indices = set()
+        # Separate pool for stems/answers (unique per question) and distractors (can be reused)
+        stem_answer_pool = list(unique_sentences)  # Each used once for stem or answer
+        distractor_pool = list(unique_sentences)   # Can be reused across questions
+        
+        used_for_stem_answer = set()  # Track indices used as stem or answer
+        
+        # Question templates for variety
+        question_templates = [
+            "Based on the study material, which statement relates to: {}?",
+            "Which of the following best describes: {}?",
+            "According to the material, what is true about: {}?",
+            "Select the correct statement regarding: {}?",
+            "What does the study material say about: {}?",
+        ]
 
         for q_num in range(num_questions):
-            if len(used_indices) >= len(unique_sentences) - 4:
-                break  # Not enough unique content left
-
             # Find an unused sentence for the question stem
+            stem_item = None
             stem_idx = None
-            for i, item in enumerate(unique_sentences):
-                if i not in used_indices:
+            for i, item in enumerate(stem_answer_pool):
+                if i not in used_for_stem_answer:
+                    stem_item = item
                     stem_idx = i
+                    used_for_stem_answer.add(i)
                     break
-            if stem_idx is None:
-                break
-
-            stem_item = unique_sentences[stem_idx]
-            used_indices.add(stem_idx)
-
-            # Find an unused sentence for the correct answer
-            answer_idx = None
-            for i, item in enumerate(unique_sentences):
-                if i not in used_indices and i != stem_idx:
-                    answer_idx = i
+            
+            # If we've exhausted stems, cycle back with different templates
+            if stem_item is None:
+                # Reset and reuse stems with different question framing
+                if len(stem_answer_pool) > 0:
+                    stem_idx = q_num % len(stem_answer_pool)
+                    stem_item = stem_answer_pool[stem_idx]
+                else:
                     break
-            if answer_idx is None:
-                break
 
-            answer_item = unique_sentences[answer_idx]
-            used_indices.add(answer_idx)
+            # Find a sentence for the correct answer (different from stem)
+            answer_item = None
+            for i, item in enumerate(stem_answer_pool):
+                if i not in used_for_stem_answer and i != stem_idx:
+                    answer_item = item
+                    used_for_stem_answer.add(i)
+                    break
+            
+            # If no unused answer, pick any different from stem
+            if answer_item is None:
+                for i, item in enumerate(stem_answer_pool):
+                    if i != stem_idx:
+                        answer_item = item
+                        break
+            
+            if answer_item is None:
+                continue
 
-            # Find 3 distinct distractors from unused sentences
+            # Get 3 distractors from pool (can overlap across questions, just not with current answer)
             distractors = []
-            for i, item in enumerate(unique_sentences):
-                if i not in used_indices and i != stem_idx and i != answer_idx:
+            answer_text_lower = answer_item['text'].lower()[:50]
+            stem_text_lower = stem_item['text'].lower()[:50]
+            
+            # Shuffle distractor pool for each question to get different distractors
+            shuffled_distractors = list(distractor_pool)
+            random.shuffle(shuffled_distractors)
+            
+            for item in shuffled_distractors:
+                item_key = item['text'].lower()[:50]
+                # Don't use the same text as answer or stem
+                if item_key != answer_text_lower and item_key != stem_text_lower:
                     distractors.append(item['text'][:160])
-                    used_indices.add(i)
                     if len(distractors) >= 3:
                         break
 
-            # If not enough distractors, use generic ones
+            # Pad with generic distractors if needed
             generic = [
-                "This concept is unrelated to the question.",
-                "This statement describes a different process.",
-                "This is a common misunderstanding of the topic."
+                "This concept is unrelated to the question context.",
+                "This statement describes a different process entirely.",
+                "This is a common misunderstanding of this topic.",
+                "This detail applies to a separate section of the material.",
+                "This option contradicts the main concept discussed.",
             ]
+            random.shuffle(generic)
             for g in generic:
                 if len(distractors) >= 3:
                     break
-                distractors.append(g)
+                if g not in distractors:
+                    distractors.append(g)
 
-            # Build question
+            # Build question with varied template
+            template = question_templates[q_num % len(question_templates)]
             stem = stem_item['text'][:100]
             correct_answer = answer_item['text'][:160]
             topic = stem_item['topic']
@@ -396,15 +435,95 @@ Only return the JSON array, no additional text or markdown formatting."""
             correct_index = options.index(correct_answer)
 
             questions.append({
-                'question': f"Based on the study material, which statement relates to: {stem}?",
+                'question': template.format(stem),
                 'options': options,
                 'correct_answer': correct_answer,
                 'correct_index': correct_index,
                 'topic': topic,
                 'difficulty': difficulty,
-                'explanation': f"The correct statement is: {correct_answer}"
+                'explanation': f"The correct answer is: {correct_answer}"
             })
 
+        # If still short of target, generate additional questions by rephrasing
+        while len(questions) < num_questions and len(stem_answer_pool) > 1:
+            q_num = len(questions)
+            idx = q_num % len(stem_answer_pool)
+            stem_item = stem_answer_pool[idx]
+            answer_item = stem_answer_pool[(idx + 1) % len(stem_answer_pool)]
+            
+            template = question_templates[q_num % len(question_templates)]
+            stem = stem_item['text'][:100]
+            correct_answer = answer_item['text'][:160]
+            
+            # Get different distractors
+            distractors = []
+            for i, item in enumerate(distractor_pool):
+                if item['text'][:50].lower() not in [correct_answer[:50].lower(), stem[:50].lower()]:
+                    distractors.append(item['text'][:160])
+                    if len(distractors) >= 3:
+                        break
+            
+            for g in generic:
+                if len(distractors) >= 3:
+                    break
+                distractors.append(g)
+            
+            options = [correct_answer] + distractors[:3]
+            random.shuffle(options)
+            correct_index = options.index(correct_answer)
+            
+            questions.append({
+                'question': template.format(stem),
+                'options': options,
+                'correct_answer': correct_answer,
+                'correct_index': correct_index,
+                'topic': stem_item['topic'],
+                'difficulty': difficulty,
+                'explanation': f"The correct answer is: {correct_answer}"
+            })
+
+        return questions[:num_questions]
+    
+    def _generate_minimal_questions(self, text_chunks: List[Dict], difficulty: str, num_questions: int) -> List[Dict]:
+        """Generate questions when content is very limited"""
+        questions = []
+        
+        # Extract any usable text
+        all_text = ""
+        topic = "General"
+        for chunk in text_chunks:
+            all_text += " " + chunk.get('text', '')
+            if chunk.get('metadata', {}).get('topic'):
+                topic = chunk.get('metadata', {}).get('topic')
+        
+        # Clean and split into words/phrases
+        words = re.findall(r'\b[A-Za-z]{4,}\b', all_text)
+        unique_words = list(set(words))[:50]
+        
+        if len(unique_words) < 4:
+            return []
+        
+        for i in range(min(num_questions, len(unique_words) // 2)):
+            word = unique_words[i]
+            options = [
+                f"A concept related to {word}",
+                f"An unrelated technical term",
+                f"A different aspect of the study material",
+                f"A general principle not specific to {word}"
+            ]
+            random.shuffle(options)
+            correct = options[0]
+            
+            questions.append({
+                'question': f"Which option best relates to '{word}' from the study material?",
+                'options': options,
+                'correct_answer': correct,
+                'correct_index': options.index(correct),
+                'topic': topic,
+                'difficulty': difficulty,
+                'explanation': f"This relates to the concept of {word} discussed in the material."
+            })
+        
         return questions
     
     def generate_adaptive_quiz(self, text_chunks: List[Dict], user_performance: Optional[Dict] = None, num_questions: int = 5) -> List[Dict]:
