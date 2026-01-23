@@ -101,276 +101,222 @@ if 'initialized' not in st.session_state:
     st.session_state.planner_study_mode = None
     st.session_state.planner_study_topic = None
 
-# --- CUSTOM CSS (THE DEADPOOL EXPERIENCE) ---
+# --- CUSTOM CSS (THE DEADPOOL EXPERIENCE - REFINED) ---
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@400;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Oswald:wght@300;400;500;700&display=swap');
 
     :root {
-        --deadpool-red: #A80000;
-        --deadpool-black: #1A1A1A;
-        --deadpool-white: #FFFFFF;
+        /* Core Palette - Normalized */
+        --dp-red-primary: #C70000;  /* Brighter, truer red */
+        --dp-red-dark: #780000;     /* Deep blood red for shadows/accents */
+        --dp-black: #0F0F0F;        /* Deep matte black, not pure #000 */
+        --dp-dark-gray: #1A1A1A;    /* For cards/surfaces */
+        --dp-white: #F5F5F5;        /* Off-white for better readability */
+        --dp-text-muted: #A0A0A0;   /* Secondary text */
+        
+        /* Structural */
+        --dp-border-width: 4px;
+        --dp-border-radius: 2px;    /* Slight rounding, still sharp */
     }
 
     /* GLOBAL THEME OVERRIDE */
     .stApp {
-        background: #0a0a0a;
-        color: #ffffff;
-        border: 20px solid var(--deadpool-red);
-        background-image: radial-gradient(rgba(168,0,0,0.1) 2px, transparent 2px);
-        background-size: 30px 30px;
+        background-color: var(--dp-black);
+        color: var(--dp-white);
+        /* Subtle texture instead of jarring dots */
+        background-image: 
+            linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+            url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23780000' fill-opacity='0.15'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     }
     
-    /* Internal Frame */
+    /* Internal Frame - Thinner, more elegant */
     .stApp::before {
         content: "";
         position: fixed;
-        top: 4px; left: 4px; right: 4px; bottom: 4px;
-        border: 4px solid #fff;
+        top: 10px; left: 10px; right: 10px; bottom: 10px;
+        border: 2px solid rgba(255, 255, 255, 0.1);
         pointer-events: none;
         z-index: 9999;
     }
 
-    /* BANGERS FONT FOR HEADERS */
+    /* TYPOGRAPHY SYSTEM */
     h1, h2, h3, .designer-header {
         font-family: 'Bangers', cursive !important;
-        letter-spacing: 2px;
+        letter-spacing: 1.5px;
         text-transform: uppercase;
-        color: #fff !important;
-        text-shadow: 4px 4px 0px #000;
+        color: var(--dp-white) !important;
+        text-shadow: 3px 3px 0px rgba(0,0,0,0.8);
+        margin-bottom: 1rem !important;
+    }
+    
+    h1 { font-size: 3.5rem !important; }
+    h2 { font-size: 2.5rem !important; }
+    h3 { font-size: 1.8rem !important; }
+    
+    p, span, div, label, li {
+        font-family: 'Oswald', sans-serif !important;
+        letter-spacing: 0.5px;
     }
 
-    /* DESIGNER CARD STYLE (RED HALFTONE) */
+    /* CARD STYLES - Refined */
     .designer-card-red {
-        background: var(--deadpool-red);
-        background-image: radial-gradient(#000 10%, transparent 10%);
-        background-size: 15px 15px;
-        padding: 2.5rem;
-        border: 8px solid #000;
-        box-shadow: 15px 15px 0px #000;
-        margin-bottom: 2rem;
+        background: linear-gradient(135deg, var(--dp-red-primary), var(--dp-red-dark));
+        padding: 2rem;
+        border: var(--dp-border-width) solid #000;
+        box-shadow: 8px 8px 0px rgba(0,0,0,0.6);
+        margin-bottom: 1.5rem;
         position: relative;
-        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    /* Force white text in red cards */
-    .designer-card-red h1, .designer-card-red h2, .designer-card-red h3, .designer-card-red h4,
-    .designer-card-red p, .designer-card-red span, .designer-card-red div {
-        color: #ffffff !important;
-    }
-
-    /* DESIGNER CARD STYLE (BLACK) */
     .designer-card {
-        background: var(--deadpool-black);
-        padding: 2.5rem;
-        border: 8px solid var(--deadpool-red);
-        box-shadow: 15px 15px 0px #000;
-        margin-bottom: 2rem;
+        background: var(--dp-dark-gray);
+        padding: 2rem;
+        border: var(--dp-border-width) solid var(--dp-red-primary);
+        box-shadow: 8px 8px 0px rgba(0,0,0,0.6);
+        margin-bottom: 1.5rem;
         position: relative;
     }
+    
+    /* Force text colors in cards */
+    .designer-card-red h1, .designer-card-red h2, .designer-card-red h3, 
+    .designer-card-red p, .designer-card-red span, .designer-card-red div {
+        color: var(--dp-white) !important;
+    }
 
-    /* COMIC BUTTONS */
+    /* BUTTONS - Professional yet bold */
     div.stButton > button {
-        background: var(--deadpool-red) !important;
-        color: white !important;
-        font-family: 'Bangers' !important;
-        font-size: 1.8rem !important;
-        padding: 0.8rem 2rem !important;
-        border: 5px solid #000 !important;
-        box-shadow: 8px 8px 0px #000 !important;
-        transform: skew(-10deg);
-        transition: all 0.2s ease;
+        background: var(--dp-red-primary) !important;
+        color: var(--dp-white) !important;
+        font-family: 'Oswald', sans-serif !important;
+        font-weight: 700 !important;
+        font-size: 1.2rem !important;
+        padding: 0.6rem 1.5rem !important;
+        border: 3px solid #000 !important;
+        box-shadow: 5px 5px 0px #000 !important;
+        transform: skew(-6deg);
+        transition: all 0.15s ease-out;
         width: 100% !important;
-        margin-bottom: 10px;
         text-transform: uppercase;
+        border-radius: 0 !important;
     }
 
     div.stButton > button:hover {
-        transform: skew(-10deg) translate(-4px, -4px);
-        box-shadow: 12px 12px 0px #000 !important;
-        background: #ff0000 !important;
+        background: #FF1A1A !important;
+        transform: skew(-6deg) translate(-2px, -2px);
+        box-shadow: 7px 7px 0px #000 !important;
     }
 
     div.stButton > button:active {
-        transform: skew(-10deg) translate(2px, 2px);
+        transform: skew(-6deg) translate(1px, 1px);
         box-shadow: 2px 2px 0px #000 !important;
     }
-
-    /* COMMAND CENTER CARD BUTTONS - Invisible overlay behind cards */
-    div[data-testid="column"] button[kind="secondary"][key*="dash_"] {
-        background: transparent !important;
-        border: none !important;
+    
+    /* Disabled State */
+    div.stButton > button:disabled {
+        background: var(--dp-dark-gray) !important;
+        color: var(--dp-text-muted) !important;
+        border-color: var(--dp-text-muted) !important;
         box-shadow: none !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        position: relative !important;
-        z-index: 1 !important;
-        cursor: pointer !important;
-        opacity: 0 !important;
-        height: 0 !important;
-        min-height: 0 !important;
-    }
-    
-    /* Make cards appear above buttons and clickable */
-    div[data-testid="column"]:has(button[key*="dash_"]) .designer-card-red {
-        position: relative !important;
-        z-index: 2 !important;
-        cursor: pointer !important;
+        cursor: not-allowed;
     }
 
-    /* Make card hover effect */
-    .designer-card-red:hover {
-        transform: rotate(-1deg) translate(-4px, -4px) !important;
-        box-shadow: 20px 20px 0px #000 !important;
-    }
-    
-    /* Ensure titles are visible above button */
-    .designer-card-red > div:first-child {
-        position: relative !important;
-        z-index: 20 !important;
-        pointer-events: none !important;
-    }
-    
-    .designer-card-red p {
-        position: relative !important;
-        z-index: 20 !important;
-        pointer-events: none !important;
-    }
-
-    /* SIDEBAR STYLING */
-    section[data-testid="stSidebar"] {
-        background-color: #000000 !important;
-        border-right: 8px solid var(--deadpool-red);
-    }
-    
-    section[data-testid="stSidebar"]::after {
-        content: "";
-        position: absolute;
-        top: 0; right: 4px; bottom: 0; left: 0;
-        border-right: 3px solid #fff;
-        pointer-events: none;
-    }
-
-    /* FANCY RADIO BUTTONS FOR QUIZ */
-    div[data-testid="stRadio"] > label {
-        display: none !important;
-    }
-    
-    div[data-testid="stRadio"] div[role="radiogroup"] {
-        background: #ffffff !important;
-        padding: 2.5rem !important;
-        border: 10px solid #000 !important;
-        outline: 5px solid var(--deadpool-red) !important;
-        box-shadow: 20px 20px 0px #000 !important;
-        margin-top: -10px !important;
-        margin-bottom: 50px !important;
+    /* INPUTS & FORM ELEMENTS */
+    .stTextInput input, .stSelectbox div[data-baseweb="select"] > div, .stNumberInput input {
+        background-color: var(--dp-dark-gray) !important;
+        color: var(--dp-white) !important;
+        border: 2px solid var(--dp-red-primary) !important;
+        font-family: 'Oswald', sans-serif !important;
         border-radius: 0px !important;
     }
-
-    div[data-testid="stRadio"] div[role="radiogroup"] label {
-        background: transparent !important;
-        color: #000 !important;
-        font-family: 'Oswald', sans-serif !important;
-        font-size: 1.6rem !important;
-        font-weight: 900 !important;
-        text-transform: uppercase !important;
-        padding: 10px 0 !important;
-        margin-bottom: 15px !important;
-        border-bottom: 3px solid rgba(0,0,0,0.1) !important;
-        width: 100% !important;
+    
+    .stTextInput input:focus, .stSelectbox div[data-baseweb="select"] > div:focus-within {
+        box-shadow: 0 0 0 2px var(--dp-red-primary) !important;
+        border-color: var(--dp-white) !important;
     }
 
-    div[data-testid="stRadio"] div[role="radiogroup"] label:last-child {
-        border-bottom: none !important;
-    }
-
-    div[data-testid="stRadio"] div[role="radiogroup"] label div[data-testid="stMarkdownContainer"] p {
-        font-size: 1.6rem !important;
-        color: #000 !important;
-        line-height: 1.2 !important;
-    }
-
-    /* Style the actual radio circle */
-    div[data-testid="stRadio"] div[role="radiogroup"] label div[data-sidemeasure="true"] {
-        border-color: var(--deadpool-red) !important;
+    /* SIDEBAR */
+    section[data-testid="stSidebar"] {
+        background-color: #050505 !important;
+        border-right: 4px solid var(--dp-red-primary);
     }
     
-    div[data-testid="stRadio"] div[role="radiogroup"] label div[data-sidemeasure="true"] > div {
-        background-color: var(--deadpool-red) !important;
+    /* PROGRESS BAR */
+    .stProgress > div > div > div > div {
+        background-color: var(--dp-red-primary) !important;
     }
 
-    /* CHAT BUBBLES */
-    .chat-bubble {
-        padding: 1.5rem;
-        border-radius: 0;
+    /* CUSTOM COMPONENT CLASSES */
+    .designer-header {
+        background: var(--dp-red-primary);
+        display: inline-block;
+        padding: 5px 20px;
+        border: 3px solid #fff;
+        box-shadow: 4px 4px 0px #000;
+        transform: rotate(-1deg);
         margin-bottom: 1.5rem;
+        font-size: 1.5rem;
+    }
+
+    /* CHAT BUBBLES - Refined */
+    .chat-bubble {
+        padding: 1.2rem;
+        margin-bottom: 1.2rem;
         font-family: 'Oswald', sans-serif;
-        font-size: 1.2rem;
-        border: 5px solid #000;
-        position: relative;
-        box-shadow: 10px 10px 0px rgba(0,0,0,0.5);
+        font-size: 1.1rem;
+        line-height: 1.5;
+        border: 3px solid #000;
+        box-shadow: 6px 6px 0px rgba(0,0,0,0.3);
     }
     
     .user-bubble {
-        background: #fff;
+        background: var(--dp-white);
         color: #000;
-        transform: rotate(-1deg);
-        margin-left: 10%;
+        border-radius: 12px 12px 0 12px;
+        margin-left: 15%;
     }
     
     .assistant-bubble {
-        background: var(--deadpool-red);
-        color: #fff;
-        transform: rotate(1deg);
-        margin-right: 10%;
-    }
-
-    /* TACTICAL HEADER */
-    .designer-header {
-        background: var(--deadpool-red);
-        display: inline-block;
-        padding: 10px 30px;
-        border: 5px solid #fff;
-        box-shadow: 8px 8px 0px #000;
-        transform: rotate(-1.5deg);
-        margin-bottom: 2rem;
-    }
-
-    /* CUSTOM RADIO/SELECTOR STYLE */
-    .stRadio [data-testid="stWidgetLabel"] p {
-        font-family: 'Bangers' !important;
-        font-size: 1.5rem !important;
-        color: var(--deadpool-red) !important;
+        background: var(--dp-dark-gray);
+        color: var(--dp-white);
+        border: 3px solid var(--dp-red-primary);
+        border-radius: 12px 12px 12px 0;
+        margin-right: 15%;
     }
     
-    /* MODERN SKEWED EXPANDER */
+    /* RADIO BUTTONS */
+    div[data-testid="stRadio"] div[role="radiogroup"] {
+        background: transparent !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        outline: none !important;
+    }
+    
+    div[data-testid="stRadio"] label {
+        background: var(--dp-dark-gray) !important;
+        padding: 1rem !important;
+        margin-bottom: 0.5rem !important;
+        border: 2px solid #333 !important;
+        transition: all 0.2s;
+    }
+    
+    div[data-testid="stRadio"] label:hover {
+        border-color: var(--dp-red-primary) !important;
+        transform: translateX(5px);
+    }
+
+    /* EXPANDER */
     .streamlit-expanderHeader {
-        background: #000 !important;
-        border: 3px solid var(--deadpool-red) !important;
-        color: #fff !important;
-        font-family: 'Bangers' !important;
-    }
-
-    /* ARSENAL PORTAL STYLE (UPLOADER) */
-    .sexy-drop-zone {
-        background: #000;
-        border: 8px solid #fff;
-        padding: 3rem;
-        text-align: center;
-        position: relative;
-        margin-bottom: 2rem;
-        box-shadow: 20px 20px 0px var(--deadpool-red);
-    }
-    
-    .moving-danger-stripes {
-        height: 20px;
-        background: repeating-linear-gradient(45deg, #000, #000 10px, var(--deadpool-red) 10px, var(--deadpool-red) 20px);
-        width: 100%;
-        position: absolute;
-        bottom: 0; left: 0;
+        background: var(--dp-dark-gray) !important;
+        border: 2px solid var(--dp-red-primary) !important;
+        color: var(--dp-white) !important;
+        font-family: 'Oswald', sans-serif !important;
+        font-weight: 700;
     }
 </style>
-""", unsafe_allow_html=True)
+""", unsafe_allow_html=True), unsafe_allow_html=True)
 
 # --- HELPER FUNCTIONS ---
 def process_documents():
@@ -592,65 +538,74 @@ def main():
 def show_home_page():
     """Deadpool-themed Home page with Designer Visuals"""
     
-    # Hero Section with Deadpool Action Grid Style - RED/BLACK/WHITE
+    # Hero Section - Refined
     st.markdown("""
-    <div style="background: url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover; padding: 6rem 2rem; border: 10px solid #000; box-shadow: 20px 20px 0px var(--deadpool-red), 30px 30px 0px #000; text-align: center; margin-bottom: 4rem; position: relative; transform: rotate(-1deg) skew(-1deg);">
-        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); border: 4px solid #fff; margin: 10px;"></div>
+    <div style="
+        background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://w0.peakpx.com/wallpaper/744/403/HD-wallpaper-deadpool-marvel-comic.jpg') center/cover;
+        padding: 5rem 2rem;
+        border-bottom: 4px solid var(--dp-red-primary);
+        box-shadow: 0px 10px 30px rgba(0,0,0,0.5);
+        text-align: center;
+        margin-bottom: 3rem;
+        position: relative;
+    ">
         <div style="position: relative; z-index: 2;">
-            <h1 style="font-family: 'Bangers'; font-size: 5rem; color: #fff; text-shadow: 8px 8px 0px var(--deadpool-red), 12px 12px 0px #000; margin: 0; letter-spacing: 5px; transform: rotate(1deg);">WEAPONIZED KNOWLEDGE!</h1>
-            <p style="font-family: 'Bangers', cursive; color: #fff; font-size: 2.2rem; background: var(--deadpool-red); display: inline-block; padding: 1rem 3rem; transform: skew(-15deg); margin-top: 2.5rem; border: 5px solid #fff; box-shadow: 10px 10px 0px #000; text-shadow: 3px 3px 0px #000;">MAXIMUM EFFORT. MINIMUM STUDYING.</p>
+            <h1 style="font-size: 4.5rem; color: #fff; text-shadow: 4px 4px 0px var(--dp-red-primary); margin: 0; letter-spacing: 2px;">WEAPONIZED KNOWLEDGE</h1>
+            <div style="
+                font-family: 'Oswald', sans-serif;
+                background: var(--dp-red-primary);
+                color: #fff;
+                font-size: 1.5rem;
+                font-weight: 700;
+                display: inline-block;
+                padding: 0.5rem 2rem;
+                transform: skew(-10deg);
+                margin-top: 1.5rem;
+                box-shadow: 5px 5px 0px #000;
+            ">
+                MAXIMUM EFFORT. MINIMUM STUDYING.
+            </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
         
     # CASE 1: NEW USER EXPERIENCE (High-Impact Onboarding)
     if not st.session_state.documents_processed:
-        st.markdown("<h2 class='designer-header' style='text-align: center; display: block; font-size: 2.5rem;'>⚔️ MISSION OBJECTIVES</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 class='designer-header' style='text-align: center; display: block;'>⚔️ MISSION OBJECTIVES</h2>", unsafe_allow_html=True)
         
-        # Journey Cards with Designer Style
+        # Journey Cards
         col1, col2 = st.columns(2)
         with col1:
             st.markdown("""
-            <div class="designer-card-red" style="transform: rotate(-2deg) skew(-2deg);">
-                <h3 class="designer-header" style="font-size: 2.5rem; background: #000; color: #fff; border: 4px solid #fff;">1️⃣ LOAD UP</h3>
-                <p style="color: #fff; font-size: 1.4rem; font-weight: 900; font-family: 'Oswald', sans-serif; text-shadow: 2px 2px 0px #000; line-height: 1.2;">Drop your PDFs, DOCX, or Text notes into the side-feed. Don't worry, I won't read your diary... maybe.</p>
+            <div class="designer-card-red">
+                <h3 style="border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 0.5rem; margin-bottom: 1rem;">1️⃣ LOAD UP</h3>
+                <p>Drop your PDFs, DOCX, or Text notes into the side-feed. Don't worry, I won't read your diary... maybe.</p>
             </div>
-            <div class="designer-card-red" style="transform: rotate(1deg) skew(1deg); margin-top: 2rem;">
-                <h3 class="designer-header" style="font-size: 2.5rem; background: #000; color: #fff; border: 4px solid #fff;">3️⃣ EXTRACT</h3>
-                <p style="color: #fff; font-size: 1.4rem; font-weight: 900; font-family: 'Oswald', sans-serif; text-shadow: 2px 2px 0px #000; line-height: 1.2;">Hit <b>'PROCESS'</b>. My agents will slice and dice your text into pure semantic gold faster than I can slice a chimichanga.</p>
+            <div class="designer-card-red" style="margin-top: 1.5rem;">
+                <h3 style="border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 0.5rem; margin-bottom: 1rem;">3️⃣ EXTRACT</h3>
+                <p>Hit <b>'PROCESS'</b>. My agents will slice and dice your text into pure semantic gold faster than I can slice a chimichanga.</p>
             </div>
             """, unsafe_allow_html=True)
         with col2:
             st.markdown("""
-            <div class="designer-card-red" style="transform: rotate(2deg) skew(2deg);">
-                <h3 class="designer-header" style="font-size: 2.5rem; background: #000; color: #fff; border: 4px solid #fff;">2️⃣ LOCK & LOAD</h3>
-                <p style="color: #fff; font-size: 1.4rem; font-weight: 900; font-family: 'Oswald', sans-serif; text-shadow: 2px 2px 0px #000; line-height: 1.2;">Hit <b>'SAVE'</b> to commit those files to my infinite memory banks. No take-backs!</p>
+            <div class="designer-card-red">
+                <h3 style="border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 0.5rem; margin-bottom: 1rem;">2️⃣ LOCK & LOAD</h3>
+                <p>Hit <b>'SAVE'</b> to commit those files to my infinite memory banks. No take-backs!</p>
             </div>
-            <div class="designer-card-red" style="transform: rotate(-1.5deg) skew(-1.5deg); margin-top: 2rem;">
-                <h3 class="designer-header" style="font-size: 2.5rem; background: #000; color: #fff; border: 4px solid #fff;">4️⃣ DOMINATE</h3>
-                <p style="color: #fff; font-size: 1.4rem; font-weight: 900; font-family: 'Oswald', sans-serif; text-shadow: 2px 2px 0px #000; line-height: 1.2;">Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now operational. Go be a hero... or whatever.</p>
+            <div class="designer-card-red" style="margin-top: 1.5rem;">
+                <h3 style="border-bottom: 2px solid rgba(255,255,255,0.2); padding-bottom: 0.5rem; margin-bottom: 1rem;">4️⃣ DOMINATE</h3>
+                <p>Maximum Effort! 💥 Flashcards, Quizzes, and Chat are now operational. Go be a hero... or whatever.</p>
             </div>
             """, unsafe_allow_html=True)
 
         st.markdown("<br>", unsafe_allow_html=True)
-        # Add the thumbs up Deadpool image
-        st.image("https://images.squarespace-cdn.com/content/v1/51b3dc1ee4b051b96ceb10de/1455225017006-2S9L7S9L7S9L7S9L7S9L/image-asset.png", width=350)
         
         # Arsenal Portal (Upload Zone)
         st.markdown("""
-            <div class="sexy-drop-zone">
-                <div class="tactical-border"></div>
-                <div class="command-center">
-                    <div class="pop-art-label">CLASSIFIED ARCHIVES</div>
-                    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 2rem; margin-top: 1rem;">
-                        <div style="background: #A80000; padding: 10px 30px; border: 6px solid #fff; transform: rotate(-1.5deg); box-shadow: 12px 12px 0px #000; display: inline-block; max-width: 90%;">
-                            <span style="font-family: 'Bangers', cursive !important; font-size: 3.0rem; color: #ffffff !important; text-shadow: 5px 5px 0px #000; -webkit-text-fill-color: #ffffff !important; font-style: italic; font-weight: 900; letter-spacing: 1.5px;">⚔️ ARSENAL PORTAL</span>
-                        </div>
-                    </div>
-                    <p style="font-family: 'Bangers'; font-size: 2.2rem; color: #fff; letter-spacing: 3px; margin: 1.5rem 0; text-shadow: 3px 3px 0px #A80000;">DROP YOUR BRAIN JUICE HERE!</p>
-                    <div class="moving-danger-stripes"></div>
-                </div>
-        </div>
+            <div class="sexy-drop-zone" style="background: var(--dp-dark-gray); border: 2px dashed var(--dp-red-primary); padding: 3rem; text-align: center; position: relative;">
+                <h2 style="color: var(--dp-red-primary); margin-bottom: 1rem;">CLASSIFIED ARCHIVES</h2>
+                <p style="font-size: 1.2rem; color: var(--dp-white); margin-bottom: 2rem;">DROP YOUR BRAIN JUICE HERE!</p>
+            </div>
         """, unsafe_allow_html=True)
         
         uploaded_files_main = st.file_uploader(
@@ -702,18 +657,18 @@ def show_home_page():
         return
 
     # CASE 2: RETURNING USER (Pro Dashboard)
-    st.markdown("<h2 class='designer-header' style='font-size: 3rem; background: var(--deadpool-red); border-color: #fff;'>⚡ COMMAND CENTER</h2>", unsafe_allow_html=True)
+    st.markdown("<h2 class='designer-header' style='font-size: 3rem;'>⚡ COMMAND CENTER</h2>", unsafe_allow_html=True)
     
     # 1. High-Impact Quick Access Grid - Cards as Buttons
     col1, col2 = st.columns(2)
     with col1:
         st.markdown("""
-        <div class="designer-card-red" style="transform: rotate(-1deg); padding: 2rem !important; position: relative;">
-            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem;">
+        <div class="designer-card-red" style="padding: 2rem !important; position: relative; height: 100%;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.5rem;">
                 📇 FLASHCARDS
             </div>
-            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">WEAPONIZED FLASHCARDS FOR RAPID INTEL RETENTION.</p>
-            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO ACCESS →</p>
+            <p style="text-transform: uppercase; margin-bottom: 1.5rem;">WEAPONIZED FLASHCARDS FOR RAPID INTEL RETENTION.</p>
+            <p style="font-family: 'Bangers'; font-size: 1.2rem; text-align: center; color: rgba(255,255,255,0.8);">CLICK TO ACCESS →</p>
         """, unsafe_allow_html=True)
         if st.button("📇 FLASHCARDS", key="dash_flash", use_container_width=True, type="primary"):
             st.session_state.current_page = "Flashcards"
@@ -722,12 +677,12 @@ def show_home_page():
 
     with col2:
         st.markdown("""
-        <div class="designer-card-red" style="transform: rotate(1deg); padding: 2rem !important; position: relative;">
-            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem;">
+        <div class="designer-card-red" style="padding: 2rem !important; position: relative; height: 100%;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.5rem;">
                 📝 QUIZ
             </div>
-            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">TEST YOUR COMBAT READINESS WITH CUSTOMIZED CHALLENGES.</p>
-            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO INITIATE →</p>
+            <p style="text-transform: uppercase; margin-bottom: 1.5rem;">TEST YOUR COMBAT READINESS WITH CUSTOMIZED CHALLENGES.</p>
+            <p style="font-family: 'Bangers'; font-size: 1.2rem; text-align: center; color: rgba(255,255,255,0.8);">CLICK TO INITIATE →</p>
         """, unsafe_allow_html=True)
         if st.button("📝 QUIZ", key="dash_quiz", use_container_width=True, type="primary"):
             st.session_state.current_page = "Quizzes"
@@ -737,12 +692,12 @@ def show_home_page():
     col3, col4 = st.columns(2)
     with col3:
         st.markdown("""
-        <div class="designer-card-red" style="transform: rotate(0.5deg); padding: 2rem !important; position: relative;">
-            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem;">
+        <div class="designer-card-red" style="padding: 2rem !important; position: relative; height: 100%;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.5rem;">
                 💬 CHAT ASSISTANT
             </div>
-            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">INTERROGATE THE AI FOR DEEP SEMANTIC INSIGHTS.</p>
-            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO INTERROGATE →</p>
+            <p style="text-transform: uppercase; margin-bottom: 1.5rem;">INTERROGATE THE AI FOR DEEP SEMANTIC INSIGHTS.</p>
+            <p style="font-family: 'Bangers'; font-size: 1.2rem; text-align: center; color: rgba(255,255,255,0.8);">CLICK TO INTERROGATE →</p>
         """, unsafe_allow_html=True)
         if st.button("💬 CHAT ASSISTANT", key="dash_chat", use_container_width=True, type="primary"):
             st.session_state.current_page = "Chat Assistant"
@@ -751,12 +706,12 @@ def show_home_page():
 
     with col4:
         st.markdown("""
-        <div class="designer-card-red" style="transform: rotate(-0.5deg); padding: 2rem !important; position: relative;">
-            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.8rem;">
+        <div class="designer-card-red" style="padding: 2rem !important; position: relative; height: 100%;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.5rem;">
                 📅 REVISION PLANNER
             </div>
-            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">STRATEGIZE YOUR LEARNING JOURNEY WITH A TIMELINE.</p>
-            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO VIEW →</p>
+            <p style="text-transform: uppercase; margin-bottom: 1.5rem;">STRATEGIZE YOUR LEARNING JOURNEY WITH A TIMELINE.</p>
+            <p style="font-family: 'Bangers'; font-size: 1.2rem; text-align: center; color: rgba(255,255,255,0.8);">CLICK TO VIEW →</p>
         """, unsafe_allow_html=True)
         if st.button("📅 REVISION PLANNER", key="dash_plan", use_container_width=True, type="primary"):
             st.session_state.current_page = "Revision Planner"
@@ -766,12 +721,12 @@ def show_home_page():
     col5, _ = st.columns([1, 1])
     with col5:
         st.markdown("""
-        <div class="designer-card-red" style="transform: rotate(1.5deg); padding: 2rem !important; position: relative;">
-            <div style="background: #fff; color: #000; padding: 5px 20px; border: 4px solid #000; box-shadow: 5px 5px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 2rem;">
+        <div class="designer-card-red" style="padding: 2rem !important; position: relative; height: 100%;">
+            <div style="background: #fff; color: #000; padding: 5px 20px; border: 3px solid #000; box-shadow: 4px 4px 0px #000; display: inline-block; margin-bottom: 1rem; font-family: 'Bangers'; font-size: 1.5rem;">
                 📊 ANALYTICS
             </div>
-            <p style="color: #fff; font-family: 'Oswald'; font-size: 1.1rem; margin: 1rem 0; text-transform: uppercase;">TRACK YOUR STUDY EFFICIENCY AND VICTORY RATES.</p>
-            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.2rem; margin-top: 1.5rem; text-align: center;">CLICK TO ANALYZE →</p>
+            <p style="text-transform: uppercase; margin-bottom: 1.5rem;">TRACK YOUR STUDY EFFICIENCY AND VICTORY RATES.</p>
+            <p style="font-family: 'Bangers'; font-size: 1.2rem; text-align: center; color: rgba(255,255,255,0.8);">CLICK TO ANALYZE →</p>
         """, unsafe_allow_html=True)
         if st.button("📊 ANALYTICS", key="dash_analytics", use_container_width=True, type="primary"):
             st.session_state.current_page = "Analytics"
@@ -782,8 +737,8 @@ def show_home_page():
     st.markdown("<br>", unsafe_allow_html=True)
     with st.expander("🛠️ ARSENAL PORTAL (UPLOAD & MANAGE INTEL)", expanded=False):
         st.markdown("""
-        <div style="background: #000; padding: 2rem; border: 5px dashed var(--deadpool-red); transform: rotate(-0.5deg);">
-            <p style="color: #fff; font-family: 'Bangers'; font-size: 1.8rem; text-align: center; margin-bottom: 1.5rem;">NEED MORE AMMO? DROP IT HERE!</p>
+        <div style="background: var(--dp-dark-gray); padding: 2rem; border: 3px dashed var(--dp-red-primary);">
+            <p style="color: var(--dp-white); font-family: 'Bangers'; font-size: 1.5rem; text-align: center; margin-bottom: 1rem;">NEED MORE AMMO? DROP IT HERE!</p>
         </div>
         """, unsafe_allow_html=True)
         uploaded_files_dash = st.file_uploader(
@@ -797,7 +752,7 @@ def show_home_page():
             st.session_state.uploaded_files_shared = uploaded_files_dash
             f_count = len(uploaded_files_dash)
             st.markdown(f"""
-            <div style="background: var(--deadpool-red); color: white; padding: 15px; border: 4px solid #fff; text-align: center; font-family: 'Bangers'; transform: rotate(1deg); box-shadow: 8px 8px 0px #000; margin: 1rem 0;">
+            <div style="background: var(--dp-red-primary); color: white; padding: 10px; border: 3px solid #fff; text-align: center; font-family: 'Bangers'; box-shadow: 5px 5px 0px #000; margin: 1rem 0;">
                 ✅ {f_count} NEW TARGETS DETECTED! PREPARE TO SLICE!
         </div>
         """, unsafe_allow_html=True)
@@ -837,13 +792,13 @@ def show_home_page():
         st.markdown("<h3 class='designer-header'>📊 MISSION INTEL</h3>", unsafe_allow_html=True)
         c1, c2, c3, c4 = st.columns(4)
         with c1: 
-            st.markdown(f'<div class="designer-card-red" style="text-align: center; padding: 1.5rem !important; border-width: 6px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">TOPICS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_topics"]}</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card-red" style="text-align: center; padding: 1.5rem !important; margin-bottom: 1rem !important;"><h4 style="font-size: 1rem; color: #fff; margin: 0;">TOPICS</h4><p style="font-size: 2.5rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_topics"]}</p></div>', unsafe_allow_html=True)
         with c2: 
-            st.markdown(f'<div class="designer-card-red" style="text-align: center; padding: 1.5rem !important; border-width: 6px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">CARDS</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_flashcards"]}</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card-red" style="text-align: center; padding: 1.5rem !important; margin-bottom: 1rem !important;"><h4 style="font-size: 1rem; color: #fff; margin: 0;">CARDS</h4><p style="font-size: 2.5rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_flashcards"]}</p></div>', unsafe_allow_html=True)
         with c3: 
-            st.markdown(f'<div class="designer-card-red" style="text-align: center; padding: 1.5rem !important; border-width: 6px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">QUIZZES</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_quizzes"]}</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card-red" style="text-align: center; padding: 1.5rem !important; margin-bottom: 1rem !important;"><h4 style="font-size: 1rem; color: #fff; margin: 0;">QUIZZES</h4><p style="font-size: 2.5rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["total_quizzes"]}</p></div>', unsafe_allow_html=True)
         with c4: 
-            st.markdown(f'<div class="designer-card-red" style="text-align: center; padding: 1.5rem !important; border-width: 6px !important; margin-bottom: 1rem !important;"><h4 class="designer-header" style="font-size: 1.2rem !important; padding: 5px 10px !important;">WIN RATE</h4><p style="font-size: 2rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["revision_stats"]["completion_rate"]:.1f}%</p></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="designer-card-red" style="text-align: center; padding: 1.5rem !important; margin-bottom: 1rem !important;"><h4 style="font-size: 1rem; color: #fff; margin: 0;">WIN RATE</h4><p style="font-size: 2.5rem; font-family: Bangers; color: #fff; margin: 0; text-shadow: 2px 2px 0px #000;">{stats["revision_stats"]["completion_rate"]:.1f}%</p></div>', unsafe_allow_html=True)
 
     st.divider()
 
@@ -854,25 +809,25 @@ def show_home_page():
         
         with col_topics:
             if p_result.get('topics'):
-                st.markdown("<h3 class='designer-header' style='font-size: 2.5rem;'>📚 WEAPONIZED TOPICS</h3>", unsafe_allow_html=True)
+                st.markdown("<h3 class='designer-header' style='font-size: 2rem;'>📚 WEAPONIZED TOPICS</h3>", unsafe_allow_html=True)
                 for idx, topic_data in enumerate(p_result['topics'][:5], 1):
                     with st.expander(f"🔴 {topic_data.get('topic', 'Topic').upper()}", expanded=(idx == 1)):
                         st.markdown(f"""
-                        <div style="background: #111; padding: 1.5rem; border-left: 8px solid var(--deadpool-red); margin-bottom: 10px; box-shadow: 5px 5px 0px #000;">
-                            {''.join([f"<p style='color: #eee; font-family: Oswald; margin-bottom: 8px;'>⚔️ {p}</p>" for p in topic_data.get('key_points', [])[:3]])}
+                        <div style="background: var(--dp-dark-gray); padding: 1.5rem; border-left: 4px solid var(--dp-red-primary); margin-bottom: 10px;">
+                            {''.join([f"<p style='color: var(--dp-text-muted); margin-bottom: 8px;'>⚔️ {p}</p>" for p in topic_data.get('key_points', [])[:3]])}
                         </div>
                         """, unsafe_allow_html=True)
         
         with col_samples:
-            st.markdown("<h3 class='designer-header' style='font-size: 2.5rem;'>📄 INTEL SNAPS</h3>", unsafe_allow_html=True)
+            st.markdown("<h3 class='designer-header' style='font-size: 2rem;'>📄 INTEL SNAPS</h3>", unsafe_allow_html=True)
             if p_result.get('flashcard_samples'):
                 with st.expander("📇 SAMPLE CARDS", expanded=True):
                     for fs in p_result['flashcard_samples'][:2]:
                         st.markdown(f"""
-                        <div style="background: #fff; padding: 1.5rem; border: 4px solid #000; margin-bottom: 15px; transform: rotate({random.uniform(-1.5, 1.5)}deg); box-shadow: 8px 8px 0px var(--deadpool-red);">
-                            <p style="color: #000; font-size: 1.1rem; font-family: Oswald; font-weight: bold; margin-bottom: 8px;"><b>Q:</b> {fs['question']}</p>
+                        <div style="background: #fff; padding: 1.5rem; border: 3px solid #000; margin-bottom: 15px; box-shadow: 6px 6px 0px var(--dp-red-primary);">
+                            <p style="color: #000; font-size: 1.1rem; font-weight: 700; margin-bottom: 8px;"><b>Q:</b> {fs['question']}</p>
                             <hr style="margin: 8px 0; border-color: #000; border-width: 2px;">
-                            <p style="color: #333; font-size: 1rem; font-family: Oswald;"><b>A:</b> {fs['answer']}</p>
+                            <p style="color: #333; font-size: 1rem;"><b>A:</b> {fs['answer']}</p>
                         </div>
                         """, unsafe_allow_html=True)
             
@@ -880,8 +835,8 @@ def show_home_page():
                 with st.expander("📝 SAMPLE CHALLENGES", expanded=False):
                     for qs in p_result['quiz_samples'][:2]:
                         st.markdown(f"""
-                        <div style="background: var(--deadpool-red); padding: 1.5rem; border: 4px solid #fff; margin-bottom: 15px; transform: rotate({random.uniform(-1.5, 1.5)}deg); box-shadow: 8px 8px 0px #000;">
-                            <p style="color: #fff; font-size: 1.1rem; font-family: Oswald; font-weight: bold; text-shadow: 1px 1px 0px #000;">{qs['question']}</p>
+                        <div style="background: var(--dp-red-primary); padding: 1.5rem; border: 3px solid #fff; margin-bottom: 15px; box-shadow: 6px 6px 0px #000;">
+                            <p style="color: #fff; font-size: 1.1rem; font-weight: 700;">{qs['question']}</p>
                         </div>
                         """, unsafe_allow_html=True)
 
@@ -892,12 +847,12 @@ def show_home_page():
             with st.expander(f"VIEW {len(p_result['chunks'])} KNOWLEDGE CHUNKS IN DETAIL"):
                 for i, chunk in enumerate(p_result['chunks']):
                     st.markdown(f"""
-                    <div class="designer-card" style="padding: 1.5rem !important; border-left: 10px solid var(--deadpool-red); margin-bottom: 1.5rem;">
+                    <div class="designer-card" style="padding: 1.5rem !important; border-left: 6px solid var(--dp-red-primary); margin-bottom: 1.5rem;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <span style="background: var(--deadpool-red); color: white; padding: 2px 10px; font-family: 'Bangers'; font-size: 0.9rem;">CHUNK #{i+1}</span>
-                            <span style="color: #aaa; font-size: 0.8rem; font-family: 'Oswald';">TOPIC: {chunk.get('metadata', {}).get('topic', 'General').upper()}</span>
+                            <span style="background: var(--dp-red-primary); color: white; padding: 2px 10px; font-family: 'Bangers'; font-size: 0.9rem;">CHUNK #{i+1}</span>
+                            <span style="color: var(--dp-text-muted); font-size: 0.8rem;">TOPIC: {chunk.get('metadata', {}).get('topic', 'General').upper()}</span>
                         </div>
-                        <p style="color: #fff; font-family: 'Oswald'; font-size: 1rem; line-height: 1.5; white-space: pre-wrap;">{chunk.get('text', '')}</p>
+                        <p style="color: var(--dp-white); font-size: 1rem; line-height: 1.6;">{chunk.get('text', '')}</p>
                     </div>
                     """, unsafe_allow_html=True)
         else:

@@ -184,45 +184,145 @@ Only return the JSON array, no additional text or explanation."""
         return self._simple_flashcard_generation(cleaned_chunks, target_difficulties)
     
     def _simple_flashcard_generation(self, cleaned_chunks: List[Dict], target_difficulties: List[str]) -> List[Dict]:
-        """Simple fallback flashcard generation honoring target difficulties"""
+        """Simple fallback flashcard generation honoring target difficulties with unique questions"""
         flashcards = []
         if not cleaned_chunks:
             return flashcards
         
-        # Cycle through chunks and difficulties
-        for idx, difficulty in enumerate(target_difficulties):
-            chunk = cleaned_chunks[idx % len(cleaned_chunks)]
-            text = chunk.get('text', '')
+        # Build a global pool of unique, high-quality sentences from all chunks
+        sentence_pool = []  # (sentence, topic, chunk_idx)
+        used_sentences = set()
+        
+        for chunk_idx, chunk in enumerate(cleaned_chunks):
             sentences = chunk.get('sentences', [])
             topic = chunk.get('metadata', {}).get('topic', 'General')
-            if len(sentences) < 2:
+            
+            for sent in sentences:
+                sent_clean = sent.strip()
+                sent_lower = sent_clean.lower()
+                
+                # Skip if too short or too long
+                if len(sent_clean) < 20 or len(sent_clean) > 200:
+                    continue
+                
+                # Skip header-like sentences
+                if re.match(r"^(lab|experiment|practical|assignment|project|ques|q\d|ans|a\d)", sent_lower):
+                    continue
+                
+                # Skip sentences with roll numbers
+                if re.search(r"\b\d{2}[A-Z]{2,4}\d{3,5}\b", sent_clean, re.IGNORECASE):
+                    continue
+                
+                # Skip if mostly numbers or special chars
+                alpha_ratio = sum(c.isalpha() for c in sent_clean) / max(len(sent_clean), 1)
+                if alpha_ratio < 0.5:
+                    continue
+                
+                # Skip duplicates (case-insensitive)
+                if sent_lower in used_sentences:
+                    continue
+                
+                used_sentences.add(sent_lower)
+                sentence_pool.append((sent_clean, topic, chunk_idx))
+        
+        # Question templates for variety
+        question_templates = [
+            "What is {}?",
+            "Explain {}.",
+            "Define {}.",
+            "Describe {}.",
+            "What do you understand by {}?",
+        ]
+        
+        # Generate flashcards using different sentences
+        used_question_seeds = set()
+        template_idx = 0
+        
+        for idx, difficulty in enumerate(target_difficulties):
+            if not sentence_pool:
+                break
+            
+            # Find an unused sentence for the question
+            question_sent = None
+            answer_parts = []
+            
+            for pool_idx, (sent, topic, chunk_idx) in enumerate(sentence_pool):
+                sent_key = sent.lower()[:50]
+                if sent_key not in used_question_seeds:
+                    question_sent = sent
+                    question_topic = topic
+                    used_question_seeds.add(sent_key)
+                    
+                    # Get neighboring sentences from same chunk for answer
+                    chunk = cleaned_chunks[chunk_idx]
+                    chunk_sentences = chunk.get('sentences', [])
+                    sent_idx = -1
+                    for si, s in enumerate(chunk_sentences):
+                        if s.strip() == sent:
+                            sent_idx = si
+                            break
+                    
+                    # Use next 1-2 sentences as answer context
+                    if sent_idx >= 0 and sent_idx + 1 < len(chunk_sentences):
+                        answer_parts = chunk_sentences[sent_idx+1:sent_idx+3]
+                    
+                    # Remove used sentence from pool
+                    sentence_pool.pop(pool_idx)
+                    break
+            
+            if not question_sent:
                 continue
             
-            question_seed = sentences[0][:140]
-            answer_seed = ' '.join(sentences[1:3]).strip() if len(sentences) > 1 else text[:220]
-            if not answer_seed:
-                answer_seed = "Review this concept."
+            # Create question with varied template
+            template = question_templates[template_idx % len(question_templates)]
+            template_idx += 1
+            
+            # Truncate question seed if too long
+            q_seed = question_sent[:100]
+            # Remove trailing punctuation for cleaner template insertion
+            q_seed = q_seed.rstrip('.,!?:;')
+            
+            question_text = template.format(q_seed)
+            
+            # Build answer
+            if answer_parts:
+                answer_seed = ' '.join(p.strip() for p in answer_parts if p.strip())
+            else:
+                answer_seed = question_sent  # Use the sentence itself as answer context
+            
             if len(answer_seed) > 240:
                 answer_seed = answer_seed[:240]
             if not answer_seed.endswith('.'):
                 answer_seed = answer_seed + '.'
             
-            question_text = f"What is {question_seed}?".strip()
-            if len(question_text) < 16 or len(answer_seed) < 24:
+            if len(question_text) < 16 or len(answer_seed) < 20:
                 continue
             
             flashcards.append({
                 'question': question_text,
                 'answer': answer_seed,
+                'topic': question_topic,
+                'difficulty': difficulty
+            })
+        
+        # If still short, create concept-based cards from remaining pool
+        while len(flashcards) < len(target_difficulties) and sentence_pool:
+            difficulty = target_difficulties[len(flashcards)]
+            sent, topic, _ = sentence_pool.pop(0)
+            
+            # Use a different approach - ask to explain the concept
+            flashcards.append({
+                'question': f"Explain the concept: {sent[:80]}",
+                'answer': f"{sent}. Review this topic for deeper understanding.",
                 'topic': topic,
                 'difficulty': difficulty
             })
         
-        # If still short, pad with generic reminders to reach target count
+        # Final padding if still short
         while len(flashcards) < len(target_difficulties):
             difficulty = target_difficulties[len(flashcards)]
             flashcards.append({
-                'question': "Review key concept?",
+                'question': f"Review key concept #{len(flashcards)+1}?",
                 'answer': "Focus on the most important definition or process in this topic.",
                 'topic': "General",
                 'difficulty': difficulty
@@ -245,34 +345,92 @@ Only return the JSON array, no additional text or explanation."""
         return counts
     
     def _strip_boilerplate(self, text: str) -> str:
-        """Remove boilerplate like copyright/ISBN/dates and trim length."""
+        """Remove boilerplate like copyright/ISBN/dates/headers and trim length."""
         if not text:
             return ""
         lines = []
         for line in text.splitlines():
             l = line.strip()
             l_lower = l.lower()
+            
+            # Skip common boilerplate keywords
             if any(keyword in l_lower for keyword in [
                 "copyright", "isbn", "rights reserved", "revision history", "first release", "typo updates",
-                "all rights reserved", "page ", "chapter "
+                "all rights reserved", "page ", "chapter ", "assignment", "submitted", "roll no", "enrollment"
             ]):
                 continue
+            
+            # Skip date patterns
             if re.match(r"^\d{4}-\d{2}-\d{2}", l):
                 continue
+            
+            # Skip all-caps headers
             if re.match(r"^[A-Z0-9 ,:-]{15,}$", l):
                 continue
+            
+            # Skip lab/assignment headers like "LAB-2", "Lab 1:", "Experiment 3"
+            if re.match(r"^(lab|experiment|practical|assignment|project)\s*[-:#]?\s*\d+", l_lower):
+                continue
+            
+            # Skip lines with student roll numbers (patterns like 24CD3049, 21BCE1234, etc.)
+            if re.search(r"\b\d{2}[A-Z]{2,4}\d{3,5}\b", l, re.IGNORECASE):
+                continue
+            
+            # Skip lines that are just names with roll numbers
+            if re.match(r"^[A-Za-z\s]+\d{2}[A-Z]{2,4}\d{3,5}", l, re.IGNORECASE):
+                continue
+            
+            # Skip very short lines that might be headers (e.g., "Ques:", "Q1:", "Ans:")
+            if re.match(r"^(ques|q\d*|ans|a\d*|question|answer)\s*[:.-]?\s*$", l_lower):
+                continue
+            
+            # Skip lines starting with "Ques" or just containing question markers
+            if re.match(r"^ques(tion)?\s*[:.-]?\s*\d*\s*$", l_lower):
+                continue
+            
             lines.append(l)
+        
         cleaned = " ".join(lines)
         # Collapse whitespace and truncate
         cleaned = re.sub(r"\s+", " ", cleaned).strip()
         return cleaned[:400]
     
     def _clean_and_split_sentences(self, text: str) -> List[str]:
-        """Split text into reasonable sentences, filtering very short fragments."""
+        """Split text into reasonable sentences, filtering headers and short fragments."""
         if not text:
             return []
-        sentences = [s.strip() for s in re.split(r'[.!?]', text) if len(s.strip()) > 4]
-        return sentences
+        
+        raw_sentences = re.split(r'[.!?]', text)
+        clean_sentences = []
+        
+        for s in raw_sentences:
+            s = s.strip()
+            s_lower = s.lower()
+            
+            # Skip too short
+            if len(s) < 15:
+                continue
+            
+            # Skip header patterns
+            if re.match(r"^(lab|experiment|practical|assignment|project)\s*[-:#]?\s*\d*", s_lower):
+                continue
+            
+            # Skip question/answer markers
+            if re.match(r"^(ques|q\d*|ans|a\d*|question|answer)\s*[:.-]?", s_lower):
+                continue
+            
+            # Skip lines with roll numbers
+            if re.search(r"\b\d{2}[A-Z]{2,4}\d{3,5}\b", s, re.IGNORECASE):
+                continue
+            
+            # Skip lines that are mostly just names
+            words = s.split()
+            if len(words) <= 3 and all(w[0].isupper() for w in words if w):
+                continue
+            
+            clean_sentences.append(s)
+        
+        return clean_sentences
     
     def save_flashcards(self, flashcards: List[Dict], file_path: str = "outputs/flashcards.json"):
         """Save flashcards to JSON file"""
