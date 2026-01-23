@@ -505,20 +505,23 @@ Only return the JSON array, no additional text or markdown formatting."""
         
         for i in range(min(num_questions, len(unique_words) // 2)):
             word = unique_words[i]
+            # Define the correct answer BEFORE shuffling
+            correct_answer = f"A concept related to {word}"
             options = [
-                f"A concept related to {word}",
+                correct_answer,
                 f"An unrelated technical term",
                 f"A different aspect of the study material",
                 f"A general principle not specific to {word}"
             ]
             random.shuffle(options)
-            correct = options[0]
+            # Find correct index AFTER shuffling
+            correct_index = options.index(correct_answer)
             
             questions.append({
                 'question': f"Which option best relates to '{word}' from the study material?",
                 'options': options,
-                'correct_answer': correct,
-                'correct_index': options.index(correct),
+                'correct_answer': correct_answer,
+                'correct_index': correct_index,
                 'topic': topic,
                 'difficulty': difficulty,
                 'explanation': f"This relates to the concept of {word} discussed in the material."

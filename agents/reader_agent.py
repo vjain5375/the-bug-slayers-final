@@ -269,7 +269,8 @@ Only return valid JSON, no additional text."""
         
         for i, para in enumerate(paragraphs[:10]):  # Limit to first 10 paragraphs
             # Look for topic indicators (headings, capitalized lines, etc.)
-            if len(para) < 200 and para.isupper() or para.endswith(':'):
+            # Fixed: Added parentheses to fix operator precedence
+            if len(para) < 200 and (para.isupper() or para.endswith(':')):
                 topic_name = para.strip(':').strip()
                 topics.append({
                     "topic": topic_name if topic_name else f"Topic {i+1}",
