@@ -32,12 +32,23 @@ class FlashcardAgent:
         self.logger = logging.getLogger(__name__)
         api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")
         if api_key:
-            self.llm = ChatGoogleGenerativeAI(
-                model="gemini-pro",
-                temperature=0.3,
-                google_api_key=api_key
-            )
-            self.logger.info("FlashcardAgent initialized with LLM")
+            # Try newest models first
+            model_names = ["gemini-2.0-flash-exp", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
+            self.llm = None
+            for model_name in model_names:
+                try:
+                    self.llm = ChatGoogleGenerativeAI(
+                        model=model_name,
+                        temperature=0.3,
+                        google_api_key=api_key
+                    )
+                    self.logger.info(f"FlashcardAgent initialized with LLM: {model_name}")
+                    break
+                except Exception as e:
+                    self.logger.debug(f"Failed to init {model_name}: {e}")
+                    continue
+            if not self.llm:
+                self.logger.warning("FlashcardAgent: All model initializations failed")
         else:
             self.llm = None
             self.logger.warning("FlashcardAgent initialized WITHOUT LLM - will use fallback generation")

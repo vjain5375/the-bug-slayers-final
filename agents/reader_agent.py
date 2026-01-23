@@ -45,11 +45,20 @@ class ReaderAgent:
         # Initialize LLM for topic classification
         api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")
         if api_key:
-            self.llm = ChatGoogleGenerativeAI(
-                model="gemini-pro",
-                temperature=0.1,
-                google_api_key=api_key
-            )
+            # Try newest models first
+            model_names = ["gemini-2.0-flash-exp", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
+            self.llm = None
+            for model_name in model_names:
+                try:
+                    self.llm = ChatGoogleGenerativeAI(
+                        model=model_name,
+                        temperature=0.1,
+                        google_api_key=api_key
+                    )
+                    print(f"ReaderAgent initialized with LLM: {model_name}")
+                    break
+                except Exception:
+                    continue
         else:
             self.llm = None
 

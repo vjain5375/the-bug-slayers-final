@@ -34,7 +34,19 @@ class DirectGenAIChat:
         if not GENAI_AVAILABLE:
             raise ImportError("google-generativeai not available")
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-pro')
+        # Try newest models first
+        model_names = ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro']
+        self.model = None
+        for model_name in model_names:
+            try:
+                self.model = genai.GenerativeModel(model_name)
+                logger.info(f"DirectGenAIChat using model: {model_name}")
+                break
+            except Exception:
+                continue
+        if not self.model:
+            # Final fallback
+            self.model = genai.GenerativeModel('gemini-pro')
     
     def invoke(self, messages):
         # Convert langchain messages to simple text
