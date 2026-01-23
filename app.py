@@ -316,7 +316,7 @@ st.markdown("""
         font-weight: 700;
     }
 </style>
-""", unsafe_allow_html=True), unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # --- HELPER FUNCTIONS ---
 def process_documents():
