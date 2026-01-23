@@ -34,8 +34,8 @@ class DirectGenAIChat:
         if not GENAI_AVAILABLE:
             raise ImportError("google-generativeai not available")
         genai.configure(api_key=api_key)
-        # Try newest models first
-        model_names = ['gemini-2.0-flash-exp', 'gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro']
+        # Try stable Gemini 1.5 models (Gemini 2.0 discontinued)
+        model_names = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro']
         self.model = None
         for model_name in model_names:
             try:
@@ -81,13 +81,11 @@ class ChatAgent:
                 except Exception:
                     pass
             
-            # Try multiple model names in order of preference (newest first)
+            # Try stable Gemini 1.5 models (Gemini 2.0 discontinued)
             model_names = [
-                "gemini-2.0-flash-exp",
                 "gemini-1.5-flash",
                 "gemini-1.5-pro",
                 "gemini-pro",
-                "models/gemini-2.0-flash-exp", 
                 "models/gemini-1.5-flash",
                 "models/gemini-1.5-pro",
                 "models/gemini-pro"

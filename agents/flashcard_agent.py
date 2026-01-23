@@ -32,8 +32,8 @@ class FlashcardAgent:
         self.logger = logging.getLogger(__name__)
         api_key = os.getenv("GOOGLE_API_KEY") or os.getenv("OPENAI_API_KEY")
         if api_key:
-            # Try newest models first
-            model_names = ["gemini-2.0-flash-exp", "gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
+            # Try stable Gemini 1.5 models (Gemini 2.0 discontinued)
+            model_names = ["gemini-1.5-flash", "gemini-1.5-pro", "gemini-pro"]
             self.llm = None
             for model_name in model_names:
                 try:
